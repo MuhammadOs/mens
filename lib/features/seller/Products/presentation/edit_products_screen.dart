@@ -22,12 +22,12 @@ class EditProductScreen extends HookConsumerWidget {
     final l10n = ref.watch(l10nProvider);
     final theme = Theme.of(context);
 
-    // Fetch initial product data using the ID-specific provider
+    // 1. Fetch initial product data using the ID-specific provider
     final productAsyncValue = ref.watch(productByIdProvider(productId));
 
-    // Watch the separate notifier for the *status* of update operations
+    // 2. Watch the separate notifier for the *status* of update operations
     final editOperationState = ref.watch(editProductNotifierProvider);
-    // Read the notifier to trigger update actions
+    // 3. Read the notifier to trigger update actions
     final editNotifier = ref.read(editProductNotifierProvider.notifier);
 
     // --- Controllers ---
@@ -35,7 +35,7 @@ class EditProductScreen extends HookConsumerWidget {
     final descriptionController = useTextEditingController();
     final priceController = useTextEditingController();
     final stockController = useTextEditingController();
-    // State hook for the selected subcategory ID (independent of initial load)
+    // State hook for the selected subcategory ID
     final selectedSubCategoryId = useState<int?>(null);
 
     // --- Image State ---
@@ -44,43 +44,35 @@ class EditProductScreen extends HookConsumerWidget {
     final primaryImageIndex = useState<int>(0); // Track which image is marked as primary
 
     // --- Functions ---
-    // Pick new images and add them to the state list
     Future<void> pickImages() async {
       final List<XFile> pickedFiles = await imagePicker.pickMultiImage();
       if (pickedFiles.isNotEmpty) {
-        // Avoid adding duplicates if user picks the same file again
         final currentPaths = images.value.whereType<XFile>().map((f) => f.path).toSet();
         final newUniqueFiles = pickedFiles.where((f) => !currentPaths.contains(f.path)).toList();
         images.value = [...images.value, ...newUniqueFiles];
       }
     }
 
-    // Remove an image (either URL or XFile) from the list
     void removeImage(int index) {
-       final newList = List.from(images.value)..removeAt(index);
-       images.value = newList;
-       // Reset primary index if the removed image was primary or beyond the new list length
-       if (primaryImageIndex.value >= images.value.length) {
-          primaryImageIndex.value = 0;
-       }
+      final newList = List.from(images.value)..removeAt(index);
+      images.value = newList;
+      if (primaryImageIndex.value >= images.value.length) {
+        primaryImageIndex.value = 0;
+      }
     }
 
-    // Set the primary image index
     void setPrimaryImage(int index) {
-        primaryImageIndex.value = index;
+      primaryImageIndex.value = index;
     }
 
     // --- State Listener for Operation Status ---
-    // Show messages after update attempts
     ref.listen(editProductNotifierProvider, (previous, next) {
-      final bool wasLoading = previous is AsyncLoading; // Check previous state safely
+      final bool wasLoading = previous is AsyncLoading; // Check if previous state was loading
 
       if (wasLoading && next is AsyncData) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Product updated!"), backgroundColor: Colors.green), // TODO: Localize
         );
-        // Optionally pop after successful save
-        // if(context.mounted) context.pop();
       } else if (wasLoading && next is AsyncError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error updating: ${next.error}"), backgroundColor: Colors.red), // TODO: Localize
@@ -93,7 +85,7 @@ class EditProductScreen extends HookConsumerWidget {
       appBar: AppBar(
         title: Text("Edit Product"), // TODO: Localize
         actions: [
-          // Show loading indicator or Save button based on the OPERATION state
+          // Show loading indicator based on the OPERATION state
           editOperationState.isLoading
               ? const Padding(
                   padding: EdgeInsets.all(16.0),
@@ -103,27 +95,24 @@ class EditProductScreen extends HookConsumerWidget {
                   icon: const Icon(Icons.check),
                   onPressed: () async {
                     // --- SAVE LOGIC ---
-                    // Get the currently loaded product data directly
                     final currentProductData = productAsyncValue.value;
                     if (currentProductData == null) return; // Don't save if initial data isn't loaded
 
-                    // TODO: Add form validation using a Form widget + GlobalKey if needed
+                    // TODO: Add form validation
 
                     final List<XFile> newImagesToUpload = images.value.whereType<XFile>().toList();
                     final List<String> existingImageUrls = images.value.whereType<String>().toList();
-
-                    // Determine if images section needs updating
                     final bool imagesChanged = newImagesToUpload.isNotEmpty ||
-                         existingImageUrls.length != currentProductData.imageUrls.length ||
-                         primaryImageIndex.value != 0; // Simplistic check, assumes 0 is default
+                        existingImageUrls.length != currentProductData.imageUrls.length ||
+                        primaryImageIndex.value != 0; 
 
                     bool detailsSuccess = true;
                     bool imagesSuccess = true;
 
-                    // 1. Update Text Details using the editNotifier, passing productId
+                    // 1. Update Text Details
                     try {
                       await editNotifier.updateDetails(
-                        productId: productId, // Pass the correct product ID
+                        productId: productId, // Pass the product ID
                         name: nameController.text,
                         description: descriptionController.text,
                         price: double.tryParse(priceController.text) ?? 0.0,
@@ -133,44 +122,38 @@ class EditProductScreen extends HookConsumerWidget {
                     } catch (e) {
                       detailsSuccess = false;
                       print("Error during updateDetails call: $e");
-                      // Error is handled by the listener, no need to show SnackBar here
                     }
 
-                    // 2. Update Images if details update succeeded and images changed
+                    // 2. Update Images if details succeeded and images changed
                     if (detailsSuccess && imagesChanged) {
-                       // Only send new files if your API replaces all images
-                       if (newImagesToUpload.isNotEmpty) {
-                         try {
-                            await editNotifier.updateImages(
-                              productId: productId, // Pass the correct product ID
-                              images: newImagesToUpload,
-                              primaryImageIndex: primaryImageIndex.value,
-                            );
-                         } catch (e) {
-                            imagesSuccess = false;
-                            print("Error during updateImages call: $e");
-                         }
-                       } else if (existingImageUrls.isEmpty) {
-                         // Handle case where all images were removed
-                         try {
-                           // Assuming updateImages with empty list removes all
-                           await editNotifier.updateImages(productId: productId, images: [], primaryImageIndex: 0);
-                         } catch (e) {
-                           imagesSuccess = false;
-                           print("Error during updateImages (removing all): $e");
-                         }
-                         print("All images removed.");
-                       } else {
-                         // Handle case where only primary index or order might have changed
-                         // Requires API support or sending all existing URLs again with new index
-                         print("Only primary index/order changed - Check API requirements.");
-                         // Example: await editNotifier.updateImageOrderOrPrimary(productId, existingImageUrls, primaryImageIndex.value);
-                       }
+                      if (newImagesToUpload.isNotEmpty) {
+                        try {
+                          await editNotifier.updateImages(
+                            productId: productId, // Pass the product ID
+                            images: newImagesToUpload,
+                            primaryImageIndex: primaryImageIndex.value,
+                          );
+                        } catch (e) {
+                          imagesSuccess = false;
+                          print("Error during updateImages call: $e");
+                        }
+                      } else if (existingImageUrls.isEmpty) {
+                        // Handle all images removed
+                        try {
+                          await editNotifier.updateImages(productId: productId, images: [], primaryImageIndex: 0);
+                        } catch (e) {
+                          imagesSuccess = false;
+                        }
+                      } else {
+                        // Handle only primary index/order change
+                        print("Only primary index/order changed - Check API requirements.");
+                        // You might need a separate notifier method here if the API is different
+                      }
                     }
 
-                    // Optionally pop only if everything succeeded
+                    // Pop only if everything succeeded
                     if (detailsSuccess && imagesSuccess && context.mounted) {
-                       context.pop(); // Go back after successful save
+                      context.pop();
                     }
                   },
                 ),
@@ -178,61 +161,53 @@ class EditProductScreen extends HookConsumerWidget {
       ),
       // Use AsyncValue.when for the INITIAL PRODUCT data loading
       body: productAsyncValue.when(
-        skipLoadingOnRefresh: false, // Show loading on initial fetch/refresh
+        skipLoadingOnRefresh: false,
         data: (product) {
           // --- Pre-fill controllers and image state using useEffect ---
-          // This runs when the 'product' data initially loads or changes.
           useEffect(() {
-            print("useEffect triggered: Populating fields for product ID: ${product.id}");
             nameController.text = product.name;
             descriptionController.text = product.description;
             priceController.text = product.price.toStringAsFixed(2);
             stockController.text = product.stockQuantity.toString();
-            // Only set the subcategory state hook if it hasn't been set by user interaction yet
-            // or if the product data itself has changed fundamentally (new product loaded).
-            // A simple check like this prevents overwriting user's dropdown changes during rebuilds.
-            if (selectedSubCategoryId.value == null || selectedSubCategoryId.value != product.subCategoryId) {
-                selectedSubCategoryId.value = product.subCategoryId;
+            
+            // Only set subcategory from product data if user hasn't changed it
+            if (selectedSubCategoryId.value == null) {
+              selectedSubCategoryId.value = product.subCategoryId;
             }
-
-            // Initialize image list only once or if the product ID changes
-            // This prevents overwriting picked images during rebuilds caused by state changes
-            final isInitialLoad = images.value.isEmpty && product.imageUrls.isNotEmpty;
-            if (isInitialLoad) {
-                 images.value = List<dynamic>.from(product.imageUrls);
-                 primaryImageIndex.value = 0; // Reset primary index
+            
+            // Only set images from product data on the very first load
+            if (images.value.isEmpty && product.imageUrls.isNotEmpty) {
+              images.value = List<dynamic>.from(product.imageUrls);
+              primaryImageIndex.value = 0;
             }
-
-            return null; // No cleanup needed
-          // Dependency: Re-run if the product object instance changes.
-          }, [product]);
+            return null; 
+          }, [product]); // Re-run if the 'product' object changes
 
           // --- UI ---
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Form(
-              // key: formKey, // Add key if using validation
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // --- Form Fields ---
                   CustomTextField(labelText: l10n.productName, controller: nameController),
                   const SizedBox(height: 16),
+                  
                   // Category Dropdown
                   Consumer(builder: (context, ref, _) {
-                    // Fetch subcategories based on the *product's main category ID*
                     final subCategoriesAsync = ref.watch(subCategoriesProvider(product.categoryId));
                     return subCategoriesAsync.when(
                       data: (subCats) {
                         final dropdownItems = subCats.map((cat) => DropdownMenuItem(value: cat.id, child: Text(cat.name))).toList();
-                        // Validate current selection
-                        final isValidValue = subCats.any((cat) => cat.id == selectedSubCategoryId.value);
+                        
                         // Use the state hook value for the dropdown
+                        final isValidValue = subCats.any((cat) => cat.id == selectedSubCategoryId.value);
                         final dropdownValue = isValidValue ? selectedSubCategoryId.value : null;
 
                         return CustomDropdownField<int>(
                           key: ValueKey('subcategory_edit_${dropdownValue ?? 'null'}'),
-                          labelText: l10n.category, // Or SubCategory?
+                          labelText: l10n.category,
                           hintText: l10n.categoryHint,
                           value: dropdownValue,
                           items: dropdownItems,
@@ -268,7 +243,7 @@ class EditProductScreen extends HookConsumerWidget {
                   Text(l10n.productImage, style: theme.textTheme.titleMedium),
                   const SizedBox(height: 8),
                   SizedBox(
-                    height: 100, // Adjust height as needed
+                    height: 100,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: images.value.length + 1, // +1 for add button
@@ -312,9 +287,9 @@ class EditProductScreen extends HookConsumerWidget {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(9), // Inner radius smaller than container
-                                    child: item is XFile // Check if it's a new file or existing URL
+                                    child: item is XFile // Check if it's a new file (XFile)
                                         ? Image.file(File(item.path), width: 94, height: 94, fit: BoxFit.cover)
-                                        : Image.network(item as String, width: 94, height: 94, fit: BoxFit.cover,
+                                        : Image.network(item as String, width: 94, height: 94, fit: BoxFit.cover, // Or an existing URL (String)
                                             errorBuilder: (c,e,s) => Container(
                                               width: 94, height: 94, color: Colors.grey[300],
                                               child: Icon(Icons.broken_image, color: Colors.grey[600])
@@ -353,22 +328,21 @@ class EditProductScreen extends HookConsumerWidget {
            child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Form(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align labels left
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 // Mimic form structure
                  Bone.text(width: 120), const SizedBox(height: 8), Bone(height: 50, borderRadius: BorderRadius.circular(12)), const SizedBox(height: 16),
-                 Bone.text(width: 100), const SizedBox(height: 8), Bone(height: 50, borderRadius: BorderRadius.circular(12)), const SizedBox(height: 16), // Dropdown
-                 Bone.text(width: 100), const SizedBox(height: 8), Bone(height: 100, borderRadius: BorderRadius.circular(12)), const SizedBox(height: 16), // Description
-                 Row(children: [ Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Bone.text(width: 50), const SizedBox(height: 8), Bone(height: 50, borderRadius: BorderRadius.circular(12))])), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Bone.text(width: 50), const SizedBox(height: 8), Bone(height: 50, borderRadius: BorderRadius.circular(12))])) ]), // Price & Stock
+                 Bone.text(width: 100), const SizedBox(height: 8), Bone(height: 50, borderRadius: BorderRadius.circular(12)), const SizedBox(height: 16),
+                 Bone.text(width: 100), const SizedBox(height: 8), Bone(height: 100, borderRadius: BorderRadius.circular(12)), const SizedBox(height: 16),
+                 Row(children: [ Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Bone.text(width: 50), const SizedBox(height: 8), Bone(height: 50, borderRadius: BorderRadius.circular(12))])), const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Bone.text(width: 50), const SizedBox(height: 8), Bone(height: 50, borderRadius: BorderRadius.circular(12))])) ]),
                  const SizedBox(height: 24),
-                 Bone.text(width: 150), const SizedBox(height: 8), // Images label
-                 SizedBox(height: 100, child: ListView(scrollDirection: Axis.horizontal, children: List.generate(4, (index) => Padding(padding: const EdgeInsets.only(right: 8.0), child: Bone(width: 100, height: 100, borderRadius: BorderRadius.circular(12)))))), // Image list placeholder
+                 Bone.text(width: 150), const SizedBox(height: 8),
+                 SizedBox(height: 100, child: ListView(scrollDirection: Axis.horizontal, children: List.generate(4, (index) => Padding(padding: const EdgeInsets.only(right: 8.0), child: Bone(width: 100, height: 100, borderRadius: BorderRadius.circular(12)))))),
               ],
             )),
           ),
         ),
         // --- Error State ---
-        error: (e, st) => Center( // Show error if initial product load fails
+        error: (e, st) => Center(
            child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text("Error loading product: $e", style: TextStyle(color: theme.colorScheme.error)), // TODO: Localize

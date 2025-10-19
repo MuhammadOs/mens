@@ -7,7 +7,7 @@ import 'package:mens/features/seller/Products/data/product_repository.dart';
 typedef EditProductOperationState = AsyncValue<void>;
 
 /// Provider for the EditProductNotifier.
-/// It no longer needs to be a family provider as it doesn't fetch initial data.
+/// This provider is watched by the UI to see if a save operation is in progress.
 final editProductNotifierProvider =
     NotifierProvider<EditProductNotifier, EditProductOperationState>(
   EditProductNotifier.new,
@@ -15,7 +15,7 @@ final editProductNotifierProvider =
 
 /// Notifier responsible for triggering product updates (details and images).
 class EditProductNotifier extends Notifier<EditProductOperationState> {
-  /// Initial state is idle.
+  /// Initial state is idle (data(null)).
   @override
   EditProductOperationState build() {
     return const AsyncValue.data(null);
@@ -23,7 +23,6 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
 
   /// Updates the product's text details via the API.
   Future<void> updateDetails({
-    // Need productId to know which product to update
     required int productId,
     required String name,
     required String description,
@@ -36,6 +35,8 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
     try {
       // Access the repository using ref.read inside the method.
       final repository = ref.read(productRepositoryProvider);
+      
+      // Await the API call
       await repository.updateProductDetails(
         productId: productId,
         name: name,
@@ -44,13 +45,14 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
         stockQuantity: stockQuantity,
         subCategoryId: subCategoryId,
       );
+      
       // If successful, set state back to idle (data(null)).
       state = const AsyncValue.data(null);
       print("Product details update successful.");
-      // Invalidate providers to trigger UI refresh elsewhere if needed.
-      ref.invalidate(productsProvider);
-      // Invalidate the specific product provider to force refetch on edit screen if desired
-      ref.invalidate(productByIdProvider(productId));
+
+      // Invalidate providers to trigger UI refresh elsewhere
+      ref.invalidate(productsProvider); // Refreshes the main product list
+      ref.invalidate(productByIdProvider(productId)); // Refreshes the details on this screen
     } catch (e, st) {
       // If an error occurs, set the state to error.
       print("Error updating product details: $e");
@@ -60,7 +62,6 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
 
   /// Updates the product's images via the API.
   Future<void> updateImages({
-    // Need productId to know which product to update
     required int productId,
     required List<XFile> images,
     int primaryImageIndex = 0,
@@ -69,17 +70,19 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
     state = const AsyncValue.loading();
     try {
       final repository = ref.read(productRepositoryProvider);
-      // Call the repository method. We don't need the returned URLs here,
-      // as the state only tracks the operation status.
+      
+      // Call the repository method.
       await repository.updateProductImages(
         productId: productId,
         images: images,
         primaryImageIndex: primaryImageIndex,
       );
+
       // If successful, set state back to idle.
       state = const AsyncValue.data(null);
       print("Product images update successful.");
-      // Invalidate providers.
+
+      // Invalidate providers to refetch data with new images
       ref.invalidate(productsProvider);
       ref.invalidate(productByIdProvider(productId));
     } catch (e, st) {

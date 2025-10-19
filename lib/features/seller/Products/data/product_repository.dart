@@ -10,10 +10,8 @@ import 'package:mens/features/seller/Products/domain/product.dart'; // Provides 
 abstract class ProductRepository {
   /// Fetches a list of products for the store, optionally filtered by category/subcategory.
   Future<List<Product>> getProducts({int? categoryId, int? subCategoryId});
-
   /// Fetches details for a single product by its ID.
   Future<Product> getProductById(int productId);
-
   /// Adds a new product to the store.
   Future<void> addProduct({
     required String name,
@@ -25,7 +23,6 @@ abstract class ProductRepository {
     List<String>? imageAltTexts,
     int primaryImageIndex = 0,
   });
-
   /// Updates the text details of an existing product.
   Future<void> updateProductDetails({
     required int productId,
@@ -35,7 +32,6 @@ abstract class ProductRepository {
     required int stockQuantity,
     required int subCategoryId,
   });
-
   /// Updates the images associated with an existing product.
   Future<List<String>> updateProductImages({
     required int productId,
@@ -43,6 +39,7 @@ abstract class ProductRepository {
     int primaryImageIndex = 0,
     List<String>? imageAltTexts,
   });
+  Future<void> deleteProduct(int productId);
 }
 
 // --- Provider for the Repository Implementation ---
@@ -113,13 +110,9 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Product> getProductById(int productId) async {
     // Get storeId (assuming endpoint requires store context, e.g., /stores/{storeId}/products/{productId})
     // If endpoint is just /products/{productId}, remove storeId logic.
-    final userProfile = _ref.read(authNotifierProvider).asData?.value;
-    final storeId = userProfile?.store?.id;
-    if (storeId == null) throw Exception('Store ID not found.');
-
     try {
       // Adjust endpoint if necessary based on your API design
-      final response = await _dio.get('/stores/$storeId/products/$productId');
+      final response = await _dio.get('/products/$productId');
       // OR: final response = await _dio.get('/products/$productId');
 
       if (response.statusCode == 200 && response.data != null) {
@@ -228,7 +221,7 @@ class ProductRepositoryImpl implements ProductRepository {
     required int subCategoryId,
   }) async {
     try {
-      final response = await _dio.put(
+      final response = await _dio.patch(
         // Use PUT (or PATCH if API supports partial updates)
         '/products/$productId',
         data: {
@@ -326,6 +319,32 @@ class ProductRepositoryImpl implements ProductRepository {
     } catch (e) {
       print("Unexpected error updating images: $e");
       throw Exception('An unexpected error occurred while updating images.');
+    }
+  }
+
+  @override
+  Future<void> deleteProduct(int productId) async {
+    try {
+      final response = await _dio.delete(
+        '/products/$productId', // Use the DELETE method
+      );
+
+      // Check for 200 (OK) or 204 (No Content) status
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to delete product: ${response.statusCode}');
+      }
+      print("Product $productId deleted successfully.");
+
+    } on DioException catch (e) {
+      String errorMessage = 'Network error deleting product.';
+      if (e.response != null) {
+        errorMessage = e.response!.data?['message'] ?? 'Delete failed: ${e.response!.statusCode}';
+      }
+      print("DioException deleting product: $errorMessage");
+      throw Exception(errorMessage);
+    } catch (e) {
+      print("Unexpected error deleting product: $e");
+      throw Exception('An unexpected error occurred while deleting.');
     }
   }
 }

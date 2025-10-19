@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
-part 'product.g.dart'; // Name of the generated file
+part 'product.g.dart';
 
 @JsonSerializable()
 class Product {
@@ -25,7 +24,7 @@ class Product {
     required this.name,
     required this.description,
     required this.price,
-    required this.stockQuantity, // ✅ CHANGED
+    required this.stockQuantity,
     required this.categoryId,
     required this.categoryName,
     required this.subCategoryId,

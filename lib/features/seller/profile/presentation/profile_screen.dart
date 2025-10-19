@@ -34,7 +34,7 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            userProfile?.store?.brandName ?? "Store Name",
+            userProfile?.store?.brandName ?? "Brand Name",
             style: theme.textTheme.titleLarge,
           ),
           Text(
