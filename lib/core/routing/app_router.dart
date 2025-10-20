@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mens/features/admin/presentation/admin_home_screen.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/auth/presentation/signin/signin_screen.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const settings = '/settings';
   static const register = '/register';
   static const home = '/home';
+  static const adminHome = '/admin/home';
   static const products = '/products';
   static const addProduct = '/addProduct';
   static const orders = '/orders';
@@ -53,6 +55,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminHome,
+        builder: (context, state) => const AdminHomeScreen(),
       ),
       GoRoute(
         path: AppRoutes.products,
@@ -95,8 +101,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final productId = int.tryParse(state.pathParameters['id'] ?? '');
           if (productId == null) {
-             // Handle error: redirect or show not found page
-             return Scaffold(body: Center(child: Text("Invalid Product ID")));
+            // Handle error: redirect or show not found page
+            return Scaffold(body: Center(child: Text("Invalid Product ID")));
           }
           return EditProductScreen(productId: productId);
         },
@@ -111,7 +117,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final bool isLoggedIn = authNotifier.isLoggedIn; // Use the getter
 
       final location = state.matchedLocation;
-      final isGoingToAuthRoute = (location == AppRoutes.signIn || location == AppRoutes.register);
+      final isGoingToAuthRoute =
+          (location == AppRoutes.signIn || location == AppRoutes.register);
 
       // --- NEWER, STRICTER REDIRECTION RULES ---
 
@@ -125,15 +132,32 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 2. Handle errors explicitly: If there's an error state AND the user isn't logged in,
       //    ensure they are on or going to an auth route. If not, send to signIn.
       if (authState is AsyncError && !isLoggedIn && !isGoingToAuthRoute) {
-          print("Redirect: Auth error, not logged in, not going to auth -> to signIn");
-          return AppRoutes.signIn;
+        print(
+          "Redirect: Auth error, not logged in, not going to auth -> to signIn",
+        );
+        return AppRoutes.signIn;
       }
 
       // 3. If NOT logged in (and not loading/error handled above)
       //    AND trying to access a protected route -> redirect to signIn.
       if (!isLoggedIn && !isGoingToAuthRoute) {
         print("Redirect: Not logged in, not going to auth -> to signIn");
-        return AppRoutes.signIn;
+        final userRole = authState.asData?.value?.role;
+
+        // --- ROLE-BASED REDIRECT LOGIC ---
+        if (userRole == 'Admin') {
+          // If admin is logged in and tries to go to a seller route, redirect to admin home
+          if (location == AppRoutes.home || isGoingToAuthRoute) {
+            return AppRoutes.adminHome;
+          }
+        } else if (userRole == 'StoreOwner') {
+          // If seller is logged in and tries to go to an admin route, redirect to seller home
+          if (location == AppRoutes.adminHome || isGoingToAuthRoute) {
+            return AppRoutes.home;
+          }
+        }
+
+        return null;
       }
 
       // 4. If IS logged in AND trying to access an auth route -> redirect to home.
