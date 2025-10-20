@@ -428,4 +428,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get invalidStock => 'المخزون غير صالح';
+
+  @override
+  String get contactUsTitle => 'تواصل معنا';
+
+  @override
+  String get typeYourMessage => 'اكتب رسالتك...';
+
+  @override
+  String get send => 'إرسال';
+
+  @override
+  String get noMessagesYet => 'لا توجد رسائل بعد. ابدأ المحادثة!';
+
+  @override
+  String get messageSentSuccess => 'تم إرسال الرسالة بنجاح!';
+
+  @override
+  String get errorSendingMessage => 'فشل إرسال الرسالة.';
 }

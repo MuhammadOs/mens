@@ -36,7 +36,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPageTitle => 'Sign In';
 
   @override
-  String get emailLabel => 'Email / Phone Number';
+  String get emailLabel => 'Email';
 
   @override
   String get emailHint => 'Enter your email or phone number';
@@ -427,4 +427,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidStock => 'Invalid Stock';
+
+  @override
+  String get contactUsTitle => 'Contact Us';
+
+  @override
+  String get typeYourMessage => 'Type your message...';
+
+  @override
+  String get send => 'Send';
+
+  @override
+  String get noMessagesYet => 'No messages yet. Start the conversation!';
+
+  @override
+  String get messageSentSuccess => 'Message sent successfully!';
+
+  @override
+  String get errorSendingMessage => 'Failed to send message.';
 }

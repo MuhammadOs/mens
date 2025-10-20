@@ -8,6 +8,7 @@ part of 'store.dart';
 
 Store _$StoreFromJson(Map<String, dynamic> json) => Store(
   id: (json['id'] as num).toInt(),
+  ownerId: (json['ownerId'] as num).toInt(),
   brandName: json['brandName'] as String,
   brandImage: json['brandImage'] as String?,
   brandDescription: json['brandDescription'] as String?,
@@ -22,6 +23,7 @@ Store _$StoreFromJson(Map<String, dynamic> json) => Store(
 
 Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
   'id': instance.id,
+  'ownerId': instance.ownerId,
   'brandName': instance.brandName,
   'brandImage': instance.brandImage,
   'brandDescription': instance.brandDescription,

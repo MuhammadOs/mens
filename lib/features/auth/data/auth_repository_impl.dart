@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mens/features/auth/domain/auth_respository.dart';
 import 'package:mens/features/auth/notifiers/register_notifier.dart';
+import 'package:mens/features/seller/profile/notifiers/edit_profile_notifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mens/core/services/api_service.dart';
 import 'package:mens/features/auth/domain/user_profile.dart';
@@ -206,6 +207,53 @@ class AuthRepositoryImpl implements AuthRepository {
         print("Unexpected error fetching user data: $e");
       }
       throw Exception('An unexpected error occurred while fetching user data.');
+    }
+  }
+
+  @override
+  Future<void> updateProfile(UserProfileData data) async {
+    try {
+      // ✅ HELPER FUNCTION: Convert empty strings to null
+      String? valueOrNull(String? value) {
+        return (value == null || value.isEmpty) ? null : value;
+      }
+
+      // Create the request body, converting empty strings to null
+      final requestData = {
+        'firstName': valueOrNull(data.firstName),
+        'lastName': valueOrNull(data.lastName),
+        'phoneNumber': valueOrNull(data.phone),
+        'nationalId': valueOrNull(data.nationalId),
+        'birthDate': data.birthDate?.toIso8601String(),
+      };
+
+      if (kDebugMode) {
+        print("Updating profile with data: $requestData");
+      }
+
+      final response = await _dio.put('/users/me', data: requestData);
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception(
+          'Failed to update profile: ${response.data?['message']}',
+        );
+      }
+
+      print("Profile updated successfully!");
+
+      await getUserData(forceRefresh: true);
+    } on DioException catch (e) {
+      String errorMessage = 'Network error updating profile.';
+      if (e.response != null) {
+        errorMessage =
+            e.response!.data?['message'] ??
+            'Update failed: ${e.response!.statusCode}';
+      }
+      print("DioException updating profile: $errorMessage");
+      throw Exception(errorMessage);
+    } catch (e) {
+      print("Unexpected error updating profile: $e");
+      throw Exception('An unexpected error occurred.');
     }
   }
 

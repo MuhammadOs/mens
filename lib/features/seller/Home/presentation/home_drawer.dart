@@ -95,6 +95,25 @@ class HomeDrawer extends ConsumerWidget {
                     context.push(AppRoutes.helpSupport);
                   },
                 ),
+                ListTile(
+                  leading: Icon(
+                    Icons.contact_mail_outlined,
+                    color: colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                  title: Text(
+                    l10n.contactUsTitle,
+                    style: TextStyle(color: colorScheme.onSurface),
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                  onTap: () {
+                    context.pop();
+                    context.push(AppRoutes.contactUs);
+                  },
+                ),
                 const SizedBox(height: 16),
                 _buildSectionHeader(context, l10n.drawerFollowUs),
                 const SizedBox(height: 8),

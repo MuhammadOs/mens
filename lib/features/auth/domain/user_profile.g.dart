@@ -20,6 +20,9 @@ UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile(
   role: json['role'] as String,
   emailConfirmed: json['emailConfirmed'] as bool,
   createdAt: DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
   store: json['store'] == null
       ? null
       : Store.fromJson(json['store'] as Map<String, dynamic>),
@@ -33,10 +36,11 @@ Map<String, dynamic> _$UserProfileToJson(UserProfile instance) =>
       'lastName': instance.lastName,
       'fullName': instance.fullName,
       'phoneNumber': instance.phoneNumber,
+      'nationalId': instance.nationalId,
+      'birthDate': instance.birthDate?.toIso8601String(),
       'role': instance.role,
       'emailConfirmed': instance.emailConfirmed,
       'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
       'store': instance.store?.toJson(),
-      'nationalId': instance.nationalId,
-      'birthDate': instance.birthDate?.toIso8601String(),
     };

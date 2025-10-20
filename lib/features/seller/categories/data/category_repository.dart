@@ -93,5 +93,5 @@ final subCategoriesProvider = FutureProvider.family<List<SubCategory>, int>((
 
 final categoriesProvider = FutureProvider<List<Category>>((ref) async {
   final repository = ref.watch(categoryRepositoryProvider);
-  return repository.getCategories();
+  return repository.getCategories(); // Fetches GET /api/categories
 });

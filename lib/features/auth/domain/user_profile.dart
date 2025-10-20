@@ -1,5 +1,7 @@
+import 'dart:convert';
+
 import 'package:json_annotation/json_annotation.dart';
-import 'store.dart'; // ✅ Import the new Store model
+import 'store.dart';
 
 part 'user_profile.g.dart';
 
@@ -11,12 +13,14 @@ class UserProfile {
   final String lastName;
   final String fullName;
   final String? phoneNumber;
+  final String? nationalId;
+  final DateTime? birthDate;
   final String role;
   final bool emailConfirmed;
   final DateTime createdAt;
+  final DateTime? updatedAt;
   final Store? store;
-  final String? nationalId;
-  final DateTime? birthDate;
+
   UserProfile({
     required this.userId,
     required this.email,
@@ -29,10 +33,10 @@ class UserProfile {
     required this.role,
     required this.emailConfirmed,
     required this.createdAt,
+    this.updatedAt,
     this.store,
   });
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) =>
-      _$UserProfileFromJson(json);
+  factory UserProfile.fromJson(Map<String, dynamic> json) => _$UserProfileFromJson(json);
   Map<String, dynamic> toJson() => _$UserProfileToJson(this);
 }

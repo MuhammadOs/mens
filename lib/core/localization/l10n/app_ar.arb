@@ -137,5 +137,11 @@
     "pleaseSelectCategory": "الرجاء اختيار الفئة",
     "pleaseFixErrors": "الرجاء إصلاح الأخطاء في النموذج",
     "invalidPrice": "السعر غير صالح",
-    "invalidStock": "المخزون غير صالح"
+    "invalidStock": "المخزون غير صالح",
+    "contactUsTitle": "تواصل معنا",
+    "typeYourMessage": "اكتب رسالتك...",
+    "send": "إرسال",
+    "noMessagesYet": "لا توجد رسائل بعد. ابدأ المحادثة!",
+    "messageSentSuccess": "تم إرسال الرسالة بنجاح!",
+    "errorSendingMessage": "فشل إرسال الرسالة."
 }

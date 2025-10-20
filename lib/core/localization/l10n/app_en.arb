@@ -9,7 +9,7 @@
     "english": "English",
     "arabic": "Arabic",
     "loginPageTitle": "Sign In",
-    "emailLabel": "Email / Phone Number",
+    "emailLabel": "Email",
     "emailHint": "Enter your email or phone number",
     "passwordLabel": "Enter Your Password",
     "passwordHint": "••••••••••••",
@@ -137,5 +137,11 @@
     "pleaseSelectCategory": "Please select a category",
     "pleaseFixErrors": "Please fix errors in the form",
     "invalidPrice": "Invalid Price",
-    "invalidStock": "Invalid Stock"
+    "invalidStock": "Invalid Stock",
+    "contactUsTitle": "Contact Us",
+    "typeYourMessage": "Type your message...",
+    "send": "Send",
+    "noMessagesYet": "No messages yet. Start the conversation!",
+    "messageSentSuccess": "Message sent successfully!",
+    "errorSendingMessage": "Failed to send message."
 }

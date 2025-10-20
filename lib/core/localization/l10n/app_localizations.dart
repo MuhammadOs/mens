@@ -155,7 +155,7 @@ abstract class AppLocalizations {
   /// No description provided for @emailLabel.
   ///
   /// In en, this message translates to:
-  /// **'Email / Phone Number'**
+  /// **'Email'**
   String get emailLabel;
 
   /// No description provided for @emailHint.
@@ -925,6 +925,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid Stock'**
   String get invalidStock;
+
+  /// No description provided for @contactUsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get contactUsTitle;
+
+  /// No description provided for @typeYourMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your message...'**
+  String get typeYourMessage;
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @noMessagesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Start the conversation!'**
+  String get noMessagesYet;
+
+  /// No description provided for @messageSentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Message sent successfully!'**
+  String get messageSentSuccess;
+
+  /// No description provided for @errorSendingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send message.'**
+  String get errorSendingMessage;
 }
 
 class _AppLocalizationsDelegate

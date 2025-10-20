@@ -59,6 +59,10 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
     state = const AsyncValue.data(null);
   }
 
+  void setLoggedOut() {
+    state = const AsyncValue.data(null);
+  }
+
   Future<void> refreshProfile() async {
     final repo = ref.read(authRepositoryProvider);
     try {

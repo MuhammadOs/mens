@@ -1,10 +1,12 @@
+// ✅ ADD THIS IMPORT
 import 'package:json_annotation/json_annotation.dart';
 
-part 'store.g.dart'; // Name of the generated file
+part 'store.g.dart';
 
 @JsonSerializable()
 class Store {
   final int id;
+  final int ownerId;
   final String brandName;
   final String? brandImage;
   final String? brandDescription;
@@ -16,6 +18,7 @@ class Store {
 
   Store({
     required this.id,
+    required this.ownerId,
     required this.brandName,
     this.brandImage,
     this.brandDescription,

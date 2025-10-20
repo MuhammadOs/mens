@@ -10,6 +10,7 @@ import 'package:mens/features/seller/Products/presentation/add_product_screen.da
 import 'package:mens/features/seller/Products/presentation/edit_products_screen.dart';
 import 'package:mens/features/seller/Products/presentation/products_screen.dart';
 import 'package:mens/features/seller/Statistics/presentation/stat_screen.dart';
+import 'package:mens/features/seller/contact_us/presentation/contact_us_screen.dart';
 import 'package:mens/features/seller/profile/presentation/edit_profile_screen.dart';
 import 'package:mens/features/seller/profile/presentation/help_support_screen.dart';
 import 'package:mens/features/seller/profile/presentation/notification_screen.dart';
@@ -31,6 +32,7 @@ class AppRoutes {
   static const shopInformation = '/profile/shop-information';
   static const notifications = '/profile/notifications';
   static const editProduct = '/products/:id/edit';
+  static const contactUs = '/contact-us';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -98,6 +100,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
           return EditProductScreen(productId: productId);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.contactUs,
+        builder: (context, state) => const ContactUsScreen(),
       ),
     ],
     redirect: (BuildContext context, GoRouterState state) {

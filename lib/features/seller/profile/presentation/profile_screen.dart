@@ -102,6 +102,11 @@ class ProfileScreen extends ConsumerWidget {
               text: l10n.drawerHelpSupport,
               onTap: () => context.push(AppRoutes.helpSupport),
             ),
+            _ActionTile(
+              icon: Icons.contact_mail,
+              text: l10n.contactUsTitle,
+              onTap: () => context.push(AppRoutes.contactUs),
+            ),
           ],
         ),
       ),

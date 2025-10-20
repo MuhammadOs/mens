@@ -24,10 +24,10 @@ class EditProfileScreen extends HookConsumerWidget {
     ); // For DatePicker localization
 
     // Controllers
-    final fullNameController = useTextEditingController();
+    final firstNameController = useTextEditingController();
+    final lastNameController = useTextEditingController();
     final emailController = useTextEditingController();
     final phoneController = useTextEditingController();
-    final locationController = useTextEditingController();
     final nationalIdController = useTextEditingController();
     final birthDateController = useTextEditingController();
 
@@ -71,10 +71,10 @@ class EditProfileScreen extends HookConsumerWidget {
                   icon: const Icon(Icons.check),
                   onPressed: () {
                     final updatedProfile = UserProfileData(
-                      fullName: fullNameController.text,
+                      firstName: firstNameController.text,
+                      lastName: lastNameController.text,
                       email: emailController.text,
                       phone: phoneController.text,
-                      location: locationController.text,
                       nationalId: nationalIdController.text.isNotEmpty
                           ? nationalIdController.text
                           : null,
@@ -97,10 +97,10 @@ class EditProfileScreen extends HookConsumerWidget {
           // Pre-fill controllers using useEffect to run only once or when profile changes
           useEffect(
             () {
-              fullNameController.text = profile.fullName;
+              firstNameController.text = profile.firstName;
+              lastNameController.text = profile.lastName;
               emailController.text = profile.email;
               phoneController.text = profile.phone;
-              locationController.text = profile.location;
               nationalIdController.text = profile.nationalId ?? '';
               birthDateController.text = profile.birthDate != null
                   ? DateFormat('dd-MM-yyyy').format(profile.birthDate!)
@@ -117,12 +117,14 @@ class EditProfileScreen extends HookConsumerWidget {
                 children: [
                   CustomTextField(
                     labelText: l10n.fullName,
-                    controller: fullNameController,
+                    controller: firstNameController,
                   ),
                   const SizedBox(height: 16),
-                  // If username is part of the profile and editable:
-                  // CustomTextField(labelText: l10n.username, controller: usernameController),
-                  // const SizedBox(height: 16),
+                  CustomTextField(
+                    labelText: l10n.fullName,
+                    controller: lastNameController,
+                  ),
+                  const SizedBox(height: 16),
                   CustomTextField(
                     labelText: l10n.emailLabel,
                     controller: emailController,
@@ -133,11 +135,6 @@ class EditProfileScreen extends HookConsumerWidget {
                     labelText: l10n.phone,
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 16),
-                  CustomTextField(
-                    labelText: l10n.location,
-                    controller: locationController,
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
@@ -238,7 +235,45 @@ class EditProfileScreen extends HookConsumerWidget {
             ),
           ),
         ),
-        error: (e, st) => Center(child: Text("Error: $e")),
+        error: (e, st) => RefreshIndicator(
+          onRefresh: () async {
+            // Invalidate the provider to re-fetch the data
+            ref.invalidate(editProfileNotifierProvider);
+            // We don't need to await, RefreshIndicator handles the future
+          },
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(), // Enable scrolling
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight), // Ensure it fills height
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, color: theme.colorScheme.error, size: 48),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Error loading profile: $e", // TODO: Localize
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: theme.colorScheme.error),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Pull down to refresh", // TODO: Localize
+                            style: TextStyle(color: theme.hintColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
