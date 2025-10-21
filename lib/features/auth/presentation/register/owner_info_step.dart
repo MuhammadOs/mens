@@ -35,7 +35,7 @@ class OwnerInfoStep extends HookConsumerWidget {
       text: ownerInfo.nationalId,
     );
     final phoneController = useTextEditingController(
-      text: ownerInfo.nationalId,
+      text: ownerInfo.phoneNumber,
     );
     final dateController = useTextEditingController(
       text: ownerInfo.birthDate != null

@@ -5,12 +5,15 @@ import 'package:go_router/go_router.dart'; // Required for context.pop()
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for image picking
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:mens/features/auth/data/auth_repository_impl.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/add_product_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
-import 'package:skeletonizer/skeletonizer.dart'; // For loading skeleton
+import 'package:skeletonizer/skeletonizer.dart';
+
+import '../../../auth/notifiers/auth_notifier.dart'; // For loading skeleton
 
 class AddProductScreen extends HookConsumerWidget {
   const AddProductScreen({super.key});
@@ -166,9 +169,11 @@ class AddProductScreen extends HookConsumerWidget {
               // --- Category Dropdown (Fetches SubCategories) ---
               Consumer(
                 builder: (context, ref, _) {
+                  final authState = ref.watch(authNotifierProvider);
+                  final userProfile = authState.asData?.value;
                   // Fetch subcategories for "Clothes" (ID 1) - Adjust ID if needed
                   final subCategoriesAsync = ref.watch(
-                    subCategoriesProvider(1),
+                    subCategoriesProvider(userProfile?.store?.categoryId ?? 1),
                   );
                   return subCategoriesAsync.when(
                     data: (subCats) {
