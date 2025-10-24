@@ -46,7 +46,7 @@ class EditProfileScreen extends HookConsumerWidget {
         // Optionally show error on save failure
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.errorSaving + " ${next.error}"),
+            content: Text("${l10n.errorSaving} ${next.error}"),
             backgroundColor: theme.colorScheme.error,
           ),
         );

@@ -68,7 +68,7 @@ class RegisterScreen extends HookConsumerWidget {
                   PopupMenuButton<String>(
                     icon: Icon(
                       Icons.settings,
-                      color: colorScheme.onBackground.withOpacity(0.7),
+                      color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                     onSelected: (value) {
                       if (value == 'toggle_theme') {
@@ -379,7 +379,7 @@ class RegisterScreen extends HookConsumerWidget {
           child: RichText(
             text: TextSpan(
               style: TextStyle(
-                color: theme.colorScheme.onBackground.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
                 fontSize: 14,
               ),
               children: [

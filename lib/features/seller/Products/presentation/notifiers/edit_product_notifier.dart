@@ -34,10 +34,22 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
   }) async {
     // Set state to loading before the API call.
     state = const AsyncValue.loading();
+
+    print("=== EDIT NOTIFIER: UPDATE DETAILS ===");
+    print("Product ID: $productId");
+    print("Name: $name");
+    print(
+      "Description: ${description.substring(0, description.length > 50 ? 50 : description.length)}...",
+    );
+    print("Price: $price");
+    print("Stock: $stockQuantity");
+    print("SubCategory ID: $subCategoryId");
+
     try {
       // Access the repository using ref.read inside the method.
       final repository = ref.read(productRepositoryProvider);
 
+      print("Calling repository.updateProductDetails...");
       // Await the API call
       await repository.updateProductDetails(
         productId: productId,
@@ -48,9 +60,11 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
         subCategoryId: subCategoryId,
       );
 
+      print("Repository call successful!");
+
       // If successful, set state back to idle (data(null)).
       state = const AsyncValue.data(null);
-      print("Product details update successful.");
+      print("✅ Product details update successful in notifier.");
 
       // Invalidate providers to trigger UI refresh elsewhere
       // Note: We refresh the paginated providers to update the product in the list
@@ -63,8 +77,14 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
       ); // Refreshes the details on this screen
     } catch (e, st) {
       // If an error occurs, set the state to error.
-      print("Error updating product details: $e");
+      print("=== ERROR IN NOTIFIER ===");
+      print("Error type: ${e.runtimeType}");
+      print("Error: $e");
+      print("Stack trace: $st");
       state = AsyncValue.error(e, st);
+
+      // Re-throw to allow UI to handle
+      rethrow;
     }
   }
 
@@ -76,19 +96,30 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
   }) async {
     // Set state to loading.
     state = const AsyncValue.loading();
+
+    print("=== EDIT NOTIFIER: UPDATE IMAGES ===");
+    print("Product ID: $productId (type: ${productId.runtimeType})");
+    print("Images count: ${images.length}");
+    print(
+      "Primary index: $primaryImageIndex (type: ${primaryImageIndex.runtimeType})",
+    );
+
     try {
       final repository = ref.read(productRepositoryProvider);
 
+      print("Calling repository.updateProductImages...");
       // Call the repository method.
-      await repository.updateProductImages(
+      final List<String> newUrls = await repository.updateProductImages(
         productId: productId,
         images: images,
         primaryImageIndex: primaryImageIndex,
       );
 
+      print("Repository call successful! Returned ${newUrls.length} URLs");
+
       // If successful, set state back to idle.
       state = const AsyncValue.data(null);
-      print("Product images update successful.");
+      print("✅ Product images update successful in notifier.");
 
       // Invalidate providers to refetch data with new images
       // Note: We refresh the paginated providers to update the product in the list
@@ -99,8 +130,14 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
       ref.invalidate(productByIdProvider(productId));
     } catch (e, st) {
       // Set error state.
-      print("Error updating product images: $e");
+      print("=== ERROR IN NOTIFIER ===");
+      print("Error type: ${e.runtimeType}");
+      print("Error: $e");
+      print("Stack trace: $st");
       state = AsyncValue.error(e, st);
+
+      // Re-throw to allow UI to handle
+      rethrow;
     }
   }
 }

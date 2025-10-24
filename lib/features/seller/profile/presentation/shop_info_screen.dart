@@ -154,7 +154,7 @@ class ShopInformationScreen extends HookConsumerWidget {
                         radius: 60,
                         backgroundColor: theme
                             .colorScheme
-                            .surfaceVariant, // Background if no image
+                            .surfaceContainerHighest, // Background if no image
                         backgroundImage: NetworkImage(
                           userProfile?.store?.brandImage ??
                               "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
@@ -301,19 +301,19 @@ class ShopInformationScreen extends HookConsumerWidget {
         // Show skeleton while initial shop info is fetched
         loading: () => const Skeletonizer(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Form(
               child: Column(
                 children: [
                   CircleAvatar(radius: 60),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   CustomTextField(labelText: "Loading"),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   CustomTextField(labelText: "Loading"),
                   // --- End Category Dropdown ---
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   CustomTextField(labelText: "Loading"),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   CustomTextField(labelText: "Loading"),
                 ],
               ),

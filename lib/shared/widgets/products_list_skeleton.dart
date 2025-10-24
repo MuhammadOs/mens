@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class ProductListSkeleton extends StatelessWidget {
-  const ProductListSkeleton();
+  const ProductListSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {

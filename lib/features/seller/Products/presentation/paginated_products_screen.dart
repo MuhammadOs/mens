@@ -109,7 +109,7 @@ class PaginatedProductsScreen extends HookConsumerWidget {
             indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
               Tab(text: l10n.productsAll),
-              ...subCategories.map((subCat) => Tab(text: subCat.name)).toList(),
+              ...subCategories.map((subCat) => Tab(text: subCat.name)),
             ],
           ),
           orElse: () => PreferredSize(

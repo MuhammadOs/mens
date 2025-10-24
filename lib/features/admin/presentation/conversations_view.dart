@@ -248,8 +248,8 @@ class ConversationListItem extends StatelessWidget {
 
     return Material(
       color: isSelected
-          ? theme.colorScheme.primaryContainer
-          : theme.colorScheme.surface,
+          ? theme.colorScheme.primaryContainer.withOpacity(0.5)
+          : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Container(
@@ -257,7 +257,7 @@ class ConversationListItem extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: theme.colorScheme.outlineVariant,
+                color: theme.colorScheme.outlineVariant.withOpacity(0.3),
                 width: 0.5,
               ),
             ),
@@ -268,11 +268,11 @@ class ConversationListItem extends StatelessWidget {
               // Avatar
               CircleAvatar(
                 radius: 20,
-                backgroundColor: theme.colorScheme.primaryContainer,
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
                 child: Text(
                   conversation.userName.substring(0, 1).toUpperCase(),
                   style: TextStyle(
-                    color: theme.colorScheme.onPrimaryContainer,
+                    color: theme.colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -290,7 +290,8 @@ class ConversationListItem extends StatelessWidget {
                           child: Text(
                             conversation.userName,
                             style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurface,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -302,7 +303,7 @@ class ConversationListItem extends StatelessWidget {
                     Text(
                       dateFormat.format(conversation.createdAt),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withOpacity(0.5),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -310,7 +311,7 @@ class ConversationListItem extends StatelessWidget {
                       Text(
                         lastMessage!.content,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.8),
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -323,7 +324,7 @@ class ConversationListItem extends StatelessWidget {
                             timeFormat.format(lastMessage!.sentAt),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurface.withOpacity(
-                                0.5,
+                                0.4,
                               ),
                             ),
                           ),
@@ -333,13 +334,13 @@ class ConversationListItem extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.secondaryContainer,
+                              color: theme.colorScheme.primary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               '${conversation.messages.length}',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSecondaryContainer,
+                                color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
                               ),
@@ -432,8 +433,7 @@ class ConversationDetailView extends HookConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              AppLocalizations.of(context)!.errorSendingReply +
-                  " ${next.error}",
+              "${AppLocalizations.of(context)!.errorSendingReply} ${next.error}",
             ),
             backgroundColor: theme.colorScheme.error,
           ),
@@ -609,8 +609,8 @@ class MessageBubble extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: isFromUser
-                    ? theme.colorScheme.surfaceContainerHighest
-                    : theme.colorScheme.primaryContainer,
+                    ? theme.colorScheme.surfaceContainerHigh
+                    : theme.colorScheme.primary.withOpacity(0.9),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -627,7 +627,7 @@ class MessageBubble extends StatelessWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: isFromUser
                       ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onPrimaryContainer,
+                      : theme.colorScheme.onPrimary,
                 ),
               ),
             ),

@@ -75,7 +75,7 @@ class ProductsScreen extends HookConsumerWidget {
             tabs: [
               Tab(text: l10n.productsAll), // "All" tab first
               // Dynamically create tabs for each subcategory
-              ...subCategories.map((subCat) => Tab(text: subCat.name)).toList(),
+              ...subCategories.map((subCat) => Tab(text: subCat.name)),
             ],
           ),
           // Show a minimal placeholder TabBar during loading/error

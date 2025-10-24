@@ -255,11 +255,13 @@ class AddProductScreen extends HookConsumerWidget {
                         decimal: true,
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty)
+                        if (v == null || v.isEmpty) {
                           return l10n.validationRequired;
+                        }
                         final price = double.tryParse(v);
-                        if (price == null || price <= 0)
+                        if (price == null || price <= 0) {
                           return 'Invalid Price'; // TODO: Localize
+                        }
                         return null;
                       },
                       textInputAction: TextInputAction.next,
@@ -272,11 +274,13 @@ class AddProductScreen extends HookConsumerWidget {
                       controller: stockController,
                       keyboardType: TextInputType.number,
                       validator: (v) {
-                        if (v == null || v.isEmpty)
+                        if (v == null || v.isEmpty) {
                           return l10n.validationRequired;
+                        }
                         final stock = int.tryParse(v);
-                        if (stock == null || stock < 0)
+                        if (stock == null || stock < 0) {
                           return 'Invalid Stock'; // TODO: Localize
+                        }
                         return null;
                       },
                       textInputAction:

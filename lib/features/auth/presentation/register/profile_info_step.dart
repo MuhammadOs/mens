@@ -1,4 +1,5 @@
 import 'dart:io'; // Required for Image.file
+import 'dart:ui' as ui;
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -61,117 +62,121 @@ class ProfileInfoStep extends HookConsumerWidget {
 
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Center(
-          child: InkWell(
-            onTap: pickImage,
-            borderRadius: BorderRadius.circular(75),
-            child: DottedBorder(
-              options: CircularDottedBorderOptions(
-                color: theme.colorScheme.onSurface.withOpacity(0.4),
-                strokeWidth: 1.5,
-                dashPattern: const [6, 6],
-              ),
-              child: Container(
-                height: 120,
-                width: 120,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface.withOpacity(0.5),
-                  shape: BoxShape.circle,
+    return Directionality(
+      textDirection: ui.TextDirection.ltr,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: InkWell(
+              onTap: pickImage,
+              borderRadius: BorderRadius.circular(75),
+              child: DottedBorder(
+                options: CircularDottedBorderOptions(
+                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                  strokeWidth: 1.5,
+                  dashPattern: const [6, 6],
                 ),
-                child: profileInfo.brandImage == null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.cloud_upload_outlined,
-                            color: theme.colorScheme.primary,
-                            size: 40,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.tapToUploadPicture,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(
-                                0.7,
-                              ),
+                child: Container(
+                  height: 120,
+                  width: 120,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: profileInfo.brandImage == null
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.cloud_upload_outlined,
+                              color: theme.colorScheme.primary,
+                              size: 40,
                             ),
-                            textAlign: TextAlign.center,
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.tapToUploadPicture,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface.withOpacity(
+                                  0.7,
+                                ),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        )
+                      : ClipOval(
+                          child: Image.file(
+                            File(profileInfo.brandImage!.path),
+                            fit: BoxFit.cover,
+                            width: 120,
+                            height: 120,
                           ),
-                        ],
-                      )
-                    : ClipOval(
-                        child: Image.file(
-                          File(profileInfo.brandImage!.path),
-                          fit: BoxFit.cover,
-                          width: 120,
-                          height: 120,
                         ),
-                      ),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        CustomTextField(
-          labelText: l10n.emailLabel,
-          hintText: l10n.emailHint,
-          controller: emailController,
-          keyboardType: TextInputType.emailAddress,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return l10n.validationEmailEmpty;
-            }
-            if (!value.contains('@')) {
-              return l10n.validationEmailInvalid;
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        CustomTextField(
-          labelText: l10n.passwordLabel,
-          hintText: l10n.passwordHint,
-          controller: passwordController,
-          isPassword: true,
-          isPasswordVisible: isPasswordVisible.value,
-          onVisibilityToggle: () {
-            isPasswordVisible.value = !isPasswordVisible.value;
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return l10n.validationPasswordEmpty;
-            }
-            if (value.length < 6) {
-              return l10n.validationPasswordShort;
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 16),
-        CustomTextField(
-          labelText: l10n.repeatPasswordLabel,
-          hintText: l10n.repeatPasswordHint,
-          controller: repeatPasswordController,
-          isPassword: true,
-          isPasswordVisible: isRepeatPasswordVisible.value,
-          onVisibilityToggle: () {
-            isRepeatPasswordVisible.value = !isRepeatPasswordVisible.value;
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return l10n.validationPasswordEmpty;
-            }
-            if (value != passwordController.text) {
-              return l10n.validationPasswordMismatch;
-            }
-            return null;
-          },
-        ),
-      ],
+          const SizedBox(height: 16),
+          CustomTextField(
+            labelText: l10n.emailLabel,
+            hintText: l10n.emailHint,
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            textDirection: ui.TextDirection.ltr,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return l10n.validationEmailEmpty;
+              }
+              if (!value.contains('@')) {
+                return l10n.validationEmailInvalid;
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          CustomTextField(
+            labelText: l10n.passwordLabel,
+            hintText: l10n.passwordHint,
+            controller: passwordController,
+            isPassword: true,
+            isPasswordVisible: isPasswordVisible.value,
+            onVisibilityToggle: () {
+              isPasswordVisible.value = !isPasswordVisible.value;
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return l10n.validationPasswordEmpty;
+              }
+              if (value.length < 6) {
+                return l10n.validationPasswordShort;
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          CustomTextField(
+            labelText: l10n.repeatPasswordLabel,
+            hintText: l10n.repeatPasswordHint,
+            controller: repeatPasswordController,
+            isPassword: true,
+            isPasswordVisible: isRepeatPasswordVisible.value,
+            onVisibilityToggle: () {
+              isRepeatPasswordVisible.value = !isRepeatPasswordVisible.value;
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return l10n.validationPasswordEmpty;
+              }
+              if (value != passwordController.text) {
+                return l10n.validationPasswordMismatch;
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
     );
   }
 }

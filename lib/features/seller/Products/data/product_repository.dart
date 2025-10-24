@@ -340,8 +340,17 @@ class ProductRepositoryImpl implements ProductRepository {
     List<String>? imageAltTexts, // Optional
   }) async {
     try {
+      print("=== UPDATE PRODUCT IMAGES DEBUG ===");
+      print("Product ID: $productId (type: ${productId.runtimeType})");
+      print("Number of images: ${images.length}");
+      print(
+        "Primary image index: $primaryImageIndex (type: ${primaryImageIndex.runtimeType})",
+      );
+      print("Image alt texts: $imageAltTexts");
+
       List<MultipartFile> imageFiles = [];
       for (var image in images) {
+        print("Processing image: ${image.path}");
         imageFiles.add(
           await MultipartFile.fromFile(image.path, filename: image.name),
         );
@@ -350,13 +359,17 @@ class ProductRepositoryImpl implements ProductRepository {
       // Create FormData, keys must match API
       final formData = FormData.fromMap({
         'Images': imageFiles,
-        'PrimaryImageIndex': primaryImageIndex,
+        'PrimaryImageIndex': primaryImageIndex, // Ensure this is an int
         // 'ImageAltTexts': imageAltTexts ?? [], // Include if API needs it
       });
 
-      // Send POST request to the specific image endpoint
-      // (Check if API uses PUT or POST for image updates)
-      final response = await _dio.post(
+      print("FormData created with ${formData.fields.length} fields");
+      print("FormData fields: ${formData.fields}");
+      print("FormData files: ${formData.files.length}");
+
+      // Send PUT request to the specific image endpoint (405 error indicates POST is not allowed)
+      print("Sending PUT to /products/$productId/images");
+      final response = await _dio.put(
         '/products/$productId/images',
         data: formData,
         onSendProgress: (int sent, int total) {
@@ -369,52 +382,116 @@ class ProductRepositoryImpl implements ProductRepository {
       );
 
       // Debug: Print the full response to understand the structure
-      if (kDebugMode) {
-        print("Update images response status: ${response.statusCode}");
-        print("Update images response data: ${response.data}");
-      }
+      print("=== RESPONSE RECEIVED ===");
+      print("Response status: ${response.statusCode}");
+      print("Response data type: ${response.data.runtimeType}");
+      print("Response data: ${response.data}");
 
-      // Check for successful status code first
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      // Check for successful status codes (200, 201, 204)
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 204) {
+        // 204 No Content - success but no body returned
+        if (response.statusCode == 204) {
+          print("✅ Product images updated successfully! (204 No Content)");
+          return []; // Return empty list since no URLs are returned
+        }
+
         // Try to extract image URLs from various possible response structures
         List<String> newUrls = [];
 
-        if (response.data?['data']?['imageUrls'] is List) {
-          newUrls = List<String>.from(response.data!['data']['imageUrls']);
-        } else if (response.data?['imageUrls'] is List) {
-          newUrls = List<String>.from(response.data!['imageUrls']);
-        } else if (response.data?['data'] is List) {
-          newUrls = List<String>.from(response.data!['data']);
+        if (response.data is Map<String, dynamic>) {
+          final dataMap = response.data as Map<String, dynamic>;
+
+          if (dataMap['data']?['imageUrls'] is List) {
+            newUrls = List<String>.from(dataMap['data']['imageUrls']);
+            print("Extracted URLs from data.imageUrls: $newUrls");
+          } else if (dataMap['imageUrls'] is List) {
+            newUrls = List<String>.from(dataMap['imageUrls']);
+            print("Extracted URLs from imageUrls: $newUrls");
+          } else if (dataMap['data'] is List) {
+            newUrls = List<String>.from(dataMap['data']);
+            print("Extracted URLs from data: $newUrls");
+          } else {
+            print("⚠️ Could not find image URLs in response structure");
+          }
+        } else {
+          print("⚠️ Response data is not a Map, cannot extract image URLs");
         }
 
-        print("Product images updated successfully!");
+        print(
+          "✅ Product images updated successfully! Returned ${newUrls.length} URLs",
+        );
         return newUrls; // Return the new URLs
       } else {
-        // Handle both string and non-string message types
-        final dynamic messageValue = response.data?['message'];
-        final serverMessage =
-            messageValue?.toString() ??
-            'Image update failed: ${response.statusCode}';
+        // Handle error responses
+        String serverMessage = 'Image update failed: ${response.statusCode}';
+
+        if (response.data is Map<String, dynamic>) {
+          final dynamic messageValue =
+              (response.data as Map<String, dynamic>)['message'];
+          if (messageValue != null) {
+            serverMessage = messageValue.toString();
+          }
+        }
+
+        print("❌ Server error: $serverMessage");
         throw Exception(serverMessage);
       }
     } on DioException catch (e) {
+      print("=== DIO EXCEPTION ===");
+      print("Type: ${e.type}");
+      print("Message: ${e.message}");
+
       String errorMessage = 'Network error updating images.';
       if (e.response != null) {
-        if (kDebugMode) {
-          print("DioException response status: ${e.response!.statusCode}");
-          print("DioException response data: ${e.response!.data}");
+        print("Response status: ${e.response!.statusCode}");
+        print("Response data type: ${e.response!.data.runtimeType}");
+        print("Response data: ${e.response!.data}");
+
+        // Handle different response data types safely
+        if (e.response!.data is Map<String, dynamic>) {
+          final responseMap = e.response!.data as Map<String, dynamic>;
+
+          // Try to get error message
+          final dynamic messageValue = responseMap['message'];
+
+          // Check for validation errors
+          if (responseMap['errors'] != null) {
+            print("Validation errors: ${responseMap['errors']}");
+            errorMessage =
+                "Validation error: ${responseMap['errors'].toString()}";
+          } else if (messageValue != null) {
+            errorMessage = messageValue.toString();
+          } else {
+            errorMessage =
+                'Update failed with status: ${e.response!.statusCode}';
+          }
+        } else if (e.response!.data is String &&
+            e.response!.data.toString().isNotEmpty) {
+          errorMessage = e.response!.data.toString();
+        } else {
+          // Empty response or unknown type - provide helpful message based on status code
+          if (e.response!.statusCode == 405) {
+            errorMessage =
+                'Method not allowed (405). The API does not support this request method.';
+          } else {
+            errorMessage =
+                'Update failed with status: ${e.response!.statusCode}';
+          }
         }
-        // Handle both string and non-string message types
-        final dynamic messageValue = e.response!.data?['message'];
-        errorMessage =
-            messageValue?.toString() ??
-            'Update failed with status: ${e.response!.statusCode}';
+      } else {
+        print("No response received. Error: ${e.error}");
       }
-      print("DioException updating images: $errorMessage");
+
+      print("❌ Final error message: $errorMessage");
       throw Exception(errorMessage);
-    } catch (e) {
-      print("Unexpected error updating images: $e");
-      throw Exception('An unexpected error occurred while updating images.');
+    } catch (e, stackTrace) {
+      print("=== UNEXPECTED ERROR ===");
+      print("Error type: ${e.runtimeType}");
+      print("Error: $e");
+      print("Stack trace: $stackTrace");
+      throw Exception('An unexpected error occurred while updating images: $e');
     }
   }
 

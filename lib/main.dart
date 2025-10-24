@@ -1,4 +1,4 @@
-import 'package:device_preview/device_preview.dart';
+// import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
@@ -18,15 +18,22 @@ Future<void> main() async {
   final initialLocale = Locale(languageCode);
 
   runApp(
-    DevicePreview(
-      enabled: true,
-      builder: (context) => ProviderScope(
-        overrides: [
-          initialLocaleProvider.overrideWithValue(initialLocale),
-          sharedPreferencesProvider.overrideWithValue(prefs),
-        ],
-        child: const Mens(),
-      ),
+    // DevicePreview(
+    //   enabled: true,
+    //   builder: (context) => ProviderScope(
+    //     overrides: [
+    //       initialLocaleProvider.overrideWithValue(initialLocale),
+    //       sharedPreferencesProvider.overrideWithValue(prefs),
+    //     ],
+    //     child: const Mens(),
+    //   ),
+    // ),
+    ProviderScope(
+      overrides: [
+        initialLocaleProvider.overrideWithValue(initialLocale),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const Mens(),
     ),
   );
 }

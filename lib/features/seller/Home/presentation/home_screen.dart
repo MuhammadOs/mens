@@ -35,7 +35,7 @@ class HomeScreen extends ConsumerWidget {
                   Builder(
                     builder: (context) {
                       return IconButton(
-                        icon: Icon(Icons.menu, color: colorScheme.onBackground),
+                        icon: Icon(Icons.menu, color: colorScheme.onSurface),
                         onPressed: () => Scaffold.of(context).openDrawer(),
                       );
                     },
@@ -51,7 +51,7 @@ class HomeScreen extends ConsumerWidget {
                 IconButton(
                   icon: Icon(
                     Icons.notifications_outlined,
-                    color: colorScheme.onBackground,
+                    color: colorScheme.onSurface,
                   ),
                   onPressed: () {
                     /* TODO: Navigate to notifications */

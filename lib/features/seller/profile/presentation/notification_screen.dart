@@ -76,7 +76,7 @@ class NotificationsScreen extends ConsumerWidget {
         title: Text(title, style: theme.textTheme.bodyLarge),
         value: value,
         onChanged: onChanged,
-        activeColor: theme.colorScheme.primary,
+        activeThumbColor: theme.colorScheme.primary,
       ),
     );
   }

@@ -40,9 +40,7 @@ class AppTheme {
           _darkBlue, // Main brand color for interactive elements, primary buttons
       onPrimary: _white, // Text/icons on primary color
       secondary: _mediumDarkBlue, // New accent color
-      onSecondary: _white, // Text/icons on accent color
-      background: _white, // General background
-      onBackground: _black, // Text on general background
+      onSecondary: _white, // Text on general background
       surface: _lightGrey, // Card/dialog background
       onSurface: _black, // Text/icons on card/dialog background
       error: _errorColor,
@@ -197,9 +195,7 @@ class AppTheme {
       onPrimary: _black, // Text/icons on primary (accent) color
       secondary:
           _white, // Secondary elements like icons or less prominent buttons
-      onSecondary: _deepDarkBlue, // Text/icons on secondary (white) color
-      background: _deepDarkBlue, // General background
-      onBackground: _white, // Text on general background
+      onSecondary: _deepDarkBlue, // Text on general background
       surface:
           _mediumDarkBlue, // Card/dialog background (lighter than scaffold)
       onSurface: _white, // Text/icons on card/dialog background

@@ -219,7 +219,7 @@ class ProductListItem extends HookConsumerWidget {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(l10n.errorPrefix + " $e"),
+                                    content: Text("${l10n.errorPrefix} $e"),
                                     backgroundColor: theme.colorScheme.error,
                                   ), // TODO: Localize
                                 );

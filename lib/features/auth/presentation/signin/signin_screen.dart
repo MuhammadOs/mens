@@ -56,7 +56,7 @@ class SignInScreen extends HookConsumerWidget {
                     PopupMenuButton<String>(
                       icon: Icon(
                         Icons.settings,
-                        color: colorScheme.onBackground.withOpacity(0.7),
+                        color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                       onSelected: (value) {
                         if (value == 'toggle_theme') {
@@ -241,17 +241,20 @@ class SignInScreen extends HookConsumerWidget {
                   l10n.or,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: colorScheme.onBackground.withOpacity(0.6),
+                    color: colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
                 const SizedBox(height: 8),
-                _buildRichTextLink(
-                  linkText: l10n.continueAsGuest,
-                  text: "",
-                  context: context,
-                  onTap: () {
-                    /* TODO: Navigate */
-                  },
+                Opacity(
+                  opacity: 0.4,
+                  child: _buildRichTextLink(
+                    linkText: l10n.continueAsGuest,
+                    text: "",
+                    context: context,
+                    onTap: () {
+                      /* Disabled - TODO: Navigate */
+                    },
+                  ),
                 ),
               ],
             ),

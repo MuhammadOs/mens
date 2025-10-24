@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -14,6 +15,8 @@ class CustomTextField extends StatelessWidget {
     this.isPasswordVisible = false,
     this.onVisibilityToggle,
     this.onChanged,
+    this.textDirection,
+    this.textAlign, // <-- 1. ADDED THIS PROPERTY
   });
 
   final String labelText;
@@ -27,6 +30,8 @@ class CustomTextField extends StatelessWidget {
   final bool isPasswordVisible;
   final VoidCallback? onVisibilityToggle;
   final ValueChanged<String>? onChanged;
+  final ui.TextDirection? textDirection;
+  final TextAlign? textAlign; // <-- 1. ADDED THIS PROPERTY
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +51,10 @@ class CustomTextField extends StatelessWidget {
       obscureText: isPassword && !isPasswordVisible,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: onChanged,
+      textDirection: textDirection,
+      // 2. PASSED THE PROPERTY HERE
+      // Default to TextAlign.start if nothing is provided
+      textAlign: textAlign ?? TextAlign.start,
       // Use the theme's text style for consistency
       style: theme.textTheme.bodyLarge?.copyWith(
         color: theme.colorScheme.onSurface,
