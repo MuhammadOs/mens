@@ -43,6 +43,7 @@ class AdminRepositoryImpl implements AdminRepository {
     }
   }
 
+  @override
   Future<PaginatedResponse<Product>> getAllProductsPaginated({
     PaginationParams? pagination,
     String? categoryId,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
@@ -173,7 +172,7 @@ class ProductListItem extends HookConsumerWidget {
                               ), // TODO: Localize
                               actions: [
                                 TextButton(
-                                  child: Text("Cancel"), // TODO: Localize
+                                  child: Text(l10n.cancel),
                                   onPressed: () =>
                                       Navigator.of(dialogContext).pop(false),
                                 ),
@@ -210,7 +209,7 @@ class ProductListItem extends HookConsumerWidget {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: const Text("Product deleted"),
+                                    content: Text(l10n.productDeleted),
                                     backgroundColor: theme.colorScheme.primary,
                                   ), // TODO: Localize
                                 );
@@ -220,7 +219,7 @@ class ProductListItem extends HookConsumerWidget {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Error: $e"),
+                                    content: Text(l10n.errorPrefix + " $e"),
                                     backgroundColor: theme.colorScheme.error,
                                   ), // TODO: Localize
                                 );

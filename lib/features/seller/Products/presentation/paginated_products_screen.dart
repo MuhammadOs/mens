@@ -93,6 +93,9 @@ class PaginatedProductsScreen extends HookConsumerWidget {
           data: (subCategories) => TabBar(
             controller: tabController,
             isScrollable: true,
+            labelColor: Theme.of(context).colorScheme.onPrimary,
+            unselectedLabelColor: Theme.of(context).colorScheme.onPrimary,
+            indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
               Tab(text: l10n.productsAll),
               ...subCategories.map((subCat) => Tab(text: subCat.name)).toList(),

@@ -476,4 +476,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noMoreItems => 'No more items';
+
+  @override
+  String get allBrandsTitle => 'All Brands/Sellers';
+
+  @override
+  String get searchHint => 'Search';
+
+  @override
+  String get allCategories => 'All';
+
+  @override
+  String get noBrandsFound => 'No brands found';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get errorPrefix => 'Error: ';
+
+  @override
+  String get noProductsFound => 'No products found';
+
+  @override
+  String get replySentSuccess => 'Reply sent successfully!';
+
+  @override
+  String get errorSendingReply => 'Error sending reply:';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get productDeleted => 'Product deleted';
+
+  @override
+  String get invalidProductId => 'Invalid Product ID';
+
+  @override
+  String get navigation => 'Navigation';
+
+  @override
+  String get brandsSellers => 'Brands/Sellers';
+
+  @override
+  String get conversations => 'Conversations';
+
+  @override
+  String get adminPanel => 'Admin Panel';
+
+  @override
+  String get userConversations => 'User Conversations';
+
+  @override
+  String get noConversationsYet => 'No conversations yet';
+
+  @override
+  String get noConversationsFound => 'No conversations found';
+
+  @override
+  String get searchConversations => 'Search conversations';
 }

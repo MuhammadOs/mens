@@ -14,7 +14,6 @@ class ContactUsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = ref.watch(l10nProvider);
-    final theme = Theme.of(context);
     final messagesAsync = ref.watch(messagesProvider);
     final sendMessageState = ref.watch(sendMessageNotifierProvider);
     final sendMessageNotifier = ref.read(sendMessageNotifierProvider.notifier);

@@ -37,20 +37,18 @@ class EditProfileScreen extends HookConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.profileSavedSuccess),
-            backgroundColor: Colors.green,
+            backgroundColor: theme.colorScheme.primary,
           ),
         );
         // Ensure context is still valid before popping
-        if (context.mounted) {
-          
-        }
+        if (context.mounted) {}
       } else if (next is AsyncError) {
         // Optionally show error on save failure
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error saving: ${next.error}"),
-            backgroundColor: Colors.red,
-          ), // TODO: Localize error
+            content: Text(l10n.errorSaving + " ${next.error}"),
+            backgroundColor: theme.colorScheme.error,
+          ),
         );
       }
     });
@@ -116,12 +114,12 @@ class EditProfileScreen extends HookConsumerWidget {
               child: Column(
                 children: [
                   CustomTextField(
-                    labelText: l10n.fullName,
+                    labelText: l10n.firstNameLabel,
                     controller: firstNameController,
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
-                    labelText: l10n.fullName,
+                    labelText: l10n.lastNameLabel,
                     controller: lastNameController,
                   ),
                   const SizedBox(height: 16),
@@ -170,10 +168,25 @@ class EditProfileScreen extends HookConsumerWidget {
                         onTap: () async {
                           // Hide keyboard if it somehow appears
                           FocusScope.of(context).requestFocus(FocusNode());
+
+                          // Parse current date from text field if it exists
+                          DateTime initialDate;
+                          try {
+                            if (birthDateController.text.isNotEmpty) {
+                              initialDate = DateFormat(
+                                'dd-MM-yyyy',
+                              ).parse(birthDateController.text);
+                            } else {
+                              initialDate = profile.birthDate ?? DateTime.now();
+                            }
+                          } catch (e) {
+                            initialDate = profile.birthDate ?? DateTime.now();
+                          }
+
                           final DateTime? pickedDate = await showDatePicker(
                             context: context,
                             locale: currentLocale, // Use current app locale
-                            initialDate: profile.birthDate ?? DateTime.now(),
+                            initialDate: initialDate,
                             firstDate: DateTime(1950),
                             lastDate:
                                 DateTime.now(), // User cannot be born in the future
@@ -184,7 +197,7 @@ class EditProfileScreen extends HookConsumerWidget {
                           );
                           if (pickedDate != null) {
                             final formattedDate = DateFormat(
-                              'yyyy-MM-dd',
+                              'dd-MM-yyyy',
                             ).format(pickedDate);
                             birthDateController.text = formattedDate;
                           }
@@ -244,16 +257,23 @@ class EditProfileScreen extends HookConsumerWidget {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(), // Enable scrolling
+                physics:
+                    const AlwaysScrollableScrollPhysics(), // Enable scrolling
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight), // Ensure it fills height
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ), // Ensure it fills height
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, color: theme.colorScheme.error, size: 48),
+                          Icon(
+                            Icons.error_outline,
+                            color: theme.colorScheme.error,
+                            size: 48,
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             "Error loading profile: $e", // TODO: Localize

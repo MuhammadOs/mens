@@ -55,7 +55,8 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     } on DioException catch (e) {
       if (e.response != null && e.response?.data['message'] != null) {
-        throw Exception(e.response!.data['message']);
+        final dynamic messageValue = e.response!.data['message'];
+        throw Exception(messageValue?.toString() ?? 'Login failed');
       }
       throw Exception(
         'Login failed due to a network error. Please check your connection and try again.',
@@ -98,8 +99,9 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
+        final dynamic messageValue = response.data?['message'];
         final serverMessage =
-            response.data?['message'] ??
+            messageValue?.toString() ??
             'Registration failed with status: ${response.statusCode}';
         throw Exception(serverMessage);
       }
@@ -110,8 +112,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (e) {
       String errorMessage = 'A network error occurred during registration.';
       if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             (e.response!.data?['errors']?.toString() ??
                 'Registration failed with status: ${e.response!.statusCode}');
       }
@@ -220,6 +223,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       // Create the request body, converting empty strings to null
       final requestData = {
+        'email': valueOrNull(data.email),
         'firstName': valueOrNull(data.firstName),
         'lastName': valueOrNull(data.lastName),
         'phoneNumber': valueOrNull(data.phone),
@@ -234,8 +238,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _dio.put('/users/me', data: requestData);
 
       if (response.statusCode != 200 && response.statusCode != 204) {
+        final dynamic messageValue = response.data?['message'];
         throw Exception(
-          'Failed to update profile: ${response.data?['message']}',
+          'Failed to update profile: ${messageValue?.toString() ?? 'Unknown error'}',
         );
       }
 
@@ -245,8 +250,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on DioException catch (e) {
       String errorMessage = 'Network error updating profile.';
       if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             'Update failed: ${e.response!.statusCode}';
       }
       print("DioException updating profile: $errorMessage");

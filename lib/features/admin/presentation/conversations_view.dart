@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mens/core/localization/l10n/app_localizations.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/admin/conversations/data/conversations_repository.dart';
 import 'package:mens/features/admin/conversations/domain/conversation.dart';
 import 'package:mens/features/admin/conversations/presentation/notifiers/reply_notifier.dart';
@@ -13,6 +15,7 @@ class ConversationsView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = ref.watch(l10nProvider);
     final conversationsAsync = ref.watch(conversationsProvider);
     final searchController = useTextEditingController();
     final searchQuery = useState('');
@@ -33,7 +36,7 @@ class ConversationsView extends HookConsumerWidget {
       drawer: const AdminDrawer(),
       appBar: AppBar(
         title: Text(
-          "User Conversations",
+          l10n.userConversations,
           style: TextStyle(color: theme.colorScheme.onSurface),
         ),
         backgroundColor: theme.colorScheme.surface,
@@ -68,8 +71,8 @@ class ConversationsView extends HookConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     searchQuery.value.isEmpty
-                        ? 'No conversations yet'
-                        : 'No conversations found',
+                        ? l10n.noConversationsYet
+                        : l10n.noConversationsFound,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                     ),
@@ -92,7 +95,7 @@ class ConversationsView extends HookConsumerWidget {
                       child: TextField(
                         controller: searchController,
                         decoration: InputDecoration(
-                          hintText: 'Search conversations...',
+                          hintText: l10n.searchConversations,
                           prefixIcon: Icon(
                             Icons.search,
                             color: theme.colorScheme.onSurfaceVariant,
@@ -420,7 +423,7 @@ class ConversationDetailView extends HookConsumerWidget {
       if (previous is AsyncLoading && next is AsyncData) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Reply sent successfully!"),
+            content: Text(AppLocalizations.of(context)!.replySentSuccess),
             backgroundColor: theme.colorScheme.primary,
           ),
         );
@@ -428,7 +431,10 @@ class ConversationDetailView extends HookConsumerWidget {
       } else if (next is AsyncError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error sending reply: ${next.error}"),
+            content: Text(
+              AppLocalizations.of(context)!.errorSendingReply +
+                  " ${next.error}",
+            ),
             backgroundColor: theme.colorScheme.error,
           ),
         );

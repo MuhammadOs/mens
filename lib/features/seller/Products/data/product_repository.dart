@@ -255,8 +255,10 @@ class ProductRepositoryImpl implements ProductRepository {
 
       // Check for successful status codes
       if (response.statusCode != 200 && response.statusCode != 201) {
+        // Handle both string and non-string message types
+        final dynamic messageValue = response.data?['message'];
         final serverMessage =
-            response.data?['message'] ??
+            messageValue?.toString() ??
             'Failed to add product: ${response.statusCode}';
         throw Exception(serverMessage);
       }
@@ -265,8 +267,10 @@ class ProductRepositoryImpl implements ProductRepository {
     } on DioException catch (e) {
       String errorMessage = 'Network error adding product.';
       if (e.response != null) {
+        // Handle both string and non-string message types
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             (e.response!.data?['errors']?.toString() ??
                 'Failed with status: ${e.response!.statusCode}');
       }
@@ -302,17 +306,20 @@ class ProductRepositoryImpl implements ProductRepository {
       );
       if (response.statusCode != 200) {
         // Check for success (e.g., 200 OK, 204 No Content)
+        // Handle both string and non-string message types
+        final dynamic messageValue = response.data?['message'];
         final serverMessage =
-            response.data?['message'] ??
-            'Update failed: ${response.statusCode}';
+            messageValue?.toString() ?? 'Update failed: ${response.statusCode}';
         throw Exception(serverMessage);
       }
       print("Product details updated successfully!");
     } on DioException catch (e) {
       String errorMessage = 'Network error updating product details.';
       if (e.response != null) {
+        // Handle both string and non-string message types
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             (e.response!.data?['errors']?.toString() ??
                 'Update failed with status: ${e.response!.statusCode}');
       }
@@ -361,25 +368,46 @@ class ProductRepositoryImpl implements ProductRepository {
         },
       );
 
-      // Assuming the response contains the new list of image URLs
-      if (response.statusCode == 200 &&
-          response.data?['data']?['imageUrls'] is List) {
-        List<String> newUrls = List<String>.from(
-          response.data!['data']['imageUrls'],
-        );
+      // Debug: Print the full response to understand the structure
+      if (kDebugMode) {
+        print("Update images response status: ${response.statusCode}");
+        print("Update images response data: ${response.data}");
+      }
+
+      // Check for successful status code first
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Try to extract image URLs from various possible response structures
+        List<String> newUrls = [];
+
+        if (response.data?['data']?['imageUrls'] is List) {
+          newUrls = List<String>.from(response.data!['data']['imageUrls']);
+        } else if (response.data?['imageUrls'] is List) {
+          newUrls = List<String>.from(response.data!['imageUrls']);
+        } else if (response.data?['data'] is List) {
+          newUrls = List<String>.from(response.data!['data']);
+        }
+
         print("Product images updated successfully!");
         return newUrls; // Return the new URLs
       } else {
+        // Handle both string and non-string message types
+        final dynamic messageValue = response.data?['message'];
         final serverMessage =
-            response.data?['message'] ??
+            messageValue?.toString() ??
             'Image update failed: ${response.statusCode}';
         throw Exception(serverMessage);
       }
     } on DioException catch (e) {
       String errorMessage = 'Network error updating images.';
       if (e.response != null) {
+        if (kDebugMode) {
+          print("DioException response status: ${e.response!.statusCode}");
+          print("DioException response data: ${e.response!.data}");
+        }
+        // Handle both string and non-string message types
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             'Update failed with status: ${e.response!.statusCode}';
       }
       print("DioException updating images: $errorMessage");
@@ -405,8 +433,10 @@ class ProductRepositoryImpl implements ProductRepository {
     } on DioException catch (e) {
       String errorMessage = 'Network error deleting product.';
       if (e.response != null) {
+        // Handle both string and non-string message types
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             'Delete failed: ${e.response!.statusCode}';
       }
       print("DioException deleting product: $errorMessage");

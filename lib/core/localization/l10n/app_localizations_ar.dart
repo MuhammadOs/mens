@@ -477,4 +477,64 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noMoreItems => 'لا توجد عناصر أخرى';
+
+  @override
+  String get allBrandsTitle => 'جميع العلامات التجارية/البائعين';
+
+  @override
+  String get searchHint => 'بحث';
+
+  @override
+  String get allCategories => 'الكل';
+
+  @override
+  String get noBrandsFound => 'لم يتم العثور على علامات تجارية';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get errorPrefix => 'خطأ: ';
+
+  @override
+  String get noProductsFound => 'لم يتم العثور على منتجات';
+
+  @override
+  String get replySentSuccess => 'تم إرسال الرد بنجاح!';
+
+  @override
+  String get errorSendingReply => 'خطأ في إرسال الرد:';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get productDeleted => 'تم حذف المنتج';
+
+  @override
+  String get invalidProductId => 'معرف المنتج غير صالح';
+
+  @override
+  String get navigation => 'التنقل';
+
+  @override
+  String get brandsSellers => 'العلامات التجارية/البائعون';
+
+  @override
+  String get conversations => 'المحادثات';
+
+  @override
+  String get adminPanel => 'لوحة الإدارة';
+
+  @override
+  String get userConversations => 'محادثات المستخدم';
+
+  @override
+  String get noConversationsYet => 'لا توجد محادثات بعد';
+
+  @override
+  String get noConversationsFound => 'لم يتم العثور على محادثات';
+
+  @override
+  String get searchConversations => 'البحث في المحادثات';
 }

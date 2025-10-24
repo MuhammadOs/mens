@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart'; // Required for context.pop()
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for image picking
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/features/auth/data/auth_repository_impl.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/add_product_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
@@ -70,10 +69,10 @@ class AddProductScreen extends HookConsumerWidget {
     ref.listen(addProductNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Product added successfully!"),
-            backgroundColor: Colors.green,
-          ), // TODO: Localize
+          SnackBar(
+            content: Text(l10n.productAddedSuccess),
+            backgroundColor: colorScheme.primary,
+          ),
         );
         // Invalidate product list provider so it refetches when we go back
         ref.invalidate(
@@ -83,9 +82,9 @@ class AddProductScreen extends HookConsumerWidget {
       } else if (next is AsyncError && !(next.isLoading)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error adding product: ${next.error}"),
-            backgroundColor: Colors.red,
-          ), // TODO: Localize
+            content: Text(l10n.errorAddingProduct),
+            backgroundColor: colorScheme.error,
+          ),
         );
       }
     });
@@ -400,10 +399,10 @@ class AddProductScreen extends HookConsumerWidget {
 
                             if (selectedSubCategoryId.value == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Please select a category"),
-                                  backgroundColor: Colors.orange,
-                                ), // TODO: Localize
+                                SnackBar(
+                                  content: Text(l10n.pleaseSelectCategory),
+                                  backgroundColor: colorScheme.secondary,
+                                ),
                               );
                               return;
                             }
@@ -424,10 +423,10 @@ class AddProductScreen extends HookConsumerWidget {
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Please fix errors in the form"),
-                                backgroundColor: Colors.red,
-                              ), // TODO: Localize
+                              SnackBar(
+                                content: Text(l10n.pleaseFixErrors),
+                                backgroundColor: colorScheme.error,
+                              ),
                             );
                           }
                         },
@@ -441,7 +440,7 @@ class AddProductScreen extends HookConsumerWidget {
                             strokeWidth: 2,
                           ),
                         )
-                      : Text("Add Product"), // TODO: Localize
+                      : Text(l10n.addProduct),
                 ),
               ),
             ],

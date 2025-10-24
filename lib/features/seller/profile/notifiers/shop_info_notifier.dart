@@ -86,7 +86,8 @@ class ShopInfoNotifier extends Notifier<AsyncValue<ShopInfoData>> {
       // On success, update the state with the potentially modified data from response
       state = AsyncValue.data(savedData);
       print("Shop information saved successfully!");
-      //ref.read(authNotifierProvider.notifier).refreshProfile();
+      // Refresh the main user profile to ensure all parts of the app reflect the changes instantly
+      ref.read(authNotifierProvider.notifier).refreshProfile();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -137,11 +138,9 @@ class ShopInfoNotifier extends Notifier<AsyncValue<ShopInfoData>> {
         print("Error updating brand image: $e");
       }
       // Revert to previous data on error, but keep the error information
-      // ignore: invalid_use_of_internal_member
-      state = AsyncValue<ShopInfoData>.error(
-        e,
-        st,
-      ).copyWithPrevious(previousState);
+      state = AsyncValue<ShopInfoData>.error(e, st).copyWithPrevious(
+        previousState,
+      ); // ignore: invalid_use_of_internal_member
     }
   }
 }

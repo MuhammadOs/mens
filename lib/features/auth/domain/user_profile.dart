@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:json_annotation/json_annotation.dart';
 import 'store.dart';
 
@@ -37,6 +35,7 @@ class UserProfile {
     this.store,
   });
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) => _$UserProfileFromJson(json);
+  factory UserProfile.fromJson(Map<String, dynamic> json) =>
+      _$UserProfileFromJson(json);
   Map<String, dynamic> toJson() => _$UserProfileToJson(this);
 }

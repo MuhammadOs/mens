@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/features/admin/presentation/all_brands_view.dart';
 import 'package:mens/features/admin/presentation/all_products_view.dart';
 import 'package:mens/features/admin/presentation/conversations_view.dart';
@@ -11,7 +12,6 @@ import 'package:mens/features/seller/Home/presentation/home_screen.dart';
 import 'package:mens/features/seller/Orders/presentation/orders_screen.dart';
 import 'package:mens/features/seller/Products/presentation/add_product_screen.dart';
 import 'package:mens/features/seller/Products/presentation/edit_products_screen.dart';
-import 'package:mens/features/seller/Products/presentation/product_details_screen.dart';
 import 'package:mens/features/seller/Products/presentation/products_screen.dart';
 import 'package:mens/features/seller/Products/presentation/paginated_products_screen.dart';
 import 'package:mens/features/seller/Statistics/presentation/stat_screen.dart';
@@ -131,7 +131,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           final productId = int.tryParse(state.pathParameters['id'] ?? '');
           if (productId == null) {
             // Handle error: redirect or show not found page
-            return Scaffold(body: Center(child: Text("Invalid Product ID")));
+            return Scaffold(
+              body: Center(
+                child: Text(AppLocalizations.of(context)!.invalidProductId),
+              ),
+            );
           }
           return EditProductScreen(productId: productId);
         },

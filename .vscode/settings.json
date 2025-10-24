@@ -1,5 +1,4 @@
 {
-   "cSpell.words": [
-      "prefs"
-   ]
+  "cSpell.words": ["prefs"],
+  "chat.agent.maxRequests": 200
 }

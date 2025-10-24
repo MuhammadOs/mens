@@ -33,14 +33,14 @@ class AdminDrawer extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
-                    _buildSectionHeader(context, 'Navigation'),
+                    _buildSectionHeader(context, l10n.navigation),
                     ListTile(
                       leading: Icon(
                         Icons.inventory_2,
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       title: Text(
-                        'Products',
+                        l10n.products,
                         style: TextStyle(color: colorScheme.onSurface),
                       ),
                       onTap: () {
@@ -51,10 +51,10 @@ class AdminDrawer extends ConsumerWidget {
                     ListTile(
                       leading: Icon(
                         Icons.store,
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       title: Text(
-                        'Brands/Sellers',
+                        l10n.brandsSellers,
                         style: TextStyle(color: colorScheme.onSurface),
                       ),
                       onTap: () {
@@ -65,10 +65,10 @@ class AdminDrawer extends ConsumerWidget {
                     ListTile(
                       leading: Icon(
                         Icons.chat,
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       title: Text(
-                        'Conversations',
+                        l10n.conversations,
                         style: TextStyle(color: colorScheme.onSurface),
                       ),
                       onTap: () {
@@ -127,7 +127,7 @@ class AdminDrawer extends ConsumerWidget {
                     ListTile(
                       leading: Icon(
                         Icons.help_outline,
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                       title: Text(
                         l10n.drawerHelpSupport,
@@ -136,7 +136,7 @@ class AdminDrawer extends ConsumerWidget {
                       trailing: Icon(
                         Icons.arrow_forward_ios,
                         size: 16,
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                       onTap: () {
                         context.pop();
@@ -187,6 +187,7 @@ class AdminDrawer extends ConsumerWidget {
   }
 
   Widget _buildDrawerHeader(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(l10nProvider);
     final authState = ref.watch(authNotifierProvider);
     final userProfile = authState.asData?.value;
 
@@ -194,7 +195,7 @@ class AdminDrawer extends ConsumerWidget {
     return UserAccountsDrawerHeader(
       decoration: BoxDecoration(color: theme.colorScheme.primary),
       accountName: Text(
-        "Admin Panel",
+        l10n.adminPanel,
         style: theme.textTheme.titleLarge?.copyWith(
           color: theme.colorScheme.surface,
           fontWeight: FontWeight.bold,
@@ -219,12 +220,13 @@ class AdminDrawer extends ConsumerWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+        style: theme.textTheme.titleSmall?.copyWith(
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
           fontWeight: FontWeight.bold,
         ),
       ),

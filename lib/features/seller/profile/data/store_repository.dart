@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mens/core/services/api_service.dart';
@@ -37,18 +36,19 @@ class ShopRepositoryImpl implements ShopRepository {
       );
 
       if (response.statusCode == 200 && response.data['data'] != null) {
-        final responseData = response.data['data'];
         return data; // Assuming success means the sent data is now the current data
       } else {
+        final dynamic messageValue = response.data?['message'];
         throw Exception(
-          'Failed to update shop info: ${response.data?['message'] ?? 'Unknown error'}',
+          'Failed to update shop info: ${messageValue?.toString() ?? 'Unknown error'}',
         );
       }
     } on DioException catch (e) {
       String errorMessage = 'Network error updating shop info.';
       if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             'Update failed with status: ${e.response!.statusCode}';
       }
       print("DioException updating shop info: $errorMessage");
@@ -79,15 +79,17 @@ class ShopRepositoryImpl implements ShopRepository {
       if (response.statusCode == 200 && response.data['token'] != null) {
         return response.data['token']; // Return the image URL
       } else {
+        final dynamic messageValue = response.data?['message'];
         throw Exception(
-          'Failed to upload image: ${response.data?['message'] ?? 'Status code ${response.statusCode}'}',
+          'Failed to upload image: ${messageValue?.toString() ?? 'Status code ${response.statusCode}'}',
         );
       }
     } on DioException catch (e) {
       String errorMessage = 'Network error uploading image.';
       if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            e.response!.data?['message'] ??
+            messageValue?.toString() ??
             'Upload failed with status: ${e.response!.statusCode}';
       }
       print("DioException uploading image: $errorMessage");

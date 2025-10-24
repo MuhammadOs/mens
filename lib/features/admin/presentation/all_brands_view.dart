@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/admin/brands/domain/brand.dart';
 import 'package:mens/features/admin/presentation/admin_drawer.dart';
 import 'package:mens/features/admin/presentation/notifiers/paginated_brands_notifier.dart';
@@ -14,6 +15,7 @@ class AllBrandsView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = ref.watch(l10nProvider);
     final brandState = ref.watch(paginatedBrandsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategoryId = useState<int?>(null);
@@ -30,7 +32,7 @@ class AllBrandsView extends HookConsumerWidget {
       drawer: const AdminDrawer(),
       appBar: AppBar(
         title: Text(
-          "All Brands/Sellers",
+          l10n.allBrandsTitle,
           style: TextStyle(color: theme.colorScheme.onSurface),
         ),
         backgroundColor: theme.colorScheme.surface,
@@ -44,8 +46,10 @@ class AllBrandsView extends HookConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
+              style: TextStyle(color: theme.colorScheme.onSurface),
               decoration: InputDecoration(
-                hintText: 'Search',
+                hintText: l10n.searchHint,
+                hintStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                 prefixIcon: Icon(
                   Icons.search,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -73,11 +77,14 @@ class AllBrandsView extends HookConsumerWidget {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: ChoiceChip(
-                        label: const Text(
-                          'All',
+                        label: Text(
+                          l10n.allCategories,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
+                            color: selectedCategoryId.value == null
+                                ? theme.colorScheme.onPrimary
+                                : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                         selected: selectedCategoryId.value == null,
@@ -92,13 +99,6 @@ class AllBrandsView extends HookConsumerWidget {
                         backgroundColor:
                             theme.colorScheme.surfaceContainerHighest,
                         selectedColor: theme.colorScheme.primary,
-                        labelStyle: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: selectedCategoryId.value == null
-                              ? theme.colorScheme.onPrimary
-                              : theme.colorScheme.onSurface,
-                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
@@ -113,9 +113,12 @@ class AllBrandsView extends HookConsumerWidget {
                     child: ChoiceChip(
                       label: Text(
                         category.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
+                          color: selectedCategoryId.value == category.id
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                       selected: selectedCategoryId.value == category.id,
@@ -130,13 +133,6 @@ class AllBrandsView extends HookConsumerWidget {
                       backgroundColor:
                           theme.colorScheme.surfaceContainerHighest,
                       selectedColor: theme.colorScheme.primary,
-                      labelStyle: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: selectedCategoryId.value == category.id
-                            ? theme.colorScheme.onPrimary
-                            : theme.colorScheme.onSurface,
-                      ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
@@ -164,7 +160,7 @@ class AllBrandsView extends HookConsumerWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Error: ${brandState.error}',
+                          '${l10n.errorPrefix}${brandState.error}',
                           style: TextStyle(color: theme.colorScheme.error),
                           textAlign: TextAlign.center,
                         ),
@@ -175,7 +171,11 @@ class AllBrandsView extends HookConsumerWidget {
                                 .read(paginatedBrandsProvider.notifier)
                                 .loadFirstPage();
                           },
-                          child: const Text('Retry'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                          ),
+                          child: Text(l10n.retry),
                         ),
                       ],
                     ),
@@ -197,7 +197,15 @@ class AllBrandsView extends HookConsumerWidget {
                     ),
                   )
                 : brandState.allItems.isEmpty
-                ? const Center(child: Text("No brands found"))
+                ? Center(
+                    child: Text(
+                      l10n.noBrandsFound,
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontSize: 16,
+                      ),
+                    ),
+                  )
                 : RefreshIndicator(
                     onRefresh: () async {
                       ref.read(paginatedBrandsProvider.notifier).refresh();

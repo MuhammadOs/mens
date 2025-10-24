@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/admin/presentation/admin_drawer.dart';
 import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
@@ -15,6 +16,7 @@ class AllProductsView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = ref.watch(l10nProvider);
     final paginatedState = ref.watch(paginatedAdminProductsProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategoryId = useState<int?>(null);
@@ -32,7 +34,7 @@ class AllProductsView extends HookConsumerWidget {
       drawer: const AdminDrawer(),
       appBar: AppBar(
         title: Text(
-          "All Products",
+          l10n.productsTitle,
           style: TextStyle(color: theme.colorScheme.onSurface),
         ),
         backgroundColor: theme.colorScheme.surface,
@@ -47,7 +49,7 @@ class AllProductsView extends HookConsumerWidget {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search',
+                hintText: l10n.searchHint,
                 prefixIcon: Icon(
                   Icons.search,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -84,9 +86,9 @@ class AllProductsView extends HookConsumerWidget {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: ChoiceChip(
-                            label: const Text(
-                              'All',
-                              style: TextStyle(
+                            label: Text(
+                              l10n.productsAll,
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
                               ),
@@ -194,7 +196,15 @@ class AllProductsView extends HookConsumerWidget {
                               child: FilterChip(
                                 label: Text(
                                   subCategory.name,
-                                  style: const TextStyle(fontSize: 13),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color:
+                                        selectedSubCategoryId.value ==
+                                            subCategory.id
+                                        ? theme.colorScheme.onPrimary
+                                        : theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                                 selected:
                                     selectedSubCategoryId.value ==
@@ -218,32 +228,7 @@ class AllProductsView extends HookConsumerWidget {
                                 },
                                 backgroundColor:
                                     theme.colorScheme.surfaceContainerHighest,
-                                selectedColor:
-                                    theme.colorScheme.primaryContainer,
-                                checkmarkColor:
-                                    theme.colorScheme.onPrimaryContainer,
-                                labelStyle: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      selectedSubCategoryId.value ==
-                                          subCategory.id
-                                      ? theme.colorScheme.onPrimaryContainer
-                                      : theme.colorScheme.onSurfaceVariant,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  side: BorderSide(
-                                    color:
-                                        selectedSubCategoryId.value ==
-                                            subCategory.id
-                                        ? theme.colorScheme.primary.withOpacity(
-                                            0.5,
-                                          )
-                                        : theme.colorScheme.outline.withOpacity(
-                                            0.3,
-                                          ),
-                                  ),
-                                ),
+                                selectedColor: theme.colorScheme.primary,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 8,
@@ -287,7 +272,7 @@ class AllProductsView extends HookConsumerWidget {
                                 .read(paginatedAdminProductsProvider.notifier)
                                 .loadFirstPage();
                           },
-                          child: const Text('Retry'),
+                          child: Text(l10n.retry),
                         ),
                       ],
                     ),
@@ -309,7 +294,7 @@ class AllProductsView extends HookConsumerWidget {
                     ),
                   )
                 : paginatedState.allItems.isEmpty
-                ? const Center(child: Text("No products found"))
+                ? Center(child: Text(l10n.noProductsFound))
                 : RefreshIndicator(
                     onRefresh: () async {
                       ref

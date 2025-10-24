@@ -1015,6 +1015,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No more items'**
   String get noMoreItems;
+
+  /// No description provided for @allBrandsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All Brands/Sellers'**
+  String get allBrandsTitle;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchHint;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allCategories;
+
+  /// No description provided for @noBrandsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No brands found'**
+  String get noBrandsFound;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @errorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: '**
+  String get errorPrefix;
+
+  /// No description provided for @noProductsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No products found'**
+  String get noProductsFound;
+
+  /// No description provided for @replySentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply sent successfully!'**
+  String get replySentSuccess;
+
+  /// No description provided for @errorSendingReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Error sending reply:'**
+  String get errorSendingReply;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @productDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Product deleted'**
+  String get productDeleted;
+
+  /// No description provided for @invalidProductId.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Product ID'**
+  String get invalidProductId;
+
+  /// No description provided for @navigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigation'**
+  String get navigation;
+
+  /// No description provided for @brandsSellers.
+  ///
+  /// In en, this message translates to:
+  /// **'Brands/Sellers'**
+  String get brandsSellers;
+
+  /// No description provided for @conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations'**
+  String get conversations;
+
+  /// No description provided for @adminPanel.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Panel'**
+  String get adminPanel;
+
+  /// No description provided for @userConversations.
+  ///
+  /// In en, this message translates to:
+  /// **'User Conversations'**
+  String get userConversations;
+
+  /// No description provided for @noConversationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get noConversationsYet;
+
+  /// No description provided for @noConversationsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations found'**
+  String get noConversationsFound;
+
+  /// No description provided for @searchConversations.
+  ///
+  /// In en, this message translates to:
+  /// **'Search conversations'**
+  String get searchConversations;
 }
 
 class _AppLocalizationsDelegate

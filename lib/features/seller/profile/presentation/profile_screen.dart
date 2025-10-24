@@ -20,6 +20,8 @@ class ProfileScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.profileTitle),
         backgroundColor: theme.scaffoldBackgroundColor,
+        foregroundColor: theme.colorScheme.onSurface,
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
         elevation: 0,
       ),
       body: Column(
@@ -121,9 +123,15 @@ class _InfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-      title: Text(text),
+      leading: Icon(icon, color: theme.colorScheme.primary),
+      title: Text(
+        text,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurface,
+        ),
+      ),
     );
   }
 }
@@ -140,10 +148,20 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-      title: Text(text),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      leading: Icon(icon, color: theme.colorScheme.primary),
+      title: Text(
+        text,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurface,
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+      ),
       onTap: onTap,
     );
   }

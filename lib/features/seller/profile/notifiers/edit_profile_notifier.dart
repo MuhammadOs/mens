@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mens/features/auth/data/auth_repository_impl.dart';
@@ -29,7 +28,7 @@ class UserProfileData {
     String? email,
     String? phone,
     String? nationalId,
-    DateTime? birthDate
+    DateTime? birthDate,
   }) {
     return UserProfileData(
       firstName: firstName ?? this.firstName,
@@ -37,7 +36,7 @@ class UserProfileData {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       nationalId: nationalId ?? this.nationalId,
-      birthDate: birthDate ?? this.birthDate
+      birthDate: birthDate ?? this.birthDate,
     );
   }
 }
@@ -61,7 +60,7 @@ class EditProfileNotifier extends Notifier<AsyncValue<UserProfileData>> {
         email: userProfile?.email ?? "Partner Email",
         phone: userProfile?.phoneNumber ?? "Partner Phone number",
         nationalId: userProfile?.nationalId ?? "national id",
-        birthDate: userProfile?.birthDate ?? DateTime.now()
+        birthDate: userProfile?.birthDate ?? DateTime.now(),
       ),
     );
   }
@@ -73,7 +72,7 @@ class EditProfileNotifier extends Notifier<AsyncValue<UserProfileData>> {
     state = const AsyncValue.loading();
     try {
       final repo = ref.read(authRepositoryProvider);
-      
+
       // 1. Save the text field data
       await repo.updateProfile(updatedData);
 
@@ -82,16 +81,17 @@ class EditProfileNotifier extends Notifier<AsyncValue<UserProfileData>> {
       // The image upload logic should be separate (e.g., in ShopInfoNotifier).
       // If you intended to upload the *user's* profile pic, you need a different API.
       if (newImage != null) {
-        print("Image update logic would go here, but /users/me doesn't support it.");
+        print(
+          "Image update logic would go here, but /users/me doesn't support it.",
+        );
         // await repo.updateUserAvatar(newImage); // Example
       }
 
       // 3. Update the local state with the saved data
       state = AsyncValue.data(updatedData);
-      
+
       // 4. Refresh the main auth state to get the globally updated UserProfile
       ref.invalidate(authNotifierProvider);
-
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

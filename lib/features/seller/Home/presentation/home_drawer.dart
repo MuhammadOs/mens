@@ -174,7 +174,7 @@ class HomeDrawer extends ConsumerWidget {
           color: theme.colorScheme.surface,
         ),
       ),
-      arrowColor: theme.colorScheme.primary,
+      arrowColor: theme.colorScheme.onPrimary,
       onDetailsPressed: () {
         context.push("/profile");
       },
