@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
+import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
+import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';
 import 'package:mens/features/seller/Products/presentation/product_details_screen.dart';
 
 class ProductListItem extends HookConsumerWidget {
@@ -196,14 +198,20 @@ class ProductListItem extends HookConsumerWidget {
                                   .read(productRepositoryProvider)
                                   .deleteProduct(product.id);
 
-                              // 4. Success: Invalidate provider to refresh list
+                              // 4. Success: Refresh providers to update all product lists
                               ref.invalidate(productsProvider);
+                              ref
+                                  .read(paginatedProductsProvider.notifier)
+                                  .refresh();
+                              ref
+                                  .read(paginatedAdminProductsProvider.notifier)
+                                  .refresh();
 
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Product deleted"),
-                                    backgroundColor: Colors.green,
+                                  SnackBar(
+                                    content: const Text("Product deleted"),
+                                    backgroundColor: theme.colorScheme.primary,
                                   ), // TODO: Localize
                                 );
                               }

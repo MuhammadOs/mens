@@ -175,6 +175,7 @@ class ConversationsView extends HookConsumerWidget {
                         ),
                       )
                     : ConversationDetailView(
+                        key: ValueKey(selectedConversation.value!.id),
                         conversation: selectedConversation.value!,
                         theme: theme,
                       ),
@@ -369,8 +370,50 @@ class ConversationDetailView extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
     final replyController = useTextEditingController();
+    final scrollController = useScrollController();
     final replyState = ref.watch(replyNotifierProvider);
     final replyNotifier = ref.read(replyNotifierProvider.notifier);
+    final canSend = useState(false);
+
+    // Watch the conversations to get the latest data
+    final conversationsAsync = ref.watch(conversationsProvider);
+
+    // Listen to text changes to enable/disable send button
+    useEffect(() {
+      void listener() {
+        canSend.value = replyController.text.trim().isNotEmpty;
+      }
+
+      replyController.addListener(listener);
+      return () => replyController.removeListener(listener);
+    }, [replyController]);
+
+    // Get the updated conversation from the latest data
+    final currentConversation = conversationsAsync.maybeWhen(
+      data: (conversations) {
+        return conversations.firstWhere(
+          (conv) => conv.id == conversation.id,
+          orElse: () => conversation,
+        );
+      },
+      orElse: () => conversation,
+    );
+
+    // Auto-scroll to bottom when messages change
+    useEffect(() {
+      if (scrollController.hasClients) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (scrollController.hasClients) {
+            scrollController.animateTo(
+              scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+      return null;
+    }, [currentConversation.messages.length]);
 
     // Listen for reply status
     ref.listen(replyNotifierProvider, (previous, next) {
@@ -409,7 +452,7 @@ class ConversationDetailView extends HookConsumerWidget {
                 radius: 24,
                 backgroundColor: theme.colorScheme.primaryContainer,
                 child: Text(
-                  conversation.userName.substring(0, 1).toUpperCase(),
+                  currentConversation.userName.substring(0, 1).toUpperCase(),
                   style: TextStyle(
                     color: theme.colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.bold,
@@ -423,13 +466,13 @@ class ConversationDetailView extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      conversation.userName,
+                      currentConversation.userName,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'User ID: ${conversation.userId}',
+                      'User ID: ${currentConversation.userId}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
@@ -444,10 +487,11 @@ class ConversationDetailView extends HookConsumerWidget {
         // Messages
         Expanded(
           child: ListView.builder(
+            controller: scrollController,
             padding: const EdgeInsets.all(16.0),
-            itemCount: conversation.messages.length,
+            itemCount: currentConversation.messages.length,
             itemBuilder: (context, index) {
-              final message = conversation.messages[index];
+              final message = currentConversation.messages[index];
               return MessageBubble(
                 message: message,
                 dateFormat: dateFormat,
@@ -496,13 +540,15 @@ class ConversationDetailView extends HookConsumerWidget {
               ),
               const SizedBox(width: 12),
               IconButton.filled(
-                onPressed:
-                    replyState.isLoading || replyController.text.trim().isEmpty
+                onPressed: replyState.isLoading || !canSend.value
                     ? null
                     : () {
                         final content = replyController.text.trim();
                         if (content.isNotEmpty) {
-                          replyNotifier.sendReply(conversation.id, content);
+                          replyNotifier.sendReply(
+                            currentConversation.id,
+                            content,
+                          );
                         }
                       },
                 icon: replyState.isLoading

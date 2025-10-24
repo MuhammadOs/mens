@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
+import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';
 
 /// State for the Edit Product *operations* (update details, update images).
 /// AsyncValue<void> indicates idle (data(null)), loading, or error.
@@ -10,8 +12,8 @@ typedef EditProductOperationState = AsyncValue<void>;
 /// This provider is watched by the UI to see if a save operation is in progress.
 final editProductNotifierProvider =
     NotifierProvider<EditProductNotifier, EditProductOperationState>(
-  EditProductNotifier.new,
-);
+      EditProductNotifier.new,
+    );
 
 /// Notifier responsible for triggering product updates (details and images).
 class EditProductNotifier extends Notifier<EditProductOperationState> {
@@ -35,7 +37,7 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
     try {
       // Access the repository using ref.read inside the method.
       final repository = ref.read(productRepositoryProvider);
-      
+
       // Await the API call
       await repository.updateProductDetails(
         productId: productId,
@@ -45,14 +47,20 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
         stockQuantity: stockQuantity,
         subCategoryId: subCategoryId,
       );
-      
+
       // If successful, set state back to idle (data(null)).
       state = const AsyncValue.data(null);
       print("Product details update successful.");
 
       // Invalidate providers to trigger UI refresh elsewhere
-      ref.invalidate(productsProvider); // Refreshes the main product list
-      ref.invalidate(productByIdProvider(productId)); // Refreshes the details on this screen
+      // Note: We refresh the paginated providers to update the product in the list
+      ref.read(paginatedProductsProvider.notifier).refresh();
+      ref.read(paginatedAdminProductsProvider.notifier).refresh();
+
+      // Refresh the specific product details
+      ref.invalidate(
+        productByIdProvider(productId),
+      ); // Refreshes the details on this screen
     } catch (e, st) {
       // If an error occurs, set the state to error.
       print("Error updating product details: $e");
@@ -70,7 +78,7 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
     state = const AsyncValue.loading();
     try {
       final repository = ref.read(productRepositoryProvider);
-      
+
       // Call the repository method.
       await repository.updateProductImages(
         productId: productId,
@@ -83,7 +91,11 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
       print("Product images update successful.");
 
       // Invalidate providers to refetch data with new images
-      ref.invalidate(productsProvider);
+      // Note: We refresh the paginated providers to update the product in the list
+      ref.read(paginatedProductsProvider.notifier).refresh();
+      ref.read(paginatedAdminProductsProvider.notifier).refresh();
+
+      // Refresh the specific product details
       ref.invalidate(productByIdProvider(productId));
     } catch (e, st) {
       // Set error state.

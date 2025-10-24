@@ -253,9 +253,8 @@ class ShopInformationScreen extends HookConsumerWidget {
                             value:
                                 dropdownValue, // Use validated value from shopInfo
                             items: dropdownItems,
-                            onChanged: (int? newValue) {
-                              shopInfoNotifier.updateShopCategory(newValue);
-                            },
+                            onChanged:
+                                null, // Disabled - category cannot be changed
                             validator: (value) =>
                                 value == null ? l10n.validationRequired : null,
                           );
