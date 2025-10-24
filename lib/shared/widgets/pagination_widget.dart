@@ -56,11 +56,14 @@ class PaginationWidget extends ConsumerWidget {
                   onPressed: () => onPageChanged(paginatedData.page - 1),
                   child: Text('${paginatedData.page - 1}'),
                 ),
-              
+
               // Current page (highlighted)
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: theme.primaryColor,
                   borderRadius: BorderRadius.circular(4),
@@ -73,7 +76,7 @@ class PaginationWidget extends ConsumerWidget {
                   ),
                 ),
               ),
-              
+
               // Next page number (if exists)
               if (paginatedData.page < paginatedData.totalPages)
                 TextButton(
@@ -107,9 +110,11 @@ class PaginationWidget extends ConsumerWidget {
           if (showItemsInfo)
             Text(
               l10n.itemsRange(
-                (paginatedData.page - 1) * paginatedData.pageSize + 1, // startItem
-                ((paginatedData.page * paginatedData.pageSize) > paginatedData.totalCount) 
-                    ? paginatedData.totalCount 
+                (paginatedData.page - 1) * paginatedData.pageSize +
+                    1, // startItem
+                ((paginatedData.page * paginatedData.pageSize) >
+                        paginatedData.totalCount)
+                    ? paginatedData.totalCount
                     : (paginatedData.page * paginatedData.pageSize), // endItem
                 paginatedData.totalCount,
               ),
@@ -152,11 +157,14 @@ class PaginationWidget extends ConsumerWidget {
                         style: theme.textTheme.bodySmall,
                       ),
                     ),
-                  
+
                   // Current page (highlighted)
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: theme.primaryColor,
                       borderRadius: BorderRadius.circular(4),
@@ -169,7 +177,7 @@ class PaginationWidget extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  
+
                   // Next page number (if exists)
                   if (paginatedData.page < paginatedData.totalPages)
                     TextButton(

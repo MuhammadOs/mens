@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mens/features/auth/data/auth_repository_impl.dart';
+import 'package:mens/shared/providers/loading_provider.dart';
 
 // Create a provider for secure storage
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
@@ -27,6 +28,9 @@ final apiServiceProvider = Provider((ref) {
 
   // Add a LogInterceptor for debugging network requests in development
   _dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
+
+  // Add LoadingInterceptor to manage global loading state
+  _dio.interceptors.add(LoadingInterceptor(ref));
 
   // Add our custom AuthInterceptor to handle tokens and 401 errors
   _dio.interceptors.add(AuthInterceptor(storage, prefs, ref));
@@ -95,5 +99,33 @@ class AuthInterceptor extends Interceptor {
 
     // If the error is not a 401, just pass it along without any special handling.
     return handler.next(err);
+  }
+}
+
+/// A custom Dio Interceptor to manage global loading state.
+class LoadingInterceptor extends Interceptor {
+  final Ref _ref;
+
+  LoadingInterceptor(this._ref);
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    // Increment loading counter before sending request
+    _ref.read(loadingNotifierProvider.notifier).increment();
+    handler.next(options);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    // Decrement loading counter after receiving response
+    _ref.read(loadingNotifierProvider.notifier).decrement();
+    handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    // Decrement loading counter on error
+    _ref.read(loadingNotifierProvider.notifier).decrement();
+    handler.next(err);
   }
 }

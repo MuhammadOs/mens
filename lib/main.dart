@@ -7,6 +7,7 @@ import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/data/auth_repository_impl.dart';
 import 'package:mens/shared/theme/app_theme.dart';
 import 'package:mens/shared/theme/theme_provider.dart';
+import 'package:mens/shared/widgets/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
@@ -41,16 +42,18 @@ class Mens extends ConsumerWidget {
     // Watch theme and locale providers
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: "Men's",
-      routerConfig: router,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
-      locale: locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+    return LoadingOverlay(
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: "Men's",
+        routerConfig: router,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: themeMode,
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+      ),
     );
   }
 }

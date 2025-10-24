@@ -3,11 +3,11 @@ class PaginationParams {
   final int page;
   final int pageSize;
 
-  const PaginationParams({this.page = 1, this.pageSize = 20});
+  const PaginationParams({this.page = 1, this.pageSize = 10});
 
   /// Create pagination params from query parameters
   factory PaginationParams.fromQuery({int? page, int? pageSize}) {
-    return PaginationParams(page: page ?? 1, pageSize: pageSize ?? 20);
+    return PaginationParams(page: page ?? 1, pageSize: pageSize ?? 10);
   }
 
   /// Convert to query parameters map
