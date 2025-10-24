@@ -49,6 +49,7 @@ abstract class ProductRepository {
   Future<List<String>> updateProductImages({
     required int productId,
     required List<XFile> images,
+    required List<String> existingImageUrls,
     int primaryImageIndex = 0,
     List<String>? imageAltTexts,
   });
@@ -335,14 +336,16 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<String>> updateProductImages({
     required int productId,
-    required List<XFile> images, // Only new images to upload
+    required List<XFile> images, // All images (new files) to upload
+    required List<String> existingImageUrls, // Existing image URLs to keep
     int primaryImageIndex = 0,
     List<String>? imageAltTexts, // Optional
   }) async {
     try {
       print("=== UPDATE PRODUCT IMAGES DEBUG ===");
       print("Product ID: $productId (type: ${productId.runtimeType})");
-      print("Number of images: ${images.length}");
+      print("Number of new images: ${images.length}");
+      print("Number of existing URLs: ${existingImageUrls.length}");
       print(
         "Primary image index: $primaryImageIndex (type: ${primaryImageIndex.runtimeType})",
       );
@@ -357,6 +360,7 @@ class ProductRepositoryImpl implements ProductRepository {
       }
 
       // Create FormData, keys must match API
+      // Note: API expects only NEW files - existing URLs are preserved by backend
       final formData = FormData.fromMap({
         'Images': imageFiles,
         'PrimaryImageIndex': primaryImageIndex, // Ensure this is an int

@@ -92,6 +92,7 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
   Future<void> updateImages({
     required int productId,
     required List<XFile> images,
+    required List<String> existingImageUrls,
     int primaryImageIndex = 0,
   }) async {
     // Set state to loading.
@@ -99,7 +100,8 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
 
     print("=== EDIT NOTIFIER: UPDATE IMAGES ===");
     print("Product ID: $productId (type: ${productId.runtimeType})");
-    print("Images count: ${images.length}");
+    print("New images count: ${images.length}");
+    print("Existing URLs count: ${existingImageUrls.length}");
     print(
       "Primary index: $primaryImageIndex (type: ${primaryImageIndex.runtimeType})",
     );
@@ -112,6 +114,7 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
       final List<String> newUrls = await repository.updateProductImages(
         productId: productId,
         images: images,
+        existingImageUrls: existingImageUrls,
         primaryImageIndex: primaryImageIndex,
       );
 

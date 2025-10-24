@@ -132,12 +132,19 @@ class EditProductScreen extends HookConsumerWidget {
                     // Check if images have changed:
                     // 1. New images were added (XFiles)
                     // 2. Existing images were removed (count changed)
-                    // Note: Changing only the primary index on existing images
-                    // currently requires new images to be uploaded
+                    // 3. Primary index changed
+                    // 4. Order changed (comparing URLs)
+                    final bool hasNewImages = newImagesToUpload.isNotEmpty;
+                    final bool imagesRemoved = existingImageUrls.length <
+                        currentProductData.imageUrls.length;
+                    final bool primaryIndexChanged =
+                        primaryImageIndex.value != 0 || // If not first image
+                        (existingImageUrls.isNotEmpty &&
+                            existingImageUrls.first !=
+                                currentProductData.imageUrls.firstOrNull);
+                    
                     final bool imagesChanged =
-                        newImagesToUpload.isNotEmpty ||
-                        existingImageUrls.length !=
-                            currentProductData.imageUrls.length;
+                        hasNewImages || imagesRemoved || primaryIndexChanged;
 
                     bool imagesSuccess = true;
                     bool detailsSuccess = true;
@@ -156,71 +163,27 @@ class EditProductScreen extends HookConsumerWidget {
 
                     // 1. Update Images FIRST (if changed)
                     if (imagesChanged) {
-                      if (newImagesToUpload.isNotEmpty) {
-                        try {
-                          print("Uploading new images...");
-
-                          // Calculate the correct primary index for the NEW images only
-                          // The primaryImageIndex.value is relative to ALL images (existing + new)
-                          // We need to adjust it to be relative to just the new images
-                          int adjustedPrimaryIndex = 0;
-
-                          // Find the item at the primary index position
-                          final primaryItem =
-                              images.value[primaryImageIndex.value];
-
-                          // If the primary item is a new image (XFile), find its index in newImagesToUpload
-                          if (primaryItem is XFile) {
-                            adjustedPrimaryIndex = newImagesToUpload.indexWhere(
-                              (file) => file.path == primaryItem.path,
-                            );
-                            // If not found, default to 0
-                            if (adjustedPrimaryIndex == -1) {
-                              adjustedPrimaryIndex = 0;
-                            }
-                          } else {
-                            // Primary is an existing URL, so default to first new image
-                            adjustedPrimaryIndex = 0;
-                          }
-
-                          print(
-                            "Original primary index: ${primaryImageIndex.value}",
-                          );
-                          print(
-                            "Adjusted primary index for new images: $adjustedPrimaryIndex",
-                          );
-
-                          await editNotifier.updateImages(
-                            productId: productId,
-                            images: newImagesToUpload,
-                            primaryImageIndex: adjustedPrimaryIndex,
-                          );
-                          print("Images uploaded successfully!");
-                        } catch (e, stackTrace) {
-                          imagesSuccess = false;
-                          print("❌ ERROR during updateImages call: $e");
-                          print("Stack trace: $stackTrace");
-                        }
-                      } else if (existingImageUrls.isEmpty) {
-                        // Handle all images removed
-                        try {
-                          print("Removing all images...");
-                          await editNotifier.updateImages(
-                            productId: productId,
-                            images: [],
-                            primaryImageIndex: 0,
-                          );
-                          print("All images removed successfully!");
-                        } catch (e, stackTrace) {
-                          imagesSuccess = false;
-                          print("❌ ERROR removing images: $e");
-                          print("Stack trace: $stackTrace");
-                        }
-                      } else {
-                        // Handle only primary index/order change
-                        print(
-                          "Only primary index/order changed - Check API requirements.",
+                      try {
+                        print("Updating product images...");
+                        print("Has new images: $hasNewImages");
+                        print("Images removed: $imagesRemoved");
+                        print("Primary index changed: $primaryIndexChanged");
+                        
+                        // Send ALL images to the API:
+                        // - New images (XFiles) to upload
+                        // - Existing URLs to preserve
+                        await editNotifier.updateImages(
+                          productId: productId,
+                          images: newImagesToUpload,
+                          existingImageUrls: existingImageUrls,
+                          primaryImageIndex: primaryImageIndex.value,
                         );
+                        
+                        print("Images updated successfully!");
+                      } catch (e, stackTrace) {
+                        imagesSuccess = false;
+                        print("❌ ERROR during updateImages call: $e");
+                        print("Stack trace: $stackTrace");
                       }
                     } else {
                       print(
