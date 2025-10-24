@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/admin/conversations/data/conversations_repository.dart';
 import 'package:mens/features/admin/conversations/domain/conversation.dart';
+import 'package:mens/features/admin/conversations/presentation/notifiers/reply_notifier.dart';
 import 'package:mens/features/admin/presentation/admin_drawer.dart';
 
 class ConversationsView extends HookConsumerWidget {
@@ -36,23 +35,6 @@ class ConversationsView extends HookConsumerWidget {
         title: const Text("User Conversations"),
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              context.go(AppRoutes.adminProducts);
-            },
-            icon: const Icon(Icons.inventory_2),
-            label: const Text("Products"),
-          ),
-          const SizedBox(width: 8),
-          TextButton.icon(
-            onPressed: () {
-              context.go(AppRoutes.adminBrands);
-            },
-            icon: const Icon(Icons.store),
-            label: const Text("Brands"),
-          ),
-        ],
       ),
       body: conversationsAsync.when(
         data: (conversations) {
@@ -366,7 +348,7 @@ class ConversationListItem extends StatelessWidget {
   }
 }
 
-class ConversationDetailView extends StatelessWidget {
+class ConversationDetailView extends HookConsumerWidget {
   final Conversation conversation;
   final ThemeData theme;
 
@@ -377,8 +359,31 @@ class ConversationDetailView extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
+    final replyController = useTextEditingController();
+    final replyState = ref.watch(replyNotifierProvider);
+    final replyNotifier = ref.read(replyNotifierProvider.notifier);
+
+    // Listen for reply status
+    ref.listen(replyNotifierProvider, (previous, next) {
+      if (previous is AsyncLoading && next is AsyncData) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Reply sent successfully!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        replyController.clear();
+      } else if (next is AsyncError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error sending reply: ${next.error}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
 
     return Column(
       children: [
@@ -442,6 +447,70 @@ class ConversationDetailView extends StatelessWidget {
                 theme: theme,
               );
             },
+          ),
+        ),
+
+        // Reply Input
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            border: Border(
+              top: BorderSide(color: theme.colorScheme.outlineVariant),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: replyController,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    hintText: 'Type your reply...',
+                    filled: true,
+                    fillColor: theme.colorScheme.surfaceContainerHighest,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              IconButton.filled(
+                onPressed:
+                    replyState.isLoading || replyController.text.trim().isEmpty
+                    ? null
+                    : () {
+                        final content = replyController.text.trim();
+                        if (content.isNotEmpty) {
+                          replyNotifier.sendReply(conversation.id, content);
+                        }
+                      },
+                icon: replyState.isLoading
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      )
+                    : const Icon(Icons.send),
+                tooltip: 'Send Reply',
+              ),
+            ],
           ),
         ),
       ],

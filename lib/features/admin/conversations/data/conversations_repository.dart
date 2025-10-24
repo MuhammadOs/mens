@@ -5,6 +5,7 @@ import 'package:mens/features/admin/conversations/domain/conversation.dart';
 
 abstract class ConversationsRepository {
   Future<List<Conversation>> getAllConversations();
+  Future<void> replyToConversation(int conversationId, String content);
 }
 
 final conversationsRepositoryProvider = Provider<ConversationsRepository>((
@@ -29,6 +30,23 @@ class ConversationsRepositoryImpl implements ConversationsRepository {
       throw Exception('Failed to load conversations');
     } on DioException {
       throw Exception('Network error fetching conversations.');
+    }
+  }
+
+  @override
+  Future<void> replyToConversation(int conversationId, String content) async {
+    try {
+      final response = await _dio.post(
+        '/contact/conversations/$conversationId/reply',
+        data: {'content': content},
+      );
+      if (response.statusCode != 200 &&
+          response.statusCode != 201 &&
+          response.statusCode != 204) {
+        throw Exception('Failed to send reply');
+      }
+    } on DioException {
+      throw Exception('Network error sending reply.');
     }
   }
 }

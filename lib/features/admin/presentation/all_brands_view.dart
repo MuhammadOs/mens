@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/admin/brands/domain/brand.dart';
 import 'package:mens/features/admin/presentation/admin_drawer.dart';
 import 'package:mens/features/admin/presentation/notifiers/paginated_brands_notifier.dart';
@@ -31,26 +29,12 @@ class AllBrandsView extends HookConsumerWidget {
       backgroundColor: theme.colorScheme.surface,
       drawer: const AdminDrawer(),
       appBar: AppBar(
-        title: const Text("All Brands/Sellers"),
+        title: Text(
+          "All Brands/Sellers",
+          style: TextStyle(color: theme.colorScheme.onSurface),
+        ),
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              context.go(AppRoutes.adminProducts);
-            },
-            icon: const Icon(Icons.inventory_2),
-            label: const Text("Products"),
-          ),
-          const SizedBox(width: 8),
-          TextButton.icon(
-            onPressed: () {
-              context.go(AppRoutes.adminConversations);
-            },
-            icon: const Icon(Icons.chat),
-            label: const Text("Conversations"),
-          ),
-        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
