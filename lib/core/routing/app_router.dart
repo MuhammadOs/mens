@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mens/features/admin/presentation/admin_home_screen.dart';
+import 'package:mens/features/admin/presentation/all_brands_view.dart';
+import 'package:mens/features/admin/presentation/all_products_view.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/auth/presentation/signin/signin_screen.dart';
@@ -25,6 +26,8 @@ class AppRoutes {
   static const register = '/register';
   static const home = '/home';
   static const adminHome = '/admin/home';
+  static const adminProducts = '/admin/products';
+  static const adminBrands = '/admin/brands';
   static const products = '/products';
   static const paginatedProducts = '/paginated-products';
   static const addProduct = '/addProduct';
@@ -60,7 +63,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminHome,
-        builder: (context, state) => const AdminHomeScreen(),
+        redirect: (context, state) => AppRoutes.adminProducts,
+      ),
+      GoRoute(
+        path: AppRoutes.adminProducts,
+        builder: (context, state) => const AllProductsView(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminBrands,
+        builder: (context, state) => const AllBrandsView(),
       ),
       GoRoute(
         path: AppRoutes.products,
@@ -152,28 +163,35 @@ final routerProvider = Provider<GoRouter>((ref) {
       //    AND trying to access a protected route -> redirect to signIn.
       if (!isLoggedIn && !isGoingToAuthRoute) {
         print("Redirect: Not logged in, not going to auth -> to signIn");
+        return AppRoutes.signIn;
+      }
+
+      // 4. If IS logged in, check role-based routing
+      if (isLoggedIn) {
         final userRole = authState.asData?.value?.role;
 
         // --- ROLE-BASED REDIRECT LOGIC ---
         if (userRole == 'Admin') {
-          // If admin is logged in and tries to go to a seller route, redirect to admin home
+          // If admin is logged in and tries to go to a seller route, redirect to admin products
           if (location == AppRoutes.home || isGoingToAuthRoute) {
-            return AppRoutes.adminHome;
+            print("Redirect: Admin going to seller route -> to admin products");
+            return AppRoutes.adminProducts;
           }
         } else if (userRole == 'StoreOwner') {
           // If seller is logged in and tries to go to an admin route, redirect to seller home
-          if (location == AppRoutes.adminHome || isGoingToAuthRoute) {
+          if (location.startsWith('/admin') || isGoingToAuthRoute) {
+            print("Redirect: Seller going to admin route -> to seller home");
             return AppRoutes.home;
           }
         }
 
-        return null;
-      }
-
-      // 4. If IS logged in AND trying to access an auth route -> redirect to home.
-      if (isLoggedIn && isGoingToAuthRoute) {
-        print("Redirect: Logged in, going to auth -> to home");
-        return AppRoutes.home;
+        // If logged in and trying to access auth routes, redirect based on role
+        if (isGoingToAuthRoute) {
+          print(
+            "Redirect: Logged in, going to auth -> redirecting based on role",
+          );
+          return userRole == 'Admin' ? AppRoutes.adminProducts : AppRoutes.home;
+        }
       }
 
       // 5. Otherwise (logged in on protected route, logged out on auth route), allow.

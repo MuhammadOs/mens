@@ -7,10 +7,23 @@ import 'package:mens/shared/providers/paginated_notifier.dart';
 
 /// Notifier for paginated admin products (all products across all stores)
 class PaginatedAdminProductsNotifier extends PaginatedNotifier<Product> {
+  int? _categoryId;
+  int? _subCategoryId;
+
+  void setFilters({int? categoryId, int? subCategoryId}) {
+    _categoryId = categoryId;
+    _subCategoryId = subCategoryId;
+    loadFirstPage();
+  }
+
   @override
   Future<PaginatedResponse<Product>> fetchPage(PaginationParams params) async {
     final repository = ref.read(adminRepositoryProvider);
-    return repository.getAllProductsPaginated(pagination: params);
+    return repository.getAllProductsPaginated(
+      pagination: params,
+      categoryId: _categoryId?.toString(),
+      subCategoryId: _subCategoryId?.toString(),
+    );
   }
 }
 

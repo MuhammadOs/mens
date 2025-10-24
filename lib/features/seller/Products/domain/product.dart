@@ -8,7 +8,7 @@ class Product {
   final String description;
   final double price;
   @JsonKey(name: 'stockQuantity')
-  final int stockQuantity;
+  final int? stockQuantity;
   final int categoryId;
   final String categoryName;
   final int subCategoryId;
@@ -16,7 +16,7 @@ class Product {
   final int storeId;
   final String? storeName;
   final List<String> imageUrls;
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final DateTime? updatedAt;
 
   Product({
@@ -24,16 +24,16 @@ class Product {
     required this.name,
     required this.description,
     required this.price,
-    required this.stockQuantity,
+    this.stockQuantity,
     required this.categoryId,
     required this.categoryName,
     required this.subCategoryId,
     required this.subCategoryName,
     required this.storeId,
-    this.storeName, // ✅ Made nullable
+    this.storeName,
     required this.imageUrls,
-    required this.createdAt, // ✅ ADDED
-    this.updatedAt, // ✅ ADDED
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) =>
@@ -42,7 +42,6 @@ class Product {
 
   String? get firstImageUrl => imageUrls.isNotEmpty ? imageUrls.first : null;
 
-  // ✅ ADD COPYWITH METHOD
   Product copyWith({
     int? id,
     String? name,

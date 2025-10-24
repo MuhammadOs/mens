@@ -77,7 +77,9 @@ class AuthInterceptor extends Interceptor {
         await _storage.delete(key: 'jwt_token');
 
         // 2. Clear the cached user profile data from shared preferences.
-        await _prefs.remove('user_profile_cache'); // Ensure this key matches your repository key
+        await _prefs.remove(
+          'user_profile_cache',
+        ); // Ensure this key matches your repository key
 
         // 3. Update the AuthNotifier's state to logged out (null).
         //    This change will be picked up by the GoRouter's redirect logic,
@@ -87,7 +89,6 @@ class AuthInterceptor extends Interceptor {
         Future.microtask(() {
           _ref.read(authNotifierProvider.notifier).setLoggedOut();
         });
-
       } catch (e) {
         print("AuthInterceptor: Error during automatic logout process: $e");
       }

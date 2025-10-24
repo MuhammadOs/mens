@@ -17,9 +17,7 @@ class LoadingOverlay extends ConsumerWidget {
         if (isLoading)
           Container(
             color: Colors.black.withValues(alpha: 0.5),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           ),
       ],
     );

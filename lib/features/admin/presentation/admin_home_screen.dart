@@ -11,16 +11,10 @@ class AdminHomeScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
 
-    final screens = [
-      const AllProductsView(),
-      //const AllBrandsView(),
-    ];
+    final screens = [const AllProductsView(), const AllBrandsView()];
 
     return Scaffold(
-      body: IndexedStack(
-        index: selectedIndex.value,
-        children: screens,
-      ),
+      body: IndexedStack(index: selectedIndex.value, children: screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex.value,
         onTap: (index) => selectedIndex.value = index,

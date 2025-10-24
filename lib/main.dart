@@ -42,18 +42,19 @@ class Mens extends ConsumerWidget {
     // Watch theme and locale providers
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
-    return LoadingOverlay(
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: "Men's",
-        routerConfig: router,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: themeMode,
-        locale: locale,
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-      ),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: "Men's",
+      routerConfig: router,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      builder: (context, child) {
+        return LoadingOverlay(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

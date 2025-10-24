@@ -10,8 +10,14 @@ abstract class AdminRepository {
   Future<List<Product>> getAllProducts();
   Future<PaginatedResponse<Product>> getAllProductsPaginated({
     PaginationParams? pagination,
+    String? categoryId,
+    String? subCategoryId,
   });
   Future<List<Brand>> getAllBrands();
+  Future<PaginatedResponse<Brand>> getAllBrandsPaginated({
+    PaginationParams? pagination,
+    String? categoryId,
+  });
 }
 
 final adminRepositoryProvider = Provider<AdminRepository>((ref) {
@@ -37,19 +43,30 @@ class AdminRepositoryImpl implements AdminRepository {
     }
   }
 
-  @override
   Future<PaginatedResponse<Product>> getAllProductsPaginated({
     PaginationParams? pagination,
+    String? categoryId,
+    String? subCategoryId,
   }) async {
     final paginationParams = pagination ?? const PaginationParams();
 
     try {
+      final queryParams = <String, dynamic>{
+        'page': paginationParams.page,
+        'pageSize': paginationParams.pageSize,
+      };
+
+      if (categoryId != null) {
+        queryParams['categoryId'] = categoryId;
+      }
+
+      if (subCategoryId != null) {
+        queryParams['subCategoryId'] = subCategoryId;
+      }
+
       final response = await _dio.get(
         '/products',
-        queryParameters: {
-          'page': paginationParams.page,
-          'pageSize': paginationParams.pageSize,
-        },
+        queryParameters: queryParams,
       );
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
@@ -72,11 +89,42 @@ class AdminRepositoryImpl implements AdminRepository {
     // NOTE: This is an assumed endpoint. Replace with your actual API endpoint.
     try {
       final response = await _dio.get('/stores');
-      if (response.statusCode == 200 && response.data is List) {
-        // This mapping assumes the API returns a list matching the Brand model.
-        // You may need to adjust this based on the actual API response.
-        final List<dynamic> data = response.data;
+      if (response.statusCode == 200 && response.data['items'] is List) {
+        final List<dynamic> data = response.data['items'];
         return data.map((json) => Brand.fromJson(json)).toList();
+      }
+      throw Exception('Failed to load all brands');
+    } on DioException {
+      throw Exception('Network error fetching all brands.');
+    }
+  }
+
+  @override
+  Future<PaginatedResponse<Brand>> getAllBrandsPaginated({
+    PaginationParams? pagination,
+    String? categoryId,
+  }) async {
+    final paginationParams = pagination ?? const PaginationParams();
+
+    try {
+      final queryParams = <String, dynamic>{
+        'page': paginationParams.page,
+        'pageSize': paginationParams.pageSize,
+      };
+
+      if (categoryId != null) {
+        queryParams['categoryId'] = categoryId;
+      }
+
+      final response = await _dio.get('/stores', queryParameters: queryParams);
+
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        final responseData = response.data as Map<String, dynamic>;
+
+        return PaginatedResponse.fromJsonTyped<Brand>(
+          responseData,
+          Brand.fromJson,
+        );
       }
       throw Exception('Failed to load all brands');
     } on DioException {
