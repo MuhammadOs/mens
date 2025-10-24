@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/admin/conversations/data/conversations_repository.dart';
 import 'package:mens/features/admin/conversations/domain/conversation.dart';
+import 'package:mens/features/admin/presentation/admin_drawer.dart';
 
 class ConversationsView extends HookConsumerWidget {
   const ConversationsView({super.key});
@@ -30,6 +31,7 @@ class ConversationsView extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      drawer: const AdminDrawer(),
       appBar: AppBar(
         title: const Text("User Conversations"),
         backgroundColor: theme.colorScheme.surface,

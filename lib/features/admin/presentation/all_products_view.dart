@@ -3,8 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/routing/app_router.dart';
+import 'package:mens/features/admin/presentation/admin_drawer.dart';
 import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
+import 'package:mens/features/seller/Products/presentation/product_details_screen.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/pagination_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -29,6 +31,7 @@ class AllProductsView extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      drawer: const AdminDrawer(),
       appBar: AppBar(
         title: const Text("All Products"),
         backgroundColor: theme.colorScheme.surface,
@@ -75,13 +78,18 @@ class AllProductsView extends HookConsumerWidget {
           categoriesAsync.when(
             data: (categories) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 // Main Categories
-                Container(
+                SizedBox(
                   height: 50,
-                  margin: const EdgeInsets.only(left: 16, bottom: 8),
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 8,
+                    ),
                     itemCount: categories.length + 1,
                     itemBuilder: (context, index) {
                       if (index == 0) {
@@ -180,11 +188,15 @@ class AllProductsView extends HookConsumerWidget {
                         (cat) => cat.id == selectedCategoryId.value,
                       );
 
-                      return Container(
-                        height: 40,
-                        margin: const EdgeInsets.only(left: 16, bottom: 16),
+                      return SizedBox(
+                        height: 48,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            bottom: 16,
+                          ),
                           itemCount: selectedCategory.subCategories.length,
                           itemBuilder: (context, index) {
                             final subCategory =
@@ -194,7 +206,7 @@ class AllProductsView extends HookConsumerWidget {
                               child: FilterChip(
                                 label: Text(
                                   subCategory.name,
-                                  style: const TextStyle(fontSize: 12),
+                                  style: const TextStyle(fontSize: 13),
                                 ),
                                 selected:
                                     selectedSubCategoryId.value ==
@@ -223,7 +235,7 @@ class AllProductsView extends HookConsumerWidget {
                                 checkmarkColor:
                                     theme.colorScheme.onPrimaryContainer,
                                 labelStyle: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color:
                                       selectedSubCategoryId.value ==
                                           subCategory.id
@@ -245,8 +257,8 @@ class AllProductsView extends HookConsumerWidget {
                                   ),
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
+                                  horizontal: 16,
+                                  vertical: 8,
                                 ),
                               ),
                             );
@@ -301,7 +313,7 @@ class AllProductsView extends HookConsumerWidget {
                             crossAxisCount: 3,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.7,
+                            childAspectRatio: 0.75,
                           ),
                       itemCount: 12,
                       itemBuilder: (context, index) =>
@@ -323,7 +335,7 @@ class AllProductsView extends HookConsumerWidget {
                             crossAxisCount: 3,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.7,
+                            childAspectRatio: 0.75,
                           ),
                       itemCount: paginatedState.allItems.length,
                       itemBuilder: (context, index) {
@@ -359,82 +371,75 @@ class _ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ProductDetailsScreen(product: product, isAdmin: true),
           ),
-        ],
-      ),
+        );
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Product Image
+          // Product Image - Square with rounded corners
           Expanded(
-            flex: 3,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: double.infinity,
+                color: theme.colorScheme.surfaceContainerHighest,
                 child: product.firstImageUrl != null
                     ? Image.network(
                         product.firstImageUrl!,
                         fit: BoxFit.cover,
-                        width: double.infinity,
                         errorBuilder: (context, error, stackTrace) => Center(
                           child: Icon(
                             Icons.image_not_supported,
-                            color: Colors.grey[400],
-                            size: 48,
+                            color: theme.colorScheme.onSurface.withOpacity(0.3),
+                            size: 40,
                           ),
                         ),
                       )
                     : Center(
                         child: Icon(
                           Icons.image_not_supported,
-                          color: Colors.grey[400],
-                          size: 48,
+                          color: theme.colorScheme.onSurface.withOpacity(0.3),
+                          size: 40,
                         ),
                       ),
               ),
             ),
           ),
+          const SizedBox(height: 8),
 
-          // Product Info
+          // Product Name
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "\$${product.price.toStringAsFixed(2)}",
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(
+              product.name,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurface,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Product Price
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(
+              "\$${product.price.toStringAsFixed(2)}",
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -448,38 +453,33 @@ class _ProductCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
             child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-              ),
-              child: const Bone.square(size: 100),
+              width: double.infinity,
+              color: theme.colorScheme.surfaceContainerHighest,
+              child: const Center(child: Bone.square(size: 80)),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Bone.text(words: 2),
-                SizedBox(height: 4),
-                Bone.text(words: 1),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          child: Bone.text(words: 2),
+        ),
+        const SizedBox(height: 4),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          child: Bone.text(words: 1),
+        ),
+      ],
     );
   }
 }

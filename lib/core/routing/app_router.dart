@@ -11,6 +11,7 @@ import 'package:mens/features/seller/Home/presentation/home_screen.dart';
 import 'package:mens/features/seller/Orders/presentation/orders_screen.dart';
 import 'package:mens/features/seller/Products/presentation/add_product_screen.dart';
 import 'package:mens/features/seller/Products/presentation/edit_products_screen.dart';
+import 'package:mens/features/seller/Products/presentation/product_details_screen.dart';
 import 'package:mens/features/seller/Products/presentation/products_screen.dart';
 import 'package:mens/features/seller/Products/presentation/paginated_products_screen.dart';
 import 'package:mens/features/seller/Statistics/presentation/stat_screen.dart';
@@ -41,6 +42,7 @@ class AppRoutes {
   static const shopInformation = '/profile/shop-information';
   static const notifications = '/profile/notifications';
   static const editProduct = '/products/:id/edit';
+  static const productDetails = '/product-details';
   static const contactUs = '/contact-us';
 }
 

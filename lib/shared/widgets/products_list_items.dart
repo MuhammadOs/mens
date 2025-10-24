@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
+import 'package:mens/features/seller/Products/presentation/product_details_screen.dart';
 
 class ProductListItem extends HookConsumerWidget {
   const ProductListItem({super.key, required this.product});
@@ -16,155 +17,217 @@ class ProductListItem extends HookConsumerWidget {
     final theme = Theme.of(context);
     // Use AppLocalizations.of here as it's a StatelessWidget
     final l10n = AppLocalizations.of(context)!;
-    
+
     // Local state for tracking delete loading status
     final isLoading = useState(false);
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [ // Optional: Add a subtle shadow
-           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2)),
-        ]
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            // Display the first image URL from the product data
-            child: product.firstImageUrl != null
-                ? Image.network(
-                    product.firstImageUrl!,
-                    height: 80, width: 80, fit: BoxFit.cover,
-                    // Handle image loading errors
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      height: 80, width: 80, color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
-                    ),
-                  )
-                : Container( // Placeholder if no image URL
-                    height: 80, width: 80, color: Colors.grey[300],
-                    child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
-                  ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ProductDetailsScreen(product: product, isAdmin: false),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  product.storeName ?? l10n.storeNamePlaceholder, // TODO: Add l10n.storeNamePlaceholder
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                // Format price properly
-                Text(
-                  "\$${product.price.toStringAsFixed(2)}  •  ${l10n.stock}: ${product.stockQuantity}", // Use stockQuantity
-                  style: theme.textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 4),
-                // TODO: Add Rating and Sold count if available in your Product model
-                // Row(
-                //   children: [
-                //     Icon(Icons.star, color: Colors.amber, size: 16),
-                //     const SizedBox(width: 4),
-                //     Text('${product.rating} (${product.sold} ${l10n.productSold})',
-                //       style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
-                //     ),
-                //   ],
-                // ),
-              ],
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            // Optional: Add a subtle shadow
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
             ),
-          ),
-          // Action Buttons (Edit/Delete)
-          Column(
-            mainAxisSize: MainAxisSize.min, // Prevent column from taking max height
-            children: [
-              IconButton(
-                onPressed: () {
-                   // Navigate to Edit Product Screen, passing product ID
-                   // Ensure your AppRoutes.editProduct path is defined as '/products/:id/edit'
-                   context.push('/products/${product.id}/edit');
-                },
-                icon: Icon(Icons.edit_outlined, color: theme.colorScheme.primary, size: 20),
-                tooltip: l10n.edit, // TODO: Add l10n.edit
-              ),
-              // Show loading spinner *instead of* the delete icon while deleting
-              isLoading.value
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      // Apply padding to match IconButton's tap target size (approx)
-                      child: Padding(
-                        padding: EdgeInsets.all(14.0), // Adjust padding as needed
-                        child: CircularProgressIndicator(strokeWidth: 2),
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              // Display the first image URL from the product data
+              child: product.firstImageUrl != null
+                  ? Image.network(
+                      product.firstImageUrl!,
+                      height: 80,
+                      width: 80,
+                      fit: BoxFit.cover,
+                      // Handle image loading errors
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 80,
+                        width: 80,
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.broken_image_outlined,
+                          color: Colors.grey,
+                        ),
                       ),
                     )
-                  : IconButton(
-                      icon: Icon(Icons.delete_outline, color: theme.colorScheme.error, size: 20),
-                      tooltip: l10n.delete, // TODO: Add l10n.delete
-                      onPressed: () async {
-                        // 1. Show confirmation dialog
-                        final bool? confirmed = await showDialog<bool>(
-                          context: context,
-                          builder: (dialogContext) => AlertDialog(
-                            title: Text(l10n.delete), // TODO: Add l10n.delete and "Delete Product?"
-                            content: Text("Are you sure you want to delete '${product.name}'?"), // TODO: Localize
-                            actions: [
-                              TextButton(
-                                child: Text("Cancel"), // TODO: Localize
-                                onPressed: () => Navigator.of(dialogContext).pop(false),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error),
-                                child: Text(l10n.delete),
-                                onPressed: () => Navigator.of(dialogContext).pop(true),
-                              ),
-                            ],
-                          ),
-                        );
-
-                        // 2. If user confirmed, proceed with deletion
-                        if (confirmed == true) {
-                          isLoading.value = true; // Show loading spinner
-                          try {
-                            // 3. Call the repository method
-                            await ref.read(productRepositoryProvider).deleteProduct(product.id);
-                            
-                            // 4. Success: Invalidate provider to refresh list
-                            ref.invalidate(productsProvider);
-                            
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Product deleted"), backgroundColor: Colors.green), // TODO: Localize
-                              );
-                            }
-                          } catch (e) {
-                            // 5. Error: Show error message
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Error: $e"), backgroundColor: theme.colorScheme.error), // TODO: Localize
-                              );
-                            }
-                            isLoading.value = false; // Hide loading spinner on error
-                          }
-                          // No need to set isLoading.value = false on success, as the widget will be removed by the refresh
-                        }
-                      },
+                  : Container(
+                      // Placeholder if no image URL
+                      height: 80,
+                      width: 80,
+                      color: Colors.grey[300],
+                      child: const Icon(
+                        Icons.image_not_supported_outlined,
+                        color: Colors.grey,
+                      ),
                     ),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    product.storeName ??
+                        l10n.storeNamePlaceholder, // TODO: Add l10n.storeNamePlaceholder
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.hintColor,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  // Format price properly
+                  Text(
+                    "\$${product.price.toStringAsFixed(2)}  •  ${l10n.stock}: ${product.stockQuantity}", // Use stockQuantity
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  // TODO: Add Rating and Sold count if available in your Product model
+                  // Row(
+                  //   children: [
+                  //     Icon(Icons.star, color: Colors.amber, size: 16),
+                  //     const SizedBox(width: 4),
+                  //     Text('${product.rating} (${product.sold} ${l10n.productSold})',
+                  //       style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
+                  //     ),
+                  //   ],
+                  // ),
+                ],
+              ),
+            ),
+            // Action Buttons (Edit/Delete)
+            Column(
+              mainAxisSize:
+                  MainAxisSize.min, // Prevent column from taking max height
+              children: [
+                IconButton(
+                  onPressed: () {
+                    // Navigate to Edit Product Screen, passing product ID
+                    // Ensure your AppRoutes.editProduct path is defined as '/products/:id/edit'
+                    context.push('/products/${product.id}/edit');
+                  },
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    color: theme.colorScheme.primary,
+                    size: 20,
+                  ),
+                  tooltip: l10n.edit, // TODO: Add l10n.edit
+                ),
+                // Show loading spinner *instead of* the delete icon while deleting
+                isLoading.value
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        // Apply padding to match IconButton's tap target size (approx)
+                        child: Padding(
+                          padding: EdgeInsets.all(
+                            14.0,
+                          ), // Adjust padding as needed
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          color: theme.colorScheme.error,
+                          size: 20,
+                        ),
+                        tooltip: l10n.delete, // TODO: Add l10n.delete
+                        onPressed: () async {
+                          // 1. Show confirmation dialog
+                          final bool? confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (dialogContext) => AlertDialog(
+                              title: Text(
+                                l10n.delete,
+                              ), // TODO: Add l10n.delete and "Delete Product?"
+                              content: Text(
+                                "Are you sure you want to delete '${product.name}'?",
+                              ), // TODO: Localize
+                              actions: [
+                                TextButton(
+                                  child: Text("Cancel"), // TODO: Localize
+                                  onPressed: () =>
+                                      Navigator.of(dialogContext).pop(false),
+                                ),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: theme.colorScheme.error,
+                                  ),
+                                  child: Text(l10n.delete),
+                                  onPressed: () =>
+                                      Navigator.of(dialogContext).pop(true),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          // 2. If user confirmed, proceed with deletion
+                          if (confirmed == true) {
+                            isLoading.value = true; // Show loading spinner
+                            try {
+                              // 3. Call the repository method
+                              await ref
+                                  .read(productRepositoryProvider)
+                                  .deleteProduct(product.id);
+
+                              // 4. Success: Invalidate provider to refresh list
+                              ref.invalidate(productsProvider);
+
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Product deleted"),
+                                    backgroundColor: Colors.green,
+                                  ), // TODO: Localize
+                                );
+                              }
+                            } catch (e) {
+                              // 5. Error: Show error message
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Error: $e"),
+                                    backgroundColor: theme.colorScheme.error,
+                                  ), // TODO: Localize
+                                );
+                              }
+                              isLoading.value =
+                                  false; // Hide loading spinner on error
+                            }
+                            // No need to set isLoading.value = false on success, as the widget will be removed by the refresh
+                          }
+                        },
+                      ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

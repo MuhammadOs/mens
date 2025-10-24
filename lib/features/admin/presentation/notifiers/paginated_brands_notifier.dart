@@ -11,6 +11,8 @@ class PaginatedBrandsNotifier extends PaginatedNotifier<Brand> {
 
   void setFilters({int? categoryId}) {
     _categoryId = categoryId;
+    // Clear current items and reload
+    state = PaginatedState<Brand>.initial();
     loadFirstPage();
   }
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/admin/brands/domain/brand.dart';
+import 'package:mens/features/admin/presentation/admin_drawer.dart';
 import 'package:mens/features/admin/presentation/notifiers/paginated_brands_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/pagination_widget.dart';
@@ -28,6 +29,7 @@ class AllBrandsView extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      drawer: const AdminDrawer(),
       appBar: AppBar(
         title: const Text("All Brands/Sellers"),
         backgroundColor: theme.colorScheme.surface,
@@ -72,11 +74,11 @@ class AllBrandsView extends HookConsumerWidget {
 
           // Category Filter Tabs
           categoriesAsync.when(
-            data: (categories) => Container(
+            data: (categories) => SizedBox(
               height: 50,
-              margin: const EdgeInsets.only(left: 16, bottom: 16),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 itemCount: categories.length + 1,
                 itemBuilder: (context, index) {
                   if (index == 0) {
@@ -199,7 +201,7 @@ class AllBrandsView extends HookConsumerWidget {
                             crossAxisCount: 3,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.85,
+                            childAspectRatio: 0.75,
                           ),
                       itemCount: 9,
                       itemBuilder: (context, index) =>
@@ -219,7 +221,7 @@ class AllBrandsView extends HookConsumerWidget {
                             crossAxisCount: 3,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.85,
+                            childAspectRatio: 0.75,
                           ),
                       itemCount: brandState.allItems.length,
                       itemBuilder: (context, index) {
@@ -253,63 +255,85 @@ class _BrandCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          // Brand Image
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: brand.brandImage != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        brand.brandImage!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Center(
-                          child: Icon(
-                            Icons.store,
-                            size: 48,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    )
-                  : Center(
-                      child: Icon(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Brand Image - Circular
+        Flexible(
+          flex: 3,
+          child: CircleAvatar(
+            radius: 35,
+            backgroundColor: theme.colorScheme.primaryContainer,
+            child: brand.brandImage != null
+                ? ClipOval(
+                    child: Image.network(
+                      brand.brandImage!,
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.store,
-                        size: 48,
-                        color: theme.colorScheme.primary,
+                        size: 32,
+                        color: theme.colorScheme.onPrimaryContainer,
                       ),
                     ),
-            ),
+                  )
+                : Icon(
+                    Icons.store,
+                    size: 32,
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
           ),
+        ),
 
-          // Brand Name
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              brand.brandName,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
+        const SizedBox(height: 6),
+
+        // Brand Name
+        Flexible(
+          flex: 2,
+          child: Text(
+            brand.brandName,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+              fontSize: 11,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
+        ),
 
-          const SizedBox(height: 4),
-        ],
-      ),
+        const SizedBox(height: 2),
+
+        // Owner Name
+        Text(
+          brand.ownerName,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 9,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+
+        const SizedBox(height: 2),
+
+        // Category
+        Text(
+          brand.categoryName,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w500,
+            fontSize: 9,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
@@ -319,32 +343,22 @@ class _BrandCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Bone.square(size: 100),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Bone.text(words: 2),
-          ),
-          const SizedBox(height: 4),
-        ],
-      ),
+    return const Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Circular skeleton
+        Flexible(flex: 3, child: Bone.circle(size: 70)),
+        SizedBox(height: 6),
+        // Brand name
+        Flexible(flex: 2, child: Bone.text(words: 2)),
+        SizedBox(height: 2),
+        // Owner name
+        Bone.text(words: 1),
+        SizedBox(height: 2),
+        // Category
+        Bone.text(words: 1),
+      ],
     );
   }
 }
