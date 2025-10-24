@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mens/features/admin/presentation/all_brands_view.dart';
 import 'package:mens/features/admin/presentation/all_products_view.dart';
+import 'package:mens/features/admin/presentation/conversations_view.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/auth/presentation/signin/signin_screen.dart';
@@ -28,6 +29,7 @@ class AppRoutes {
   static const adminHome = '/admin/home';
   static const adminProducts = '/admin/products';
   static const adminBrands = '/admin/brands';
+  static const adminConversations = '/admin/conversations';
   static const products = '/products';
   static const paginatedProducts = '/paginated-products';
   static const addProduct = '/addProduct';
@@ -72,6 +74,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminBrands,
         builder: (context, state) => const AllBrandsView(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminConversations,
+        builder: (context, state) => const ConversationsView(),
       ),
       GoRoute(
         path: AppRoutes.products,

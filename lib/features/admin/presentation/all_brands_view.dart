@@ -40,6 +40,14 @@ class AllBrandsView extends HookConsumerWidget {
             icon: const Icon(Icons.inventory_2),
             label: const Text("Products"),
           ),
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: () {
+              context.go(AppRoutes.adminConversations);
+            },
+            icon: const Icon(Icons.chat),
+            label: const Text("Conversations"),
+          ),
         ],
       ),
       body: Column(

@@ -41,6 +41,14 @@ class AllProductsView extends HookConsumerWidget {
             icon: const Icon(Icons.store),
             label: const Text("Brands"),
           ),
+          const SizedBox(width: 8),
+          TextButton.icon(
+            onPressed: () {
+              context.go(AppRoutes.adminConversations);
+            },
+            icon: const Icon(Icons.chat),
+            label: const Text("Conversations"),
+          ),
         ],
       ),
       body: Column(
@@ -293,7 +301,7 @@ class AllProductsView extends HookConsumerWidget {
                             crossAxisCount: 3,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.75,
+                            childAspectRatio: 0.7,
                           ),
                       itemCount: 12,
                       itemBuilder: (context, index) =>
@@ -315,7 +323,7 @@ class AllProductsView extends HookConsumerWidget {
                             crossAxisCount: 3,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.75,
+                            childAspectRatio: 0.7,
                           ),
                       itemCount: paginatedState.allItems.length,
                       itemBuilder: (context, index) {
@@ -368,6 +376,7 @@ class _ProductCard extends StatelessWidget {
         children: [
           // Product Image
           Expanded(
+            flex: 3,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.grey[200],
@@ -426,27 +435,6 @@ class _ProductCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-
-          // Add Button
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: double.infinity,
-              height: 32,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: Add to cart functionality
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-                child: const Icon(Icons.add, size: 20),
-              ),
             ),
           ),
         ],

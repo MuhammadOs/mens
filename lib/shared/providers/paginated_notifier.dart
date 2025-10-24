@@ -112,7 +112,7 @@ abstract class PaginatedNotifier<T> extends Notifier<PaginatedState<T>> {
   Future<void> loadPage(int page, {int? pageSize}) async {
     final params = PaginationParams(
       page: page,
-      pageSize: pageSize ?? state.currentPage?.pageSize ?? 10,
+      pageSize: pageSize ?? state.currentPage?.pageSize ?? 9,
     );
 
     await loadFirstPage(params: params);
