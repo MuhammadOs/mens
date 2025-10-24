@@ -446,4 +446,35 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorSendingMessage => 'فشل إرسال الرسالة.';
+
+  @override
+  String get firstPage => 'الصفحة الأولى';
+
+  @override
+  String get previousPage => 'الصفحة السابقة';
+
+  @override
+  String get nextPage => 'الصفحة التالية';
+
+  @override
+  String get lastPage => 'الصفحة الأخيرة';
+
+  @override
+  String pageOf(int page, int total) {
+    return 'الصفحة $page من $total';
+  }
+
+  @override
+  String itemsRange(int start, int end, int total) {
+    return '$start-$end من $total عنصر';
+  }
+
+  @override
+  String get loadingMore => 'تحميل المزيد...';
+
+  @override
+  String get loadMore => 'تحميل المزيد';
+
+  @override
+  String get noMoreItems => 'لا توجد عناصر أخرى';
 }

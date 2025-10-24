@@ -5,13 +5,24 @@ import 'package:image_picker/image_picker.dart'; // For XFile in add/update meth
 import 'package:mens/core/services/api_service.dart'; // Provides apiServiceProvider (adjust path if needed)
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/seller/Products/domain/product.dart'; // Provides Product model (adjust path if needed)
+import 'package:mens/shared/models/paginated_response.dart';
+import 'package:mens/shared/models/pagination_params.dart';
 
 // --- Interface (Contract) ---
 abstract class ProductRepository {
   /// Fetches a list of products for the store, optionally filtered by category/subcategory.
   Future<List<Product>> getProducts({int? categoryId, int? subCategoryId});
+
+  /// Fetches paginated products for the store, optionally filtered by category/subcategory.
+  Future<PaginatedResponse<Product>> getProductsPaginated({
+    PaginationParams? pagination,
+    int? categoryId,
+    int? subCategoryId,
+  });
+
   /// Fetches details for a single product by its ID.
   Future<Product> getProductById(int productId);
+
   /// Adds a new product to the store.
   Future<void> addProduct({
     required String name,
@@ -23,6 +34,7 @@ abstract class ProductRepository {
     List<String>? imageAltTexts,
     int primaryImageIndex = 0,
   });
+
   /// Updates the text details of an existing product.
   Future<void> updateProductDetails({
     required int productId,
@@ -32,6 +44,7 @@ abstract class ProductRepository {
     required int stockQuantity,
     required int subCategoryId,
   });
+
   /// Updates the images associated with an existing product.
   Future<List<String>> updateProductImages({
     required int productId,
@@ -101,6 +114,61 @@ class ProductRepositoryImpl implements ProductRepository {
     } catch (e) {
       // Handle potential JSON parsing errors or other unexpected issues
       print("Error parsing products: $e");
+      throw Exception('Failed to parse products.');
+    }
+  }
+
+  /// Fetches paginated products for the currently logged-in user's store.
+  @override
+  Future<PaginatedResponse<Product>> getProductsPaginated({
+    PaginationParams? pagination,
+    int? categoryId,
+    int? subCategoryId,
+  }) async {
+    // Get storeId from the logged-in user's profile state
+    final userProfile = _ref.read(authNotifierProvider).asData?.value;
+    final storeId = userProfile?.store?.id;
+
+    if (storeId == null) {
+      throw Exception('Store ID not found. Cannot fetch products.');
+    }
+
+    final paginationParams = pagination ?? const PaginationParams();
+
+    // Build query parameters including pagination
+    final queryParameters = <String, dynamic>{
+      'page': paginationParams.page,
+      'pageSize': paginationParams.pageSize,
+      if (categoryId != null) 'categoryId': categoryId,
+      if (subCategoryId != null) 'subCategoryId': subCategoryId,
+    };
+
+    try {
+      // Use the endpoint structure: /stores/{storeId}/products
+      final response = await _dio.get(
+        '/stores/$storeId/products',
+        queryParameters: queryParameters,
+      );
+
+      // Check if the response is valid and contains pagination structure
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        final responseData = response.data as Map<String, dynamic>;
+
+        // Use the typed factory method to avoid type inference issues
+        return PaginatedResponse.fromJsonTyped<Product>(
+          responseData,
+          Product.fromJson,
+        );
+      } else {
+        throw Exception('Failed to load products: Invalid response structure.');
+      }
+    } on DioException catch (e) {
+      // Handle Dio-specific errors (network, timeout, status codes)
+      print("Error fetching paginated products: ${e.message}");
+      throw Exception('Failed to load products due to network error.');
+    } catch (e) {
+      // Handle potential JSON parsing errors or other unexpected issues
+      print("Error parsing paginated products: $e");
       throw Exception('Failed to parse products.');
     }
   }
@@ -334,11 +402,12 @@ class ProductRepositoryImpl implements ProductRepository {
         throw Exception('Failed to delete product: ${response.statusCode}');
       }
       print("Product $productId deleted successfully.");
-
     } on DioException catch (e) {
       String errorMessage = 'Network error deleting product.';
       if (e.response != null) {
-        errorMessage = e.response!.data?['message'] ?? 'Delete failed: ${e.response!.statusCode}';
+        errorMessage =
+            e.response!.data?['message'] ??
+            'Delete failed: ${e.response!.statusCode}';
       }
       print("DioException deleting product: $errorMessage");
       throw Exception(errorMessage);

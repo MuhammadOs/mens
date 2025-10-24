@@ -143,5 +143,14 @@
     "send": "إرسال",
     "noMessagesYet": "لا توجد رسائل بعد. ابدأ المحادثة!",
     "messageSentSuccess": "تم إرسال الرسالة بنجاح!",
-    "errorSendingMessage": "فشل إرسال الرسالة."
+    "errorSendingMessage": "فشل إرسال الرسالة.",
+    "firstPage": "الصفحة الأولى",
+    "previousPage": "الصفحة السابقة",
+    "nextPage": "الصفحة التالية",
+    "lastPage": "الصفحة الأخيرة",
+    "pageOf": "الصفحة {page} من {total}",
+    "itemsRange": "{start}-{end} من {total} عنصر",
+    "loadingMore": "تحميل المزيد...",
+    "loadMore": "تحميل المزيد",
+    "noMoreItems": "لا توجد عناصر أخرى"
 }

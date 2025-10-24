@@ -143,5 +143,37 @@
     "send": "Send",
     "noMessagesYet": "No messages yet. Start the conversation!",
     "messageSentSuccess": "Message sent successfully!",
-    "errorSendingMessage": "Failed to send message."
+    "errorSendingMessage": "Failed to send message.",
+    "firstPage": "First page",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "lastPage": "Last page",
+    "pageOf": "Page {page} of {total}",
+    "@pageOf": {
+        "placeholders": {
+            "page": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "itemsRange": "{start}-{end} of {total} items",
+    "@itemsRange": {
+        "placeholders": {
+            "start": {
+                "type": "int"
+            },
+            "end": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "loadingMore": "Loading more...",
+    "loadMore": "Load more",
+    "noMoreItems": "No more items"
 }

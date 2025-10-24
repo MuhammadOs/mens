@@ -961,6 +961,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to send message.'**
   String get errorSendingMessage;
+
+  /// No description provided for @firstPage.
+  ///
+  /// In en, this message translates to:
+  /// **'First page'**
+  String get firstPage;
+
+  /// No description provided for @previousPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get previousPage;
+
+  /// No description provided for @nextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get nextPage;
+
+  /// No description provided for @lastPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Last page'**
+  String get lastPage;
+
+  /// No description provided for @pageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String pageOf(int page, int total);
+
+  /// No description provided for @itemsRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start}-{end} of {total} items'**
+  String itemsRange(int start, int end, int total);
+
+  /// No description provided for @loadingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading more...'**
+  String get loadingMore;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get loadMore;
+
+  /// No description provided for @noMoreItems.
+  ///
+  /// In en, this message translates to:
+  /// **'No more items'**
+  String get noMoreItems;
 }
 
 class _AppLocalizationsDelegate

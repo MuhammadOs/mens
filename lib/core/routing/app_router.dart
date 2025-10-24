@@ -10,6 +10,7 @@ import 'package:mens/features/seller/Orders/presentation/orders_screen.dart';
 import 'package:mens/features/seller/Products/presentation/add_product_screen.dart';
 import 'package:mens/features/seller/Products/presentation/edit_products_screen.dart';
 import 'package:mens/features/seller/Products/presentation/products_screen.dart';
+import 'package:mens/features/seller/Products/presentation/paginated_products_screen.dart';
 import 'package:mens/features/seller/Statistics/presentation/stat_screen.dart';
 import 'package:mens/features/seller/contact_us/presentation/contact_us_screen.dart';
 import 'package:mens/features/seller/profile/presentation/edit_profile_screen.dart';
@@ -25,6 +26,7 @@ class AppRoutes {
   static const home = '/home';
   static const adminHome = '/admin/home';
   static const products = '/products';
+  static const paginatedProducts = '/paginated-products';
   static const addProduct = '/addProduct';
   static const orders = '/orders';
   static const profile = '/profile';
@@ -62,7 +64,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.products,
+        builder: (context, state) => const PaginatedProductsScreen(),
+      ),
+      GoRoute(
+        path: '/products-original',
         builder: (context, state) => const ProductsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.paginatedProducts,
+        builder: (context, state) => const PaginatedProductsScreen(),
       ),
       GoRoute(
         path: AppRoutes.addProduct,

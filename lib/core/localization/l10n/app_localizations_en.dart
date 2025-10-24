@@ -445,4 +445,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorSendingMessage => 'Failed to send message.';
+
+  @override
+  String get firstPage => 'First page';
+
+  @override
+  String get previousPage => 'Previous page';
+
+  @override
+  String get nextPage => 'Next page';
+
+  @override
+  String get lastPage => 'Last page';
+
+  @override
+  String pageOf(int page, int total) {
+    return 'Page $page of $total';
+  }
+
+  @override
+  String itemsRange(int start, int end, int total) {
+    return '$start-$end of $total items';
+  }
+
+  @override
+  String get loadingMore => 'Loading more...';
+
+  @override
+  String get loadMore => 'Load more';
+
+  @override
+  String get noMoreItems => 'No more items';
 }
