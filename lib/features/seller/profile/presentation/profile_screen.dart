@@ -18,7 +18,10 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.profileTitle),
+        title: Text(
+          l10n.profileTitle,
+          style: TextStyle(color: theme.colorScheme.onSurface),
+        ),
         backgroundColor: theme.scaffoldBackgroundColor,
         foregroundColor: theme.colorScheme.onSurface,
         iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
@@ -37,11 +40,15 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           Text(
             userProfile?.store?.brandName ?? "Brand Name",
-            style: theme.textTheme.titleLarge,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.colorScheme.onSurface,
+            ),
           ),
           Text(
             userProfile?.fullName ?? "Patner Name",
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
           const SizedBox(height: 24),
           _buildInfoCard(context, ref),
