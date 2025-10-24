@@ -32,9 +32,13 @@ class ConversationsView extends HookConsumerWidget {
       backgroundColor: theme.colorScheme.surface,
       drawer: const AdminDrawer(),
       appBar: AppBar(
-        title: const Text("User Conversations"),
+        title: Text(
+          "User Conversations",
+          style: TextStyle(color: theme.colorScheme.onSurface),
+        ),
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
       ),
       body: conversationsAsync.when(
         data: (conversations) {
@@ -89,7 +93,10 @@ class ConversationsView extends HookConsumerWidget {
                         controller: searchController,
                         decoration: InputDecoration(
                           hintText: 'Search conversations...',
-                          prefixIcon: const Icon(Icons.search),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                           filled: true,
                           fillColor: theme.colorScheme.surfaceContainerHighest,
                           border: OutlineInputBorder(
@@ -369,9 +376,9 @@ class ConversationDetailView extends HookConsumerWidget {
     ref.listen(replyNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Reply sent successfully!"),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text("Reply sent successfully!"),
+            backgroundColor: theme.colorScheme.primary,
           ),
         );
         replyController.clear();
@@ -379,7 +386,7 @@ class ConversationDetailView extends HookConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error sending reply: ${next.error}"),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.colorScheme.error,
           ),
         );
       }
@@ -460,7 +467,7 @@ class ConversationDetailView extends HookConsumerWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: theme.colorScheme.shadow.withOpacity(0.05),
                 blurRadius: 4,
                 offset: const Offset(0, -2),
               ),

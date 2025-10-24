@@ -31,9 +31,13 @@ class AllProductsView extends HookConsumerWidget {
       backgroundColor: theme.colorScheme.surface,
       drawer: const AdminDrawer(),
       appBar: AppBar(
-        title: const Text("All Products"),
+        title: Text(
+          "All Products",
+          style: TextStyle(color: theme.colorScheme.onSurface),
+        ),
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +48,10 @@ class AllProductsView extends HookConsumerWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
                 filled: true,
                 fillColor: theme.colorScheme.surfaceContainerHighest,
                 border: OutlineInputBorder(
