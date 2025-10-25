@@ -135,14 +135,15 @@ class EditProductScreen extends HookConsumerWidget {
                     // 3. Primary index changed
                     // 4. Order changed (comparing URLs)
                     final bool hasNewImages = newImagesToUpload.isNotEmpty;
-                    final bool imagesRemoved = existingImageUrls.length <
+                    final bool imagesRemoved =
+                        existingImageUrls.length <
                         currentProductData.imageUrls.length;
                     final bool primaryIndexChanged =
                         primaryImageIndex.value != 0 || // If not first image
                         (existingImageUrls.isNotEmpty &&
                             existingImageUrls.first !=
                                 currentProductData.imageUrls.firstOrNull);
-                    
+
                     final bool imagesChanged =
                         hasNewImages || imagesRemoved || primaryIndexChanged;
 
@@ -168,17 +169,49 @@ class EditProductScreen extends HookConsumerWidget {
                         print("Has new images: $hasNewImages");
                         print("Images removed: $imagesRemoved");
                         print("Primary index changed: $primaryIndexChanged");
-                        
-                        // Send ALL images to the API:
-                        // - New images (XFiles) to upload
-                        // - Existing URLs to preserve
+
+                        // Separate primary image from others
+                        final primaryItem = images.value.isNotEmpty
+                            ? images.value[primaryImageIndex.value]
+                            : null;
+
+                        // Check if primary is new or existing
+                        final bool isPrimaryNew = primaryItem is XFile;
+                        final XFile? primaryImageFile = isPrimaryNew
+                            ? primaryItem
+                            : null;
+
+                        // Get other images (exclude primary)
+                        final List<XFile> otherNewImages = [];
+                        final List<String> otherExistingUrls = [];
+
+                        for (int i = 0; i < images.value.length; i++) {
+                          if (i == primaryImageIndex.value)
+                            continue; // Skip primary
+
+                          final item = images.value[i];
+                          if (item is XFile) {
+                            otherNewImages.add(item);
+                          } else if (item is String) {
+                            otherExistingUrls.add(item);
+                          }
+                        }
+
+                        print("Primary: ${isPrimaryNew ? 'NEW' : 'EXISTING'}");
+                        print("Other new images: ${otherNewImages.length}");
+                        print(
+                          "Other existing URLs: ${otherExistingUrls.length}",
+                        );
+
+                        // Call the new API structure
                         await editNotifier.updateImages(
                           productId: productId,
-                          images: newImagesToUpload,
-                          existingImageUrls: existingImageUrls,
-                          primaryImageIndex: primaryImageIndex.value,
+                          primaryImage: primaryImageFile,
+                          otherNewImages: otherNewImages,
+                          existingOtherImageUrls: otherExistingUrls,
+                          isPrimaryNew: isPrimaryNew,
                         );
-                        
+
                         print("Images updated successfully!");
                       } catch (e, stackTrace) {
                         imagesSuccess = false;
@@ -381,7 +414,8 @@ class EditProductScreen extends HookConsumerWidget {
                               width: 100,
                               height: 100,
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceContainerHighest,
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: theme.dividerColor.withOpacity(0.5),

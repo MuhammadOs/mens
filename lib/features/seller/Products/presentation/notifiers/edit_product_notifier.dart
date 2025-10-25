@@ -88,44 +88,58 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
     }
   }
 
-  /// Updates the product's images via the API.
+  /// Updates the product's images using separate endpoints for primary and other images.
   Future<void> updateImages({
     required int productId,
-    required List<XFile> images,
-    required List<String> existingImageUrls,
-    int primaryImageIndex = 0,
+    required XFile? primaryImage, // Can be null if not changed
+    required List<XFile> otherNewImages,
+    required List<String> existingOtherImageUrls,
+    required bool isPrimaryNew, // True if primaryImage is a new upload
   }) async {
     // Set state to loading.
     state = const AsyncValue.loading();
 
     print("=== EDIT NOTIFIER: UPDATE IMAGES ===");
-    print("Product ID: $productId (type: ${productId.runtimeType})");
-    print("New images count: ${images.length}");
-    print("Existing URLs count: ${existingImageUrls.length}");
+    print("Product ID: $productId");
     print(
-      "Primary index: $primaryImageIndex (type: ${primaryImageIndex.runtimeType})",
+      "Primary image: ${isPrimaryNew ? 'NEW (${primaryImage?.name})' : 'EXISTING'}",
     );
+    print("Other new images count: ${otherNewImages.length}");
+    print("Existing other URLs count: ${existingOtherImageUrls.length}");
 
     try {
       final repository = ref.read(productRepositoryProvider);
 
-      print("Calling repository.updateProductImages...");
-      // Call the repository method.
-      final List<String> newUrls = await repository.updateProductImages(
-        productId: productId,
-        images: images,
-        existingImageUrls: existingImageUrls,
-        primaryImageIndex: primaryImageIndex,
-      );
+      // 1. Update primary image if it's new
+      if (isPrimaryNew && primaryImage != null) {
+        print("Uploading new primary image...");
+        await repository.updatePrimaryImage(
+          productId: productId,
+          primaryImage: primaryImage,
+        );
+        print("✅ Primary image uploaded successfully!");
+      } else {
+        print("Primary image not changed, skipping upload.");
+      }
 
-      print("Repository call successful! Returned ${newUrls.length} URLs");
+      // 2. Update other images (new + existing URLs)
+      if (otherNewImages.isNotEmpty || existingOtherImageUrls.isNotEmpty) {
+        print("Updating other images...");
+        await repository.updateOtherImages(
+          productId: productId,
+          newImages: otherNewImages,
+          existingImageUrls: existingOtherImageUrls,
+        );
+        print("✅ Other images updated successfully!");
+      } else {
+        print("No other images to update.");
+      }
 
       // If successful, set state back to idle.
       state = const AsyncValue.data(null);
       print("✅ Product images update successful in notifier.");
 
       // Invalidate providers to refetch data with new images
-      // Note: We refresh the paginated providers to update the product in the list
       ref.read(paginatedProductsProvider.notifier).refresh();
       ref.read(paginatedAdminProductsProvider.notifier).refresh();
 

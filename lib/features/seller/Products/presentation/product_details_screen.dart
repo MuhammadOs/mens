@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
 
-class ProductDetailsScreen extends ConsumerWidget {
+class ProductDetailsScreen extends HookConsumerWidget {
   final Product product;
   final bool isAdmin;
 
@@ -15,6 +16,7 @@ class ProductDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currentImageIndex = useState(0); // Track current image
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -30,33 +32,150 @@ class ProductDetailsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
+            // Product Images - Main Image with PageView
             AspectRatio(
               aspectRatio: 1.0,
-              child: Container(
-                color: theme.colorScheme.surfaceContainerHighest,
-                child: product.firstImageUrl != null
-                    ? Image.network(
-                        product.firstImageUrl!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        errorBuilder: (context, error, stackTrace) => Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: theme.colorScheme.onSurface.withOpacity(0.3),
-                            size: 80,
-                          ),
+              child: product.imageUrls.isNotEmpty
+                  ? Stack(
+                      children: [
+                        PageView.builder(
+                          itemCount: product.imageUrls.length,
+                          onPageChanged: (index) {
+                            currentImageIndex.value = index;
+                          },
+                          itemBuilder: (context, index) {
+                            return Container(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: Image.network(
+                                product.imageUrls[index],
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Center(
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        color: theme.colorScheme.onSurface
+                                            .withOpacity(0.3),
+                                        size: 80,
+                                      ),
+                                    ),
+                              ),
+                            );
+                          },
                         ),
-                      )
-                    : Center(
+                        // Image indicator dots
+                        if (product.imageUrls.length > 1)
+                          Positioned(
+                            bottom: 16,
+                            left: 0,
+                            right: 0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                product.imageUrls.length,
+                                (index) => Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: currentImageIndex.value == index
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.onSurface
+                                              .withOpacity(0.3),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        // Image counter
+                        if (product.imageUrls.length > 1)
+                          Positioned(
+                            top: 16,
+                            right: 16,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                '${currentImageIndex.value + 1}/${product.imageUrls.length}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
+                  : Container(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: Center(
                         child: Icon(
                           Icons.image_not_supported,
                           color: theme.colorScheme.onSurface.withOpacity(0.3),
                           size: 80,
                         ),
                       ),
-              ),
+                    ),
             ),
+
+            // Thumbnail Strip (if multiple images)
+            if (product.imageUrls.length > 1)
+              Container(
+                height: 80,
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: product.imageUrls.length,
+                  itemBuilder: (context, index) {
+                    final isSelected = currentImageIndex.value == index;
+                    return GestureDetector(
+                      onTap: () {
+                        currentImageIndex.value = index;
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        margin: const EdgeInsets.only(right: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.outline.withOpacity(0.3),
+                            width: isSelected ? 2 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.network(
+                            product.imageUrls[index],
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Center(
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.3),
+                                    size: 20,
+                                  ),
+                                ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
 
             Padding(
               padding: const EdgeInsets.all(20.0),

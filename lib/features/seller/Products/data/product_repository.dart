@@ -32,7 +32,6 @@ abstract class ProductRepository {
     required int subCategoryId,
     required List<XFile> images,
     List<String>? imageAltTexts,
-    int primaryImageIndex = 0,
   });
 
   /// Updates the text details of an existing product.
@@ -45,14 +44,19 @@ abstract class ProductRepository {
     required int subCategoryId,
   });
 
-  /// Updates the images associated with an existing product.
-  Future<List<String>> updateProductImages({
+  /// Updates the primary image for a product (separate endpoint).
+  Future<String> updatePrimaryImage({
     required int productId,
-    required List<XFile> images,
-    required List<String> existingImageUrls,
-    int primaryImageIndex = 0,
-    List<String>? imageAltTexts,
+    required XFile primaryImage,
   });
+
+  /// Updates the other (non-primary) images for a product.
+  Future<List<String>> updateOtherImages({
+    required int productId,
+    required List<XFile> newImages,
+    required List<String> existingImageUrls,
+  });
+
   Future<void> deleteProduct(int productId);
 }
 
@@ -80,6 +84,7 @@ class ProductRepositoryImpl implements ProductRepository {
     // Get storeId from the logged-in user's profile state
     final userProfile = _ref.read(authNotifierProvider).asData?.value;
     final storeId = userProfile?.store?.id;
+    final role = userProfile?.role;
 
     if (storeId == null) {
       throw Exception('Store ID not found. Cannot fetch products.');
@@ -102,7 +107,20 @@ class ProductRepositoryImpl implements ProductRepository {
       if (response.statusCode == 200 && response.data['items'] is List) {
         final List<dynamic> data = response.data['items'];
         // Parse each item in the list using the Product.fromJson factory
-        return data.map((json) => Product.fromJson(json)).toList();
+        var products = data.map((json) => Product.fromJson(json)).toList();
+
+        // For StoreOwner (seller), set storeName to the seller's store name
+        if (role == 'StoreOwner') {
+          final sellerStoreName = userProfile?.store?.brandName;
+          if (sellerStoreName != null) {
+            products = products
+                .map((p) => p.copyWith(storeName: sellerStoreName))
+                .toList();
+          }
+        }
+        // For admin, keep the storeName from the product data
+
+        return products;
       } else {
         throw Exception(
           'Failed to load products: Invalid response structure or missing "items" key.',
@@ -129,6 +147,7 @@ class ProductRepositoryImpl implements ProductRepository {
     // Get storeId from the logged-in user's profile state
     final userProfile = _ref.read(authNotifierProvider).asData?.value;
     final storeId = userProfile?.store?.id;
+    final role = userProfile?.role;
 
     if (storeId == null) {
       throw Exception('Store ID not found. Cannot fetch products.');
@@ -156,9 +175,29 @@ class ProductRepositoryImpl implements ProductRepository {
         final responseData = response.data as Map<String, dynamic>;
 
         // Use the typed factory method to avoid type inference issues
-        return PaginatedResponse.fromJsonTyped<Product>(
+        final paginatedResponse = PaginatedResponse.fromJsonTyped<Product>(
           responseData,
           Product.fromJson,
+        );
+
+        // For StoreOwner (seller), set storeName to the seller's store name
+        var items = paginatedResponse.items;
+        if (role == 'StoreOwner') {
+          final sellerStoreName = userProfile?.store?.brandName;
+          if (sellerStoreName != null) {
+            items = items
+                .map((p) => p.copyWith(storeName: sellerStoreName))
+                .toList();
+          }
+        }
+        // For admin, keep the storeName from the product data
+
+        return PaginatedResponse<Product>(
+          items: items,
+          page: paginatedResponse.page,
+          pageSize: paginatedResponse.pageSize,
+          totalCount: paginatedResponse.totalCount,
+          totalPages: paginatedResponse.totalPages,
         );
       } else {
         throw Exception('Failed to load products: Invalid response structure.');
@@ -210,7 +249,6 @@ class ProductRepositoryImpl implements ProductRepository {
     required int subCategoryId,
     required List<XFile> images,
     List<String>? imageAltTexts, // Optional
-    int primaryImageIndex = 0, // Default to first image
   }) async {
     // Get storeId if required by the /products endpoint (might be inferred from auth token)
     // final userProfile = _ref.read(authNotifierProvider).asData?.value;
@@ -236,7 +274,6 @@ class ProductRepositoryImpl implements ProductRepository {
         'Images': imageFiles, // Pass the list of MultipartFile
         // Include these if your API requires them:
         // 'ImageAltTexts': imageAltTexts ?? [],
-        // 'PrimaryImageIndex': primaryImageIndex,
         // 'StoreId': storeId, // If needed in form data
       });
 
@@ -332,46 +369,125 @@ class ProductRepositoryImpl implements ProductRepository {
     }
   }
 
-  /// Updates the images for an existing product (uses POST).
+  /// Updates the primary image for a product (separate endpoint).
   @override
-  Future<List<String>> updateProductImages({
+  Future<String> updatePrimaryImage({
     required int productId,
-    required List<XFile> images, // All images (new files) to upload
-    required List<String> existingImageUrls, // Existing image URLs to keep
-    int primaryImageIndex = 0,
-    List<String>? imageAltTexts, // Optional
+    required XFile primaryImage,
   }) async {
     try {
-      print("=== UPDATE PRODUCT IMAGES DEBUG ===");
-      print("Product ID: $productId (type: ${productId.runtimeType})");
-      print("Number of new images: ${images.length}");
-      print("Number of existing URLs: ${existingImageUrls.length}");
-      print(
-        "Primary image index: $primaryImageIndex (type: ${primaryImageIndex.runtimeType})",
+      print("=== UPDATE PRIMARY IMAGE DEBUG ===");
+      print("Product ID: $productId");
+      print("Primary image: ${primaryImage.name}");
+
+      // Create multipart file
+      final imageFile = await MultipartFile.fromFile(
+        primaryImage.path,
+        filename: primaryImage.name,
       );
-      print("Image alt texts: $imageAltTexts");
+
+      // Create FormData - send image with isPrimary flag
+      final formData = FormData.fromMap({
+        'Image': imageFile,
+        'IsPrimary': true, // Mark this image as primary
+      });
+
+      print("Sending PUT to /products/$productId/primary-image");
+      final response = await _dio.put(
+        '/products/$productId/primary-image',
+        data: formData,
+        onSendProgress: (int sent, int total) {
+          if (kDebugMode) {
+            print(
+              'Primary image upload progress: ${(sent / total * 100).toStringAsFixed(0)}%',
+            );
+          }
+        },
+      );
+
+      print("=== PRIMARY IMAGE RESPONSE ===");
+      print("Response status: ${response.statusCode}");
+      print("Response data: ${response.data}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Extract the URL of the uploaded primary image
+        String imageUrl = '';
+
+        if (response.data is Map<String, dynamic>) {
+          final dataMap = response.data as Map<String, dynamic>;
+          imageUrl =
+              dataMap['imageUrl'] as String? ??
+              dataMap['data']?['imageUrl'] as String? ??
+              dataMap['url'] as String? ??
+              '';
+        }
+
+        print("✅ Primary image updated successfully! URL: $imageUrl");
+        return imageUrl;
+      } else {
+        throw Exception('Primary image update failed: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print("=== DIO EXCEPTION (PRIMARY IMAGE) ===");
+      print("Error: ${e.message}");
+      String errorMessage = 'Network error updating primary image.';
+      if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
+        errorMessage =
+            messageValue?.toString() ??
+            'Update failed with status: ${e.response!.statusCode}';
+      }
+      print("❌ Error: $errorMessage");
+      throw Exception(errorMessage);
+    } catch (e) {
+      print("❌ Unexpected error updating primary image: $e");
+      throw Exception(
+        'An unexpected error occurred while updating primary image.',
+      );
+    }
+  }
+
+  /// Updates the other (non-primary) images for a product.
+  @override
+  Future<List<String>> updateOtherImages({
+    required int productId,
+    required List<XFile> newImages,
+    required List<String> existingImageUrls,
+  }) async {
+    try {
+      print("=== UPDATE OTHER IMAGES DEBUG ===");
+      print("Product ID: $productId");
+      print("Number of new images: ${newImages.length}");
+      print("Number of existing URLs to keep: ${existingImageUrls.length}");
+      print("Total images: ${newImages.length + existingImageUrls.length}");
 
       List<MultipartFile> imageFiles = [];
-      for (var image in images) {
-        print("Processing image: ${image.path}");
+      for (var image in newImages) {
+        print("Processing new image: ${image.path}");
         imageFiles.add(
           await MultipartFile.fromFile(image.path, filename: image.name),
         );
       }
 
-      // Create FormData, keys must match API
-      // Note: API expects only NEW files - existing URLs are preserved by backend
-      final formData = FormData.fromMap({
-        'Images': imageFiles,
-        'PrimaryImageIndex': primaryImageIndex, // Ensure this is an int
-        // 'ImageAltTexts': imageAltTexts ?? [], // Include if API needs it
-      });
+      // Create FormData with new files and existing URLs to preserve
+      // All images sent here have IsPrimary = false (implicitly)
+      final Map<String, dynamic> formDataMap = {};
 
-      print("FormData created with ${formData.fields.length} fields");
-      print("FormData fields: ${formData.fields}");
-      print("FormData files: ${formData.files.length}");
+      if (imageFiles.isNotEmpty) {
+        formDataMap['Images'] = imageFiles;
+      }
 
-      // Send PUT request to the specific image endpoint (405 error indicates POST is not allowed)
+      if (existingImageUrls.isNotEmpty) {
+        formDataMap['ExistingImageUrls'] = existingImageUrls;
+      }
+
+      final formData = FormData.fromMap(formDataMap);
+
+      print("FormData created:");
+      print("  - Fields: ${formData.fields.length}");
+      print("  - Files: ${formData.files.length}");
+
+      // Send PUT request to the images endpoint
       print("Sending PUT to /products/$productId/images");
       final response = await _dio.put(
         '/products/$productId/images',
@@ -379,123 +495,63 @@ class ProductRepositoryImpl implements ProductRepository {
         onSendProgress: (int sent, int total) {
           if (kDebugMode) {
             print(
-              'Image update progress: ${(sent / total * 100).toStringAsFixed(0)}%',
+              'Other images upload progress: ${(sent / total * 100).toStringAsFixed(0)}%',
             );
           }
         },
       );
 
-      // Debug: Print the full response to understand the structure
-      print("=== RESPONSE RECEIVED ===");
+      print("=== OTHER IMAGES RESPONSE ===");
       print("Response status: ${response.statusCode}");
-      print("Response data type: ${response.data.runtimeType}");
       print("Response data: ${response.data}");
 
-      // Check for successful status codes (200, 201, 204)
       if (response.statusCode == 200 ||
           response.statusCode == 201 ||
           response.statusCode == 204) {
-        // 204 No Content - success but no body returned
         if (response.statusCode == 204) {
-          print("✅ Product images updated successfully! (204 No Content)");
-          return []; // Return empty list since no URLs are returned
+          print("✅ Other images updated successfully! (204 No Content)");
+          return [];
         }
 
-        // Try to extract image URLs from various possible response structures
-        List<String> newUrls = [];
+        // Extract image URLs from response
+        List<String> imageUrls = [];
 
         if (response.data is Map<String, dynamic>) {
           final dataMap = response.data as Map<String, dynamic>;
 
           if (dataMap['data']?['imageUrls'] is List) {
-            newUrls = List<String>.from(dataMap['data']['imageUrls']);
-            print("Extracted URLs from data.imageUrls: $newUrls");
+            imageUrls = List<String>.from(dataMap['data']['imageUrls']);
           } else if (dataMap['imageUrls'] is List) {
-            newUrls = List<String>.from(dataMap['imageUrls']);
-            print("Extracted URLs from imageUrls: $newUrls");
+            imageUrls = List<String>.from(dataMap['imageUrls']);
           } else if (dataMap['data'] is List) {
-            newUrls = List<String>.from(dataMap['data']);
-            print("Extracted URLs from data: $newUrls");
-          } else {
-            print("⚠️ Could not find image URLs in response structure");
+            imageUrls = List<String>.from(dataMap['data']);
           }
-        } else {
-          print("⚠️ Response data is not a Map, cannot extract image URLs");
         }
 
         print(
-          "✅ Product images updated successfully! Returned ${newUrls.length} URLs",
+          "✅ Other images updated successfully! Returned ${imageUrls.length} URLs",
         );
-        return newUrls; // Return the new URLs
+        return imageUrls;
       } else {
-        // Handle error responses
-        String serverMessage = 'Image update failed: ${response.statusCode}';
-
-        if (response.data is Map<String, dynamic>) {
-          final dynamic messageValue =
-              (response.data as Map<String, dynamic>)['message'];
-          if (messageValue != null) {
-            serverMessage = messageValue.toString();
-          }
-        }
-
-        print("❌ Server error: $serverMessage");
-        throw Exception(serverMessage);
+        throw Exception('Other images update failed: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      print("=== DIO EXCEPTION ===");
-      print("Type: ${e.type}");
-      print("Message: ${e.message}");
-
-      String errorMessage = 'Network error updating images.';
+      print("=== DIO EXCEPTION (OTHER IMAGES) ===");
+      print("Error: ${e.message}");
+      String errorMessage = 'Network error updating other images.';
       if (e.response != null) {
-        print("Response status: ${e.response!.statusCode}");
-        print("Response data type: ${e.response!.data.runtimeType}");
-        print("Response data: ${e.response!.data}");
-
-        // Handle different response data types safely
-        if (e.response!.data is Map<String, dynamic>) {
-          final responseMap = e.response!.data as Map<String, dynamic>;
-
-          // Try to get error message
-          final dynamic messageValue = responseMap['message'];
-
-          // Check for validation errors
-          if (responseMap['errors'] != null) {
-            print("Validation errors: ${responseMap['errors']}");
-            errorMessage =
-                "Validation error: ${responseMap['errors'].toString()}";
-          } else if (messageValue != null) {
-            errorMessage = messageValue.toString();
-          } else {
-            errorMessage =
-                'Update failed with status: ${e.response!.statusCode}';
-          }
-        } else if (e.response!.data is String &&
-            e.response!.data.toString().isNotEmpty) {
-          errorMessage = e.response!.data.toString();
-        } else {
-          // Empty response or unknown type - provide helpful message based on status code
-          if (e.response!.statusCode == 405) {
-            errorMessage =
-                'Method not allowed (405). The API does not support this request method.';
-          } else {
-            errorMessage =
-                'Update failed with status: ${e.response!.statusCode}';
-          }
-        }
-      } else {
-        print("No response received. Error: ${e.error}");
+        final dynamic messageValue = e.response!.data?['message'];
+        errorMessage =
+            messageValue?.toString() ??
+            'Update failed with status: ${e.response!.statusCode}';
       }
-
-      print("❌ Final error message: $errorMessage");
+      print("❌ Error: $errorMessage");
       throw Exception(errorMessage);
-    } catch (e, stackTrace) {
-      print("=== UNEXPECTED ERROR ===");
-      print("Error type: ${e.runtimeType}");
-      print("Error: $e");
-      print("Stack trace: $stackTrace");
-      throw Exception('An unexpected error occurred while updating images: $e');
+    } catch (e) {
+      print("❌ Unexpected error updating other images: $e");
+      throw Exception(
+        'An unexpected error occurred while updating other images.',
+      );
     }
   }
 
