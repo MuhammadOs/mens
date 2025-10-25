@@ -261,7 +261,7 @@ class AllProductsView extends HookConsumerWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Error: ${paginatedState.error}',
+                          l10n.somethingWentWrong,
                           style: TextStyle(color: theme.colorScheme.error),
                           textAlign: TextAlign.center,
                         ),
@@ -321,14 +321,17 @@ class AllProductsView extends HookConsumerWidget {
 
           // Pagination Widget
           if (paginatedState.currentPage != null)
-            PaginationWidget(
-              paginatedData: paginatedState.currentPage!,
-              onPageChanged: (page) {
-                ref
-                    .read(paginatedAdminProductsProvider.notifier)
-                    .loadPage(page);
-              },
-              compact: true,
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: PaginationWidget(
+                paginatedData: paginatedState.currentPage!,
+                onPageChanged: (page) {
+                  ref
+                      .read(paginatedAdminProductsProvider.notifier)
+                      .loadPage(page);
+                },
+                compact: true,
+              ),
             ),
         ],
       ),
@@ -365,9 +368,9 @@ class _ProductCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 color: theme.colorScheme.surfaceContainerHighest,
-                child: product.firstImageUrl != null
+                child: product.primaryImageUrl != null
                     ? Image.network(
-                        product.firstImageUrl!,
+                        product.primaryImageUrl!,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Center(
                           child: Icon(

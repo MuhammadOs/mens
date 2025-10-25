@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart'; // Required for context.pop()
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for image picking
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/add_product_notifier.dart';
+import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
@@ -74,16 +76,28 @@ class AddProductScreen extends HookConsumerWidget {
             backgroundColor: colorScheme.primary,
           ),
         );
-        // Invalidate product list provider so it refetches when we go back
-        ref.invalidate(
-          productsProvider,
-        ); // Assuming productsProvider fetches the list
-        if (context.mounted) context.pop(); // Go back to products screen
+        // Navigate back and refresh the products list
+        if (context.mounted) {
+          context.pop(); // Go back to products screen
+          // Refresh all product providers after navigation completes
+          Future.microtask(() {
+            ref.refresh(productsProvider);
+            ref.read(paginatedProductsProvider.notifier).refresh();
+            ref.read(paginatedAdminProductsProvider.notifier).refresh();
+          });
+        }
       } else if (next is AsyncError && !(next.isLoading)) {
+        // Show generic error message for production
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.errorAddingProduct),
             backgroundColor: colorScheme.error,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
           ),
         );
       }
@@ -226,7 +240,7 @@ class AddProductScreen extends HookConsumerWidget {
                       // Error display
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       child: Text(
-                        'Error loading categories: $e',
+                        l10n.errorLoadingCategories,
                         style: TextStyle(color: theme.colorScheme.error),
                       ),
                     ),

@@ -18,8 +18,8 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
   subCategoryName: json['subCategoryName'] as String,
   storeId: (json['storeId'] as num).toInt(),
   storeName: json['storeName'] as String?,
-  imageUrls: (json['imageUrls'] as List<dynamic>)
-      .map((e) => e as String)
+  images: (json['images'] as List<dynamic>)
+      .map((e) => ProductImage.fromJson(e as Map<String, dynamic>))
       .toList(),
   createdAt: json['createdAt'] == null
       ? null
@@ -41,7 +41,7 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
   'subCategoryName': instance.subCategoryName,
   'storeId': instance.storeId,
   'storeName': instance.storeName,
-  'imageUrls': instance.imageUrls,
+  'images': instance.images.map((e) => e.toJson()).toList(),
   'createdAt': instance.createdAt?.toIso8601String(),
   'updatedAt': instance.updatedAt?.toIso8601String(),
 };

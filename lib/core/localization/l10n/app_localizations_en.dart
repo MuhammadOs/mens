@@ -414,6 +414,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAddingProduct => 'Error adding product';
 
   @override
+  String get errorUpdatingProduct =>
+      'Failed to update product. Please try again.';
+
+  @override
+  String get errorDeletingProduct =>
+      'Failed to delete product. Please try again.';
+
+  @override
+  String get errorLoadingProduct => 'Failed to load product. Please try again.';
+
+  @override
+  String get errorLoadingCategories =>
+      'Failed to load categories. Please try again.';
+
+  @override
+  String get errorUploadingImage => 'Failed to upload image. Please try again.';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong. Please try again.';
+
+  @override
   String get pleaseAddMainImage => 'Please add a main product image';
 
   @override

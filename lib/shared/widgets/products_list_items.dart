@@ -50,10 +50,10 @@ class ProductListItem extends HookConsumerWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              // Display the first image URL from the product data
-              child: product.firstImageUrl != null
+              // Display the primary image URL from the product data
+              child: product.primaryImageUrl != null
                   ? Image.network(
-                      product.firstImageUrl!,
+                      product.primaryImageUrl!,
                       height: 80,
                       width: 80,
                       fit: BoxFit.cover,
@@ -215,19 +215,19 @@ class ProductListItem extends HookConsumerWidget {
                                 );
                               }
                             } catch (e) {
-                              // 5. Error: Show error message
+                              // 5. Error: Show generic error message
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("${l10n.errorPrefix} $e"),
+                                    content: Text(l10n.errorDeletingProduct),
                                     backgroundColor: theme.colorScheme.error,
-                                  ), // TODO: Localize
+                                  ),
                                 );
                               }
-                              isLoading.value =
-                                  false; // Hide loading spinner on error
+                            } finally {
+                              // Always hide loading spinner after completion
+                              isLoading.value = false;
                             }
-                            // No need to set isLoading.value = false on success, as the widget will be removed by the refresh
                           }
                         },
                       ),

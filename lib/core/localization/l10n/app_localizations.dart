@@ -896,6 +896,42 @@ abstract class AppLocalizations {
   /// **'Error adding product'**
   String get errorAddingProduct;
 
+  /// No description provided for @errorUpdatingProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update product. Please try again.'**
+  String get errorUpdatingProduct;
+
+  /// No description provided for @errorDeletingProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete product. Please try again.'**
+  String get errorDeletingProduct;
+
+  /// No description provided for @errorLoadingProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load product. Please try again.'**
+  String get errorLoadingProduct;
+
+  /// No description provided for @errorLoadingCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load categories. Please try again.'**
+  String get errorLoadingCategories;
+
+  /// No description provided for @errorUploadingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to upload image. Please try again.'**
+  String get errorUploadingImage;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get somethingWentWrong;
+
   /// No description provided for @pleaseAddMainImage.
   ///
   /// In en, this message translates to:

@@ -6,11 +6,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for XFile
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
+import 'package:mens/features/seller/Products/domain/product_image.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/edit_product_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart'; // Adjust path if needed
 import 'package:skeletonizer/skeletonizer.dart'; // Import Skeletonizer
+
+// ignore_for_file: unused_import
 
 class EditProductScreen extends HookConsumerWidget {
   final int productId; // Product ID passed via router
@@ -87,11 +90,18 @@ class EditProductScreen extends HookConsumerWidget {
           ), // TODO: Localize
         );
       } else if (wasLoading && next is AsyncError) {
+        // Show generic error message for production
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error updating: ${next.error}"),
+            content: Text(l10n.errorUpdatingProduct),
             backgroundColor: Colors.red,
-          ), // TODO: Localize
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
         );
       }
     });
@@ -122,145 +132,34 @@ class EditProductScreen extends HookConsumerWidget {
 
                     // TODO: Add form validation
 
-                    final List<XFile> newImagesToUpload = images.value
-                        .whereType<XFile>()
-                        .toList();
-                    final List<String> existingImageUrls = images.value
-                        .whereType<String>()
-                        .toList();
-
-                    // Check if images have changed:
-                    // 1. New images were added (XFiles)
-                    // 2. Existing images were removed (count changed)
-                    // 3. Primary index changed
-                    // 4. Order changed (comparing URLs)
-                    final bool hasNewImages = newImagesToUpload.isNotEmpty;
-                    final bool imagesRemoved =
-                        existingImageUrls.length <
-                        currentProductData.imageUrls.length;
-                    final bool primaryIndexChanged =
-                        primaryImageIndex.value != 0 || // If not first image
-                        (existingImageUrls.isNotEmpty &&
-                            existingImageUrls.first !=
-                                currentProductData.imageUrls.firstOrNull);
-
-                    final bool imagesChanged =
-                        hasNewImages || imagesRemoved || primaryIndexChanged;
-
-                    bool imagesSuccess = true;
-                    bool detailsSuccess = true;
-
                     print("=== STARTING PRODUCT UPDATE ===");
                     print("Product ID: $productId");
-                    print("Images changed: $imagesChanged");
-                    print("New images to upload: ${newImagesToUpload.length}");
-                    print("Existing image URLs: ${existingImageUrls.length}");
-                    print(
-                      "Original product images: ${currentProductData.imageUrls.length}",
-                    );
-                    print(
-                      "Primary image index in UI: ${primaryImageIndex.value}",
-                    );
+                    print("Images: ${images.value.length}");
+                    print("Primary image index: ${primaryImageIndex.value}");
 
-                    // 1. Update Images FIRST (if changed)
-                    if (imagesChanged) {
-                      try {
-                        print("Updating product images...");
-                        print("Has new images: $hasNewImages");
-                        print("Images removed: $imagesRemoved");
-                        print("Primary index changed: $primaryIndexChanged");
-
-                        // Separate primary image from others
-                        final primaryItem = images.value.isNotEmpty
-                            ? images.value[primaryImageIndex.value]
-                            : null;
-
-                        // Check if primary is new or existing
-                        final bool isPrimaryNew = primaryItem is XFile;
-                        final XFile? primaryImageFile = isPrimaryNew
-                            ? primaryItem
-                            : null;
-
-                        // Get other images (exclude primary)
-                        final List<XFile> otherNewImages = [];
-                        final List<String> otherExistingUrls = [];
-
-                        for (int i = 0; i < images.value.length; i++) {
-                          if (i == primaryImageIndex.value)
-                            continue; // Skip primary
-
-                          final item = images.value[i];
-                          if (item is XFile) {
-                            otherNewImages.add(item);
-                          } else if (item is String) {
-                            otherExistingUrls.add(item);
-                          }
-                        }
-
-                        print("Primary: ${isPrimaryNew ? 'NEW' : 'EXISTING'}");
-                        print("Other new images: ${otherNewImages.length}");
-                        print(
-                          "Other existing URLs: ${otherExistingUrls.length}",
-                        );
-
-                        // Call the new API structure
-                        await editNotifier.updateImages(
-                          productId: productId,
-                          primaryImage: primaryImageFile,
-                          otherNewImages: otherNewImages,
-                          existingOtherImageUrls: otherExistingUrls,
-                          isPrimaryNew: isPrimaryNew,
-                        );
-
-                        print("Images updated successfully!");
-                      } catch (e, stackTrace) {
-                        imagesSuccess = false;
-                        print("❌ ERROR during updateImages call: $e");
-                        print("Stack trace: $stackTrace");
-                      }
-                    } else {
-                      print(
-                        "No image changes detected, skipping image update.",
+                    try {
+                      // Call the unified update method
+                      await editNotifier.updateProduct(
+                        productId: productId,
+                        name: nameController.text,
+                        description: descriptionController.text,
+                        price: double.tryParse(priceController.text) ?? 0.0,
+                        stockQuantity: int.tryParse(stockController.text) ?? 0,
+                        subCategoryId:
+                            selectedSubCategoryId.value ??
+                            currentProductData.subCategoryId,
+                        images: images.value,
+                        primaryImageIndex: primaryImageIndex.value,
                       );
-                    }
 
-                    // 2. Update Text Details (only if images succeeded or no images changed)
-                    if (imagesSuccess) {
-                      try {
-                        print("Updating product details...");
-                        await editNotifier.updateDetails(
-                          productId: productId,
-                          name: nameController.text,
-                          description: descriptionController.text,
-                          price: double.tryParse(priceController.text) ?? 0.0,
-                          stockQuantity:
-                              int.tryParse(stockController.text) ?? 0,
-                          subCategoryId:
-                              selectedSubCategoryId.value ??
-                              currentProductData.subCategoryId,
-                        );
-                        print("Product details updated successfully!");
-                      } catch (e, stackTrace) {
-                        detailsSuccess = false;
-                        print("❌ ERROR during updateDetails call: $e");
-                        print("Stack trace: $stackTrace");
+                      print("✅ Product update successful!");
+
+                      if (context.mounted) {
+                        context.pop();
                       }
-                    } else {
-                      print(
-                        "⚠️ Skipping details update because image update failed.",
-                      );
-                    }
-
-                    print("=== UPDATE COMPLETE ===");
-                    print("Images success: $imagesSuccess");
-                    print("Details success: $detailsSuccess");
-
-                    // Pop only if everything succeeded
-                    if (detailsSuccess && imagesSuccess && context.mounted) {
-                      print("✅ All updates successful, navigating back.");
-                      context.pop();
-                    } else {
-                      print("⚠️ Some updates failed, staying on screen.");
+                    } catch (e) {
+                      print("❌ Error updating product: $e");
+                      // Error handling is done by the listener
                     }
                   },
                 ),
@@ -283,9 +182,13 @@ class EditProductScreen extends HookConsumerWidget {
             }
 
             // Only set images from product data on the very first load
-            if (images.value.isEmpty && product.imageUrls.isNotEmpty) {
-              images.value = List<dynamic>.from(product.imageUrls);
-              primaryImageIndex.value = 0;
+            if (images.value.isEmpty && product.images.isNotEmpty) {
+              images.value = List<dynamic>.from(product.images);
+              // Find the primary image index
+              final primaryIndex = product.images.indexWhere(
+                (img) => img.isPrimary,
+              );
+              primaryImageIndex.value = primaryIndex >= 0 ? primaryIndex : 0;
             }
             return null;
           }, [product]); // Re-run if the 'product' object changes
@@ -358,7 +261,7 @@ class EditProductScreen extends HookConsumerWidget {
                           // Error Display
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
-                            'Error loading categories: $e',
+                            l10n.errorLoadingCategories,
                             style: TextStyle(color: theme.colorScheme.error),
                           ),
                         ),
@@ -434,6 +337,18 @@ class EditProductScreen extends HookConsumerWidget {
                         final item = images.value[index];
                         final bool isPrimary = index == primaryImageIndex.value;
 
+                        // Extract image source (URL or file path)
+                        String? imageUrl;
+                        String? imagePath;
+
+                        if (item is XFile) {
+                          imagePath = item.path;
+                        } else if (item is ProductImage) {
+                          imageUrl = item.imageUrl;
+                        } else if (item is String) {
+                          imageUrl = item;
+                        }
+
                         return Stack(
                           alignment: Alignment.topRight,
                           children: [
@@ -460,21 +375,18 @@ class EditProductScreen extends HookConsumerWidget {
                                   borderRadius: BorderRadius.circular(
                                     9,
                                   ), // Inner radius smaller than container
-                                  child:
-                                      item
-                                          is XFile // Check if it's a new file (XFile)
+                                  child: imagePath != null
                                       ? Image.file(
-                                          File(item.path),
+                                          File(imagePath),
                                           width: 94,
                                           height: 94,
                                           fit: BoxFit.cover,
                                         )
                                       : Image.network(
-                                          item as String,
+                                          imageUrl ?? '',
                                           width: 94,
                                           height: 94,
-                                          fit: BoxFit
-                                              .cover, // Or an existing URL (String)
+                                          fit: BoxFit.cover,
                                           errorBuilder: (c, e, s) => Container(
                                             width: 94,
                                             height: 94,
@@ -605,9 +517,9 @@ class EditProductScreen extends HookConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Error loading product: $e",
+              l10n.errorLoadingProduct,
               style: TextStyle(color: theme.colorScheme.error),
-            ), // TODO: Localize
+            ),
           ),
         ),
       ),

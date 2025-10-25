@@ -233,7 +233,7 @@ class _ErrorStateWithRefresh extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      '${l10n.errorLoading}: $error', // TODO: Add localization key 'errorLoading'
+                      l10n.somethingWentWrong,
                       style: TextStyle(color: theme.colorScheme.error),
                       textAlign: TextAlign.center,
                     ),

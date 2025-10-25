@@ -17,6 +17,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final currentImageIndex = useState(0); // Track current image
+    final pageController = usePageController(initialPage: 0);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -39,6 +40,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                   ? Stack(
                       children: [
                         PageView.builder(
+                          controller: pageController,
                           itemCount: product.imageUrls.length,
                           onPageChanged: (index) {
                             currentImageIndex.value = index;
@@ -141,6 +143,11 @@ class ProductDetailsScreen extends HookConsumerWidget {
                     return GestureDetector(
                       onTap: () {
                         currentImageIndex.value = index;
+                        pageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
                       },
                       child: Container(
                         width: 60,

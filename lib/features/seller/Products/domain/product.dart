@@ -1,7 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mens/features/seller/Products/domain/product_image.dart';
+
 part 'product.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class Product {
   final int id;
   final String name;
@@ -15,7 +17,7 @@ class Product {
   final String subCategoryName;
   final int storeId;
   final String? storeName;
-  final List<String> imageUrls;
+  final List<ProductImage> images;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -31,7 +33,7 @@ class Product {
     required this.subCategoryName,
     required this.storeId,
     this.storeName,
-    required this.imageUrls,
+    required this.images,
     this.createdAt,
     this.updatedAt,
   });
@@ -40,7 +42,21 @@ class Product {
       _$ProductFromJson(json);
   Map<String, dynamic> toJson() => _$ProductToJson(this);
 
-  String? get firstImageUrl => imageUrls.isNotEmpty ? imageUrls.first : null;
+  /// Get the primary image URL, or the first image if no primary is set
+  String? get primaryImageUrl {
+    if (images.isEmpty) return null;
+    final primaryImage = images.firstWhere(
+      (img) => img.isPrimary,
+      orElse: () => images.first,
+    );
+    return primaryImage.imageUrl;
+  }
+
+  /// Get all image URLs as a list (for backward compatibility)
+  List<String> get imageUrls => images.map((img) => img.imageUrl).toList();
+
+  /// Get the first image URL (for backward compatibility)
+  String? get firstImageUrl => images.isNotEmpty ? images.first.imageUrl : null;
 
   Product copyWith({
     int? id,
@@ -54,7 +70,7 @@ class Product {
     String? subCategoryName,
     int? storeId,
     String? storeName,
-    List<String>? imageUrls,
+    List<ProductImage>? images,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -70,7 +86,7 @@ class Product {
       subCategoryName: subCategoryName ?? this.subCategoryName,
       storeId: storeId ?? this.storeId,
       storeName: storeName ?? this.storeName,
-      imageUrls: imageUrls ?? this.imageUrls,
+      images: images ?? this.images,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

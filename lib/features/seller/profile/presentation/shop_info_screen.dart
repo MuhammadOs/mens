@@ -66,9 +66,9 @@ class ShopInformationScreen extends HookConsumerWidget {
         // Only show error if not loading
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error: ${next.error}"),
+            content: Text(l10n.errorSaving),
             backgroundColor: Colors.red,
-          ), // TODO: Localize error
+          ),
         );
       }
     });

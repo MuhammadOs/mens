@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart'; // For kDebugMode
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart'; // For XFile in add/update methods
 import 'package:mens/core/services/api_service.dart'; // Provides apiServiceProvider (adjust path if needed)
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/seller/Products/domain/product.dart'; // Provides Product model (adjust path if needed)
+import 'package:mens/features/seller/Products/domain/product_image.dart';
 import 'package:mens/shared/models/paginated_response.dart';
 import 'package:mens/shared/models/pagination_params.dart';
 
@@ -24,37 +24,27 @@ abstract class ProductRepository {
   Future<Product> getProductById(int productId);
 
   /// Adds a new product to the store.
+  /// Images should be uploaded first using ImageUploadService.
   Future<void> addProduct({
     required String name,
     required String description,
     required double price,
     required int stockQuantity,
     required int subCategoryId,
-    required List<XFile> images,
-    List<String>? imageAltTexts,
+    required List<ProductImage> images,
   });
 
-  /// Updates the text details of an existing product.
-  Future<void> updateProductDetails({
+  /// Updates an existing product (details and images).
+  /// For new images: upload them first using ImageUploadService and provide imageUrl without id.
+  /// For existing images: include the id field.
+  Future<void> updateProduct({
     required int productId,
     required String name,
     required String description,
     required double price,
     required int stockQuantity,
     required int subCategoryId,
-  });
-
-  /// Updates the primary image for a product (separate endpoint).
-  Future<String> updatePrimaryImage({
-    required int productId,
-    required XFile primaryImage,
-  });
-
-  /// Updates the other (non-primary) images for a product.
-  Future<List<String>> updateOtherImages({
-    required int productId,
-    required List<XFile> newImages,
-    required List<String> existingImageUrls,
+    required List<ProductImage> images,
   });
 
   Future<void> deleteProduct(int productId);
@@ -239,7 +229,7 @@ class ProductRepositoryImpl implements ProductRepository {
     }
   }
 
-  /// Adds a new product using multipart/form-data.
+  /// Adds a new product using JSON with pre-uploaded images.
   @override
   Future<void> addProduct({
     required String name,
@@ -247,53 +237,36 @@ class ProductRepositoryImpl implements ProductRepository {
     required double price,
     required int stockQuantity,
     required int subCategoryId,
-    required List<XFile> images,
-    List<String>? imageAltTexts, // Optional
+    required List<ProductImage> images,
   }) async {
-    // Get storeId if required by the /products endpoint (might be inferred from auth token)
-    // final userProfile = _ref.read(authNotifierProvider).asData?.value;
-    // final storeId = userProfile?.store?.id;
-    // if (storeId == null) throw Exception('Store ID not found.');
-
     try {
-      // Prepare image files as MultipartFile list
-      List<MultipartFile> imageFiles = [];
-      for (var image in images) {
-        imageFiles.add(
-          await MultipartFile.fromFile(image.path, filename: image.name),
-        );
+      // Prepare the request body as JSON
+      final requestBody = {
+        'name': name,
+        'description': description,
+        'price': price,
+        'stockQuantity': stockQuantity,
+        'subCategoryId': subCategoryId,
+        'images': images.map((img) => img.toJson()).toList(),
+      };
+
+      if (kDebugMode) {
+        print('=== ADD PRODUCT REQUEST ===');
+        print('Endpoint: POST /products');
+        print('Request body: $requestBody');
       }
 
-      // Create FormData, ensuring keys match the API ('Name', 'Description', etc.)
-      final formData = FormData.fromMap({
-        'Name': name,
-        'Description': description,
-        'Price': price,
-        'StockQuantity': stockQuantity,
-        'SubCategoryId': subCategoryId,
-        'Images': imageFiles, // Pass the list of MultipartFile
-        // Include these if your API requires them:
-        // 'ImageAltTexts': imageAltTexts ?? [],
-        // 'StoreId': storeId, // If needed in form data
-      });
-
       // Send POST request to the /products endpoint
-      final response = await _dio.post(
-        '/products',
-        data: formData,
-        onSendProgress: (int sent, int total) {
-          // Optional progress tracking
-          if (kDebugMode) {
-            print(
-              'Add product upload progress: ${(sent / total * 100).toStringAsFixed(0)}%',
-            );
-          }
-        },
-      );
+      final response = await _dio.post('/products', data: requestBody);
+
+      if (kDebugMode) {
+        print('=== ADD PRODUCT RESPONSE ===');
+        print('Status code: ${response.statusCode}');
+        print('Response data: ${response.data}');
+      }
 
       // Check for successful status codes
       if (response.statusCode != 200 && response.statusCode != 201) {
-        // Handle both string and non-string message types
         final dynamic messageValue = response.data?['message'];
         final serverMessage =
             messageValue?.toString() ??
@@ -301,257 +274,97 @@ class ProductRepositoryImpl implements ProductRepository {
         throw Exception(serverMessage);
       }
 
-      print("Product added successfully!");
+      if (kDebugMode) {
+        print("✅ Product added successfully!");
+      }
     } on DioException catch (e) {
+      if (kDebugMode) {
+        print('=== ADD PRODUCT ERROR ===');
+        print('Error type: ${e.type}');
+        print('Status code: ${e.response?.statusCode}');
+        print('Response data: ${e.response?.data}');
+        print('Request path: ${e.requestOptions.path}');
+      }
       String errorMessage = 'Network error adding product.';
       if (e.response != null) {
-        // Handle both string and non-string message types
         final dynamic messageValue = e.response!.data?['message'];
+        final dynamic errors = e.response!.data?['errors'];
         errorMessage =
             messageValue?.toString() ??
-            (e.response!.data?['errors']?.toString() ??
-                'Failed with status: ${e.response!.statusCode}');
+            errors?.toString() ??
+            'Failed with status: ${e.response!.statusCode}';
       }
-      print("DioException adding product: $errorMessage");
+      if (kDebugMode) {
+        print("❌ Error message: $errorMessage");
+      }
       throw Exception(errorMessage);
     } catch (e) {
-      print("Unexpected error adding product: $e");
+      if (kDebugMode) {
+        print("❌ Unexpected error adding product: $e");
+      }
       throw Exception('An unexpected error occurred while adding the product.');
     }
   }
 
-  /// Updates the text details of an existing product (uses PUT).
+  /// Updates an existing product (details and images) using JSON.
   @override
-  Future<void> updateProductDetails({
+  Future<void> updateProduct({
     required int productId,
     required String name,
     required String description,
     required double price,
     required int stockQuantity,
     required int subCategoryId,
+    required List<ProductImage> images,
   }) async {
     try {
-      final response = await _dio.patch(
-        // Use PUT (or PATCH if API supports partial updates)
+      // Prepare the request body as JSON
+      final requestBody = {
+        'name': name,
+        'description': description,
+        'price': price,
+        'stockQuantity': stockQuantity,
+        'subCategoryId': subCategoryId,
+        'images': images.map((img) => img.toJson()).toList(),
+      };
+
+      if (kDebugMode) {
+        print('Updating product $productId with data: $requestBody');
+      }
+
+      final response = await _dio.put(
         '/products/$productId',
-        data: {
-          'name': name,
-          'description': description,
-          'price': price,
-          'stockQuantity': stockQuantity,
-          'subCategoryId': subCategoryId,
-        },
+        data: requestBody,
       );
-      if (response.statusCode != 200) {
-        // Check for success (e.g., 200 OK, 204 No Content)
-        // Handle both string and non-string message types
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
         final dynamic messageValue = response.data?['message'];
         final serverMessage =
             messageValue?.toString() ?? 'Update failed: ${response.statusCode}';
         throw Exception(serverMessage);
       }
-      print("Product details updated successfully!");
+
+      if (kDebugMode) {
+        print("✅ Product updated successfully!");
+      }
     } on DioException catch (e) {
-      String errorMessage = 'Network error updating product details.';
+      String errorMessage = 'Network error updating product.';
       if (e.response != null) {
-        // Handle both string and non-string message types
         final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
             messageValue?.toString() ??
             (e.response!.data?['errors']?.toString() ??
                 'Update failed with status: ${e.response!.statusCode}');
       }
-      print("DioException updating product details: $errorMessage");
+      if (kDebugMode) {
+        print("❌ DioException updating product: $errorMessage");
+      }
       throw Exception(errorMessage);
     } catch (e) {
-      print("Unexpected error updating product details: $e");
-      throw Exception('An unexpected error occurred while updating details.');
-    }
-  }
-
-  /// Updates the primary image for a product (separate endpoint).
-  @override
-  Future<String> updatePrimaryImage({
-    required int productId,
-    required XFile primaryImage,
-  }) async {
-    try {
-      print("=== UPDATE PRIMARY IMAGE DEBUG ===");
-      print("Product ID: $productId");
-      print("Primary image: ${primaryImage.name}");
-
-      // Create multipart file
-      final imageFile = await MultipartFile.fromFile(
-        primaryImage.path,
-        filename: primaryImage.name,
-      );
-
-      // Create FormData - send image with isPrimary flag
-      final formData = FormData.fromMap({
-        'Image': imageFile,
-        'IsPrimary': true, // Mark this image as primary
-      });
-
-      print("Sending PUT to /products/$productId/primary-image");
-      final response = await _dio.put(
-        '/products/$productId/primary-image',
-        data: formData,
-        onSendProgress: (int sent, int total) {
-          if (kDebugMode) {
-            print(
-              'Primary image upload progress: ${(sent / total * 100).toStringAsFixed(0)}%',
-            );
-          }
-        },
-      );
-
-      print("=== PRIMARY IMAGE RESPONSE ===");
-      print("Response status: ${response.statusCode}");
-      print("Response data: ${response.data}");
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // Extract the URL of the uploaded primary image
-        String imageUrl = '';
-
-        if (response.data is Map<String, dynamic>) {
-          final dataMap = response.data as Map<String, dynamic>;
-          imageUrl =
-              dataMap['imageUrl'] as String? ??
-              dataMap['data']?['imageUrl'] as String? ??
-              dataMap['url'] as String? ??
-              '';
-        }
-
-        print("✅ Primary image updated successfully! URL: $imageUrl");
-        return imageUrl;
-      } else {
-        throw Exception('Primary image update failed: ${response.statusCode}');
+      if (kDebugMode) {
+        print("❌ Unexpected error updating product: $e");
       }
-    } on DioException catch (e) {
-      print("=== DIO EXCEPTION (PRIMARY IMAGE) ===");
-      print("Error: ${e.message}");
-      String errorMessage = 'Network error updating primary image.';
-      if (e.response != null) {
-        final dynamic messageValue = e.response!.data?['message'];
-        errorMessage =
-            messageValue?.toString() ??
-            'Update failed with status: ${e.response!.statusCode}';
-      }
-      print("❌ Error: $errorMessage");
-      throw Exception(errorMessage);
-    } catch (e) {
-      print("❌ Unexpected error updating primary image: $e");
-      throw Exception(
-        'An unexpected error occurred while updating primary image.',
-      );
-    }
-  }
-
-  /// Updates the other (non-primary) images for a product.
-  @override
-  Future<List<String>> updateOtherImages({
-    required int productId,
-    required List<XFile> newImages,
-    required List<String> existingImageUrls,
-  }) async {
-    try {
-      print("=== UPDATE OTHER IMAGES DEBUG ===");
-      print("Product ID: $productId");
-      print("Number of new images: ${newImages.length}");
-      print("Number of existing URLs to keep: ${existingImageUrls.length}");
-      print("Total images: ${newImages.length + existingImageUrls.length}");
-
-      List<MultipartFile> imageFiles = [];
-      for (var image in newImages) {
-        print("Processing new image: ${image.path}");
-        imageFiles.add(
-          await MultipartFile.fromFile(image.path, filename: image.name),
-        );
-      }
-
-      // Create FormData with new files and existing URLs to preserve
-      // All images sent here have IsPrimary = false (implicitly)
-      final Map<String, dynamic> formDataMap = {};
-
-      if (imageFiles.isNotEmpty) {
-        formDataMap['Images'] = imageFiles;
-      }
-
-      if (existingImageUrls.isNotEmpty) {
-        formDataMap['ExistingImageUrls'] = existingImageUrls;
-      }
-
-      final formData = FormData.fromMap(formDataMap);
-
-      print("FormData created:");
-      print("  - Fields: ${formData.fields.length}");
-      print("  - Files: ${formData.files.length}");
-
-      // Send PUT request to the images endpoint
-      print("Sending PUT to /products/$productId/images");
-      final response = await _dio.put(
-        '/products/$productId/images',
-        data: formData,
-        onSendProgress: (int sent, int total) {
-          if (kDebugMode) {
-            print(
-              'Other images upload progress: ${(sent / total * 100).toStringAsFixed(0)}%',
-            );
-          }
-        },
-      );
-
-      print("=== OTHER IMAGES RESPONSE ===");
-      print("Response status: ${response.statusCode}");
-      print("Response data: ${response.data}");
-
-      if (response.statusCode == 200 ||
-          response.statusCode == 201 ||
-          response.statusCode == 204) {
-        if (response.statusCode == 204) {
-          print("✅ Other images updated successfully! (204 No Content)");
-          return [];
-        }
-
-        // Extract image URLs from response
-        List<String> imageUrls = [];
-
-        if (response.data is Map<String, dynamic>) {
-          final dataMap = response.data as Map<String, dynamic>;
-
-          if (dataMap['data']?['imageUrls'] is List) {
-            imageUrls = List<String>.from(dataMap['data']['imageUrls']);
-          } else if (dataMap['imageUrls'] is List) {
-            imageUrls = List<String>.from(dataMap['imageUrls']);
-          } else if (dataMap['data'] is List) {
-            imageUrls = List<String>.from(dataMap['data']);
-          }
-        }
-
-        print(
-          "✅ Other images updated successfully! Returned ${imageUrls.length} URLs",
-        );
-        return imageUrls;
-      } else {
-        throw Exception('Other images update failed: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      print("=== DIO EXCEPTION (OTHER IMAGES) ===");
-      print("Error: ${e.message}");
-      String errorMessage = 'Network error updating other images.';
-      if (e.response != null) {
-        final dynamic messageValue = e.response!.data?['message'];
-        errorMessage =
-            messageValue?.toString() ??
-            'Update failed with status: ${e.response!.statusCode}';
-      }
-      print("❌ Error: $errorMessage");
-      throw Exception(errorMessage);
-    } catch (e) {
-      print("❌ Unexpected error updating other images: $e");
-      throw Exception(
-        'An unexpected error occurred while updating other images.',
-      );
+      throw Exception('An unexpected error occurred while updating product.');
     }
   }
 
