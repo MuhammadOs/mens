@@ -36,13 +36,11 @@ class CategoryRepositoryImpl implements CategoryRepository {
       } else {
         throw Exception('Failed to load categories: Invalid response format.');
       }
-    } on DioException catch (e) {
+    } on DioException {
       // Handle network errors
-      print("Error fetching categories: $e");
       throw Exception('Failed to load categories due to network error.');
     } catch (e) {
       // Handle parsing errors
-      print("Error parsing categories: $e");
       throw Exception('Failed to parse categories.');
     }
   }
@@ -65,13 +63,11 @@ class CategoryRepositoryImpl implements CategoryRepository {
           'Failed to load subcategories for ID $id: Invalid response format.',
         );
       }
-    } on DioException catch (e) {
+    } on DioException {
       // Handle network errors
-      print("Error fetching subcategories for ID $id: $e");
       throw Exception('Failed to load subcategories due to network error.');
     } catch (e) {
       // Handle parsing errors
-      print("Error parsing subcategories for ID $id: $e");
       throw Exception('Failed to parse subcategories.');
     }
   }

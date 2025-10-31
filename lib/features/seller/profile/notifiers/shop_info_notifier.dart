@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
@@ -85,7 +84,6 @@ class ShopInfoNotifier extends Notifier<AsyncValue<ShopInfoData>> {
       final savedData = await repo.updateShopInfo(storeId, updatedData);
       // On success, update the state with the potentially modified data from response
       state = AsyncValue.data(savedData);
-      print("Shop information saved successfully!");
       // Refresh the main user profile to ensure all parts of the app reflect the changes instantly
       ref.read(authNotifierProvider.notifier).refreshProfile();
     } catch (e, st) {
@@ -107,18 +105,11 @@ class ShopInfoNotifier extends Notifier<AsyncValue<ShopInfoData>> {
     final storeId = userProfile?.store?.id;
 
     if (currentState == null || storeId == null) {
-      if (kDebugMode) {
-        print("Cannot update image: current state or storeId is null.");
-      }
       return;
     }
 
-    // Store the previous state explicitly typed
-    final previousState = AsyncValue<ShopInfoData>.data(currentState);
-
-    // Set loading state, preserving previous data
-    // ignore: invalid_use_of_internal_member
-    state = AsyncValue<ShopInfoData>.loading().copyWithPrevious(previousState);
+    // Set loading state
+    state = const AsyncValue.loading();
 
     try {
       final repo = ref.read(shopRepositoryProvider);
@@ -127,20 +118,12 @@ class ShopInfoNotifier extends Notifier<AsyncValue<ShopInfoData>> {
       // Update the state with the new image URL
       final updatedData = currentState.copyWith(image: newImageUrl);
       state = AsyncValue.data(updatedData);
-      if (kDebugMode) {
-        print("Brand image updated successfully!");
-      }
 
       // Refresh the main user profile
       ref.read(authNotifierProvider.notifier).refreshProfile();
     } catch (e, st) {
-      if (kDebugMode) {
-        print("Error updating brand image: $e");
-      }
-      // Revert to previous data on error, but keep the error information
-      state = AsyncValue<ShopInfoData>.error(e, st).copyWithPrevious(
-        previousState,
-      ); // ignore: invalid_use_of_internal_member
+      // Set error state
+      state = AsyncValue.error(e, st);
     }
   }
 }

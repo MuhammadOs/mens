@@ -132,11 +132,6 @@ class EditProductScreen extends HookConsumerWidget {
 
                     // TODO: Add form validation
 
-                    print("=== STARTING PRODUCT UPDATE ===");
-                    print("Product ID: $productId");
-                    print("Images: ${images.value.length}");
-                    print("Primary image index: ${primaryImageIndex.value}");
-
                     try {
                       // Call the unified update method
                       await editNotifier.updateProduct(
@@ -152,13 +147,10 @@ class EditProductScreen extends HookConsumerWidget {
                         primaryImageIndex: primaryImageIndex.value,
                       );
 
-                      print("✅ Product update successful!");
-
                       if (context.mounted) {
                         context.pop();
                       }
                     } catch (e) {
-                      print("❌ Error updating product: $e");
                       // Error handling is done by the listener
                     }
                   },

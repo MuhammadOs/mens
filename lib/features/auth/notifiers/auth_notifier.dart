@@ -3,9 +3,8 @@ import 'package:mens/core/services/api_service.dart';
 import 'package:mens/features/auth/data/auth_repository_impl.dart';
 import 'package:mens/features/auth/domain/user_profile.dart';
 
-final authNotifierProvider = NotifierProvider<AuthNotifier, AsyncValue<UserProfile?>>(
-  AuthNotifier.new,
-);
+final authNotifierProvider =
+    NotifierProvider<AuthNotifier, AsyncValue<UserProfile?>>(AuthNotifier.new);
 
 class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
   @override
@@ -20,7 +19,9 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
   Future<void> _checkInitialAuthStatus() async {
     final repo = ref.read(authRepositoryProvider);
-    final storage = ref.read(secureStorageProvider); // Assuming you have this provider
+    final storage = ref.read(
+      secureStorageProvider,
+    ); // Assuming you have this provider
     final token = await storage.read(key: 'jwt_token');
 
     // Small delay helps prevent race conditions during widget build
@@ -28,7 +29,8 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
     try {
       if (token != null) {
-        final userData = await repo.getUserData(); // Will use cache if available
+        final userData = await repo
+            .getUserData(); // Will use cache if available
         // Update state if successful
         state = AsyncValue.data(userData);
       } else {
@@ -37,7 +39,6 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
       }
     } catch (e) {
       // If getUserData fails (e.g., token expired/invalid), log out
-      print("Error checking initial auth status: $e");
       await repo.logout(); // Clear token and cache
       state = const AsyncValue.data(null); // Set state to logged out
     }
@@ -69,7 +70,6 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
       final userData = await repo.getUserData(forceRefresh: true);
       state = AsyncValue.data(userData);
     } catch (e) {
-      print("Error refreshing profile: $e");
       // Don't necessarily log out, just keep old state or show error
     }
   }

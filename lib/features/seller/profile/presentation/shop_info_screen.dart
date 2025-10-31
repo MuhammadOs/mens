@@ -1,4 +1,3 @@
-import 'dart:io'; // Required for FileImage if using local preview
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -133,14 +132,6 @@ class ShopInformationScreen extends HookConsumerWidget {
             [shopInfo],
           ); // Dependency array ensures this runs when shopInfo data changes
 
-          // Determine image source: new preview OR existing URL from shopInfo
-          final imageToShow = newImageFile.value != null
-              ? FileImage(File(newImageFile.value!.path))
-                    as ImageProvider // Show preview
-              : (shopInfo.image != null && shopInfo.image!.isNotEmpty
-                    ? NetworkImage(shopInfo.image!) // Show fetched image
-                    : null); // No image
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Form(
@@ -159,14 +150,6 @@ class ShopInformationScreen extends HookConsumerWidget {
                           userProfile?.store?.brandImage ??
                               "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
                         ),
-                        onBackgroundImageError: imageToShow is NetworkImage
-                            ? (_, __) {
-                                print(
-                                  "Error loading network image: ${shopInfo.image}",
-                                );
-                                // Optionally show placeholder on error
-                              }
-                            : null,
                         child: userProfile?.store?.brandImage == null
                             ? Icon(
                                 Icons.storefront,

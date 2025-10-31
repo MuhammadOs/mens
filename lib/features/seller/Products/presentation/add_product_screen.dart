@@ -81,7 +81,7 @@ class AddProductScreen extends HookConsumerWidget {
           context.pop(); // Go back to products screen
           // Refresh all product providers after navigation completes
           Future.microtask(() {
-            ref.refresh(productsProvider);
+            ref.invalidate(productsProvider);
             ref.read(paginatedProductsProvider.notifier).refresh();
             ref.read(paginatedAdminProductsProvider.notifier).refresh();
           });

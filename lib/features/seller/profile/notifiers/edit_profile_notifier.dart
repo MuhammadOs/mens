@@ -81,9 +81,7 @@ class EditProfileNotifier extends Notifier<AsyncValue<UserProfileData>> {
       // The image upload logic should be separate (e.g., in ShopInfoNotifier).
       // If you intended to upload the *user's* profile pic, you need a different API.
       if (newImage != null) {
-        print(
-          "Image update logic would go here, but /users/me doesn't support it.",
-        );
+        // Image update logic would go here, but /users/me doesn't support it.
         // await repo.updateUserAvatar(newImage); // Example
       }
 

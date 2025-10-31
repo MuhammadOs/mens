@@ -158,23 +158,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 1. If the state is loading, ALWAYS stay on the current screen.
       //    This prevents redirects during login attempts or initial checks.
       if (authState is AsyncLoading) {
-        print("Redirect: Auth state is loading, staying put.");
         return null; // Do nothing, wait for loading to finish
       }
 
       // 2. Handle errors explicitly: If there's an error state AND the user isn't logged in,
       //    ensure they are on or going to an auth route. If not, send to signIn.
       if (authState is AsyncError && !isLoggedIn && !isGoingToAuthRoute) {
-        print(
-          "Redirect: Auth error, not logged in, not going to auth -> to signIn",
-        );
         return AppRoutes.signIn;
       }
 
       // 3. If NOT logged in (and not loading/error handled above)
       //    AND trying to access a protected route -> redirect to signIn.
       if (!isLoggedIn && !isGoingToAuthRoute) {
-        print("Redirect: Not logged in, not going to auth -> to signIn");
         return AppRoutes.signIn;
       }
 
@@ -186,28 +181,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (userRole == 'Admin') {
           // If admin is logged in and tries to go to a seller route, redirect to admin products
           if (location == AppRoutes.home || isGoingToAuthRoute) {
-            print("Redirect: Admin going to seller route -> to admin products");
             return AppRoutes.adminProducts;
           }
         } else if (userRole == 'StoreOwner') {
           // If seller is logged in and tries to go to an admin route, redirect to seller home
           if (location.startsWith('/admin') || isGoingToAuthRoute) {
-            print("Redirect: Seller going to admin route -> to seller home");
             return AppRoutes.home;
           }
         }
 
         // If logged in and trying to access auth routes, redirect based on role
         if (isGoingToAuthRoute) {
-          print(
-            "Redirect: Logged in, going to auth -> redirecting based on role",
-          );
           return userRole == 'Admin' ? AppRoutes.adminProducts : AppRoutes.home;
         }
       }
 
       // 5. Otherwise (logged in on protected route, logged out on auth route), allow.
-      print("Redirect: Allowing navigation to $location");
       return null;
     },
   );

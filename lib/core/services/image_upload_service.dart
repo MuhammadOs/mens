@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mens/core/services/api_service.dart';
@@ -30,31 +29,8 @@ class ImageUploadService {
       // Create FormData with the image (API expects 'file' as the field name)
       final formData = FormData.fromMap({'file': imageFile});
 
-      if (kDebugMode) {
-        print('=== IMAGE UPLOAD DEBUG ===');
-        print('Uploading image: ${image.name}');
-        print('Image path: ${image.path}');
-        print('Endpoint: POST /images/upload');
-      }
-
       // Send POST request to upload endpoint
-      final response = await _dio.post(
-        '/images/upload',
-        data: formData,
-        onSendProgress: (int sent, int total) {
-          if (kDebugMode) {
-            print(
-              'Upload progress: ${(sent / total * 100).toStringAsFixed(0)}%',
-            );
-          }
-        },
-      );
-
-      if (kDebugMode) {
-        print('=== IMAGE UPLOAD RESPONSE ===');
-        print('Status code: ${response.statusCode}');
-        print('Response data: ${response.data}');
-      }
+      final response = await _dio.post('/images/upload', data: formData);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Extract imageUrl from response
@@ -64,24 +40,11 @@ class ImageUploadService {
           throw Exception('Server did not return a valid image URL');
         }
 
-        if (kDebugMode) {
-          print('✅ Image uploaded successfully: $imageUrl');
-        }
-
         return imageUrl;
       } else {
         throw Exception('Image upload failed: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('=== IMAGE UPLOAD ERROR ===');
-        print('Error type: ${e.type}');
-        print('Error message: ${e.message}');
-        print('Status code: ${e.response?.statusCode}');
-        print('Response data: ${e.response?.data}');
-        print('Request path: ${e.requestOptions.path}');
-        print('Request method: ${e.requestOptions.method}');
-      }
       String errorMessage = 'Network error uploading image.';
       if (e.response != null) {
         final dynamic messageValue = e.response!.data?['message'];
@@ -93,9 +56,6 @@ class ImageUploadService {
       }
       throw Exception(errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Unexpected error uploading image: $e');
-      }
       throw Exception('An unexpected error occurred while uploading image.');
     }
   }

@@ -41,12 +41,6 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
     // Set state to loading before the API call.
     state = const AsyncValue.loading();
 
-    print("=== EDIT NOTIFIER: UPDATE PRODUCT ===");
-    print("Product ID: $productId");
-    print("Name: $name");
-    print("Primary image index: $primaryImageIndex");
-    print("Total images: ${images.length}");
-
     try {
       final imageUploadService = ref.read(imageUploadServiceProvider);
       final List<ProductImage> productImages = [];
@@ -57,11 +51,9 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
 
         if (image is XFile) {
           // New image - upload it first
-          print("Uploading new image: ${image.name}");
           try {
             final imageUrl = await imageUploadService.uploadImage(image);
             final isPrimary = i == primaryImageIndex;
-            print("New image at index $i, isPrimary: $isPrimary");
             productImages.add(
               ProductImage(
                 imageUrl: imageUrl,
@@ -75,9 +67,6 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
         } else if (image is ProductImage) {
           // Existing image - reset isPrimary flag based on current index
           final isPrimary = i == primaryImageIndex;
-          print(
-            "Keeping existing image at index $i: ${image.imageUrl}, id: ${image.id}, isPrimary: $isPrimary",
-          );
           productImages.add(
             ProductImage(
               id: image.id,
@@ -89,21 +78,10 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
         } else if (image is String) {
           // Legacy support: if it's just a URL string
           final isPrimary = i == primaryImageIndex;
-          print(
-            "Converting URL string to ProductImage at index $i: $image, isPrimary: $isPrimary",
-          );
           productImages.add(
             ProductImage(imageUrl: image, altText: name, isPrimary: isPrimary),
           );
         }
-      }
-
-      print("=== IMAGES TO SEND ===");
-      for (int i = 0; i < productImages.length; i++) {
-        final img = productImages[i];
-        print(
-          "Image $i: id=${img.id}, isPrimary=${img.isPrimary}, url=${img.imageUrl}",
-        );
       }
 
       // Update product via repository
@@ -122,8 +100,6 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
         throw Exception('Failed to update product');
       }
 
-      print("✅ Product update successful in notifier.");
-
       // If successful, set state back to idle (data(null)).
       state = const AsyncValue.data(null);
 
@@ -136,10 +112,6 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
       ref.invalidate(productByIdProvider(productId));
     } catch (e, st) {
       // If an error occurs, set the state to error.
-      print("=== ERROR IN NOTIFIER ===");
-      print("Error type: ${e.runtimeType}");
-      print("Error: $e");
-      print("Stack trace: $st");
       state = AsyncValue.error(e, st);
 
       // Re-throw to allow UI to handle

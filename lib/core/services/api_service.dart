@@ -71,7 +71,6 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Check if the error is a 401 Unauthorized response.
     if (err.response?.statusCode == 401) {
-      print("AuthInterceptor: Detected 401 Unauthorized. Logging out user.");
       try {
         // 1. Manually clear the JWT token from secure storage.
         await _storage.delete(key: 'jwt_token');
@@ -90,7 +89,7 @@ class AuthInterceptor extends Interceptor {
           _ref.read(authNotifierProvider.notifier).setLoggedOut();
         });
       } catch (e) {
-        print("AuthInterceptor: Error during automatic logout process: $e");
+        // Error during automatic logout process
       }
 
       // We still pass the error along so the original UI that made the request

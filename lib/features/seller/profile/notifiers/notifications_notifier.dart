@@ -30,9 +30,10 @@ class NotificationSettings {
 }
 
 // Provider for the notifier
-final notificationsNotifierProvider = NotifierProvider<NotificationsNotifier, NotificationSettings>(
-  NotificationsNotifier.new,
-);
+final notificationsNotifierProvider =
+    NotifierProvider<NotificationsNotifier, NotificationSettings>(
+      NotificationsNotifier.new,
+    );
 
 class NotificationsNotifier extends Notifier<NotificationSettings> {
   @override
@@ -51,19 +52,18 @@ class NotificationsNotifier extends Notifier<NotificationSettings> {
     state = state.copyWith(promotionsPush: value);
     _saveSettings();
   }
-  
+
   void toggleNewOrdersEmail(bool value) {
     state = state.copyWith(newOrdersEmail: value);
     _saveSettings();
   }
-  
+
   void togglePromotionsEmail(bool value) {
     state = state.copyWith(promotionsEmail: value);
     _saveSettings();
   }
-  
+
   void _saveSettings() {
     // TODO: Implement logic to save the 'state' object to persistent storage.
-    print("Settings saved: New Orders Push = ${state.newOrdersPush}");
   }
 }

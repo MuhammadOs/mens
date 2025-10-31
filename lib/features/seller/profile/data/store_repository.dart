@@ -51,10 +51,8 @@ class ShopRepositoryImpl implements ShopRepository {
             messageValue?.toString() ??
             'Update failed with status: ${e.response!.statusCode}';
       }
-      print("DioException updating shop info: $errorMessage");
       throw Exception(errorMessage);
     } catch (e) {
-      print("Unexpected error updating shop info: $e");
       throw Exception('An unexpected error occurred.');
     }
   }
@@ -71,10 +69,6 @@ class ShopRepositoryImpl implements ShopRepository {
       final response = await _dio.put(
         '/stores/$storeId/image', // Endpoint remains the same
         data: formData,
-        onSendProgress: (int sent, int total) {
-          // Optional progress
-          print('Upload progress: ${(sent / total * 100).toStringAsFixed(0)}%');
-        },
       );
       if (response.statusCode == 200 && response.data['token'] != null) {
         return response.data['token']; // Return the image URL
@@ -92,10 +86,8 @@ class ShopRepositoryImpl implements ShopRepository {
             messageValue?.toString() ??
             'Upload failed with status: ${e.response!.statusCode}';
       }
-      print("DioException uploading image: $errorMessage");
       throw Exception(errorMessage);
     } catch (e) {
-      print("Unexpected error uploading image: $e");
       throw Exception('An unexpected error occurred during image upload.');
     }
   }

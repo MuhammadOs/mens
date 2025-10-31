@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mens/features/auth/domain/auth_respository.dart';
@@ -43,9 +42,6 @@ class AuthRepositoryImpl implements AuthRepository {
       if (response.statusCode == 200 && response.data['token'] != null) {
         final token = response.data['token'];
         await _storage.write(key: 'jwt_token', value: token);
-        if (kDebugMode) {
-          print("Token stored successfully!");
-        }
         final userProfile = await getUserData(forceRefresh: true);
         return userProfile;
       } else {
@@ -62,9 +58,6 @@ class AuthRepositoryImpl implements AuthRepository {
         'Login failed due to a network error. Please check your connection and try again.',
       );
     } catch (e) {
-      if (kDebugMode) {
-        print("Unexpected login error: $e");
-      }
       throw Exception('An unexpected error occurred during login.');
     }
   }
@@ -105,10 +98,6 @@ class AuthRepositoryImpl implements AuthRepository {
             'Registration failed with status: ${response.statusCode}';
         throw Exception(serverMessage);
       }
-
-      if (kDebugMode) {
-        print("Registration API call successful!");
-      }
     } on DioException catch (e) {
       String errorMessage = 'A network error occurred during registration.';
       if (e.response != null) {
@@ -118,14 +107,8 @@ class AuthRepositoryImpl implements AuthRepository {
             (e.response!.data?['errors']?.toString() ??
                 'Registration failed with status: ${e.response!.statusCode}');
       }
-      if (kDebugMode) {
-        print("DioException during registration: $errorMessage");
-      }
       throw Exception(errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-        print("Unexpected registration error: $e");
-      }
       throw Exception('An unexpected error occurred during registration.');
     }
   }
@@ -137,30 +120,13 @@ class AuthRepositoryImpl implements AuthRepository {
       final cachedData = _prefs.getString(_userProfileCacheKey);
       if (cachedData != null) {
         try {
-          if (kDebugMode) {
-            print("Loading user profile from cache.");
-          }
           return UserProfile.fromJson(jsonDecode(cachedData));
         } catch (e) {
-          if (kDebugMode) {
-            print("Failed to parse cached profile: $e. Clearing cache.");
-          }
           await _prefs.remove(_userProfileCacheKey);
         }
-      } else {
-        if (kDebugMode) {
-          print("No user profile found in cache.");
-        }
-      }
-    } else {
-      if (kDebugMode) {
-        print("Force refreshing user profile (skipping cache).");
       }
     }
 
-    if (kDebugMode) {
-      print("Fetching user profile from API.");
-    }
     try {
       final response = await _dio.get('/auth/me');
       if (response.statusCode == 200 && response.data['data'] != null) {
@@ -173,16 +139,9 @@ class AuthRepositoryImpl implements AuthRepository {
             _userProfileCacheKey,
             jsonEncode(userProfile.toJson()),
           );
-          print("User profile cached successfully.");
           return userProfile;
-        } catch (e, stackTrace) {
-          // ✅ LOG THE PARSING ERROR AND THE DATA
-          print("!!! FAILED TO PARSE UserProfile JSON !!!");
-          print("Error: $e");
-          print("StackTrace: $stackTrace");
-          print(
-            "Received Data: ${response.data['data']}",
-          ); // Log the exact data
+        } catch (e) {
+          // Failed to parse user data after fetching
           throw Exception(
             'Failed to parse user data after fetching.',
           ); // Re-throw a specific error
@@ -193,11 +152,6 @@ class AuthRepositoryImpl implements AuthRepository {
         );
       }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print(
-          "DioException fetching user data: ${e.response?.statusCode} - ${e.message}",
-        );
-      }
       if (e.response?.statusCode == 401) {
         await logout();
         throw Exception('Session expired. Please log in again.');
@@ -206,9 +160,6 @@ class AuthRepositoryImpl implements AuthRepository {
         'Could not fetch user data. Please check your connection.',
       );
     } catch (e) {
-      if (kDebugMode) {
-        print("Unexpected error fetching user data: $e");
-      }
       throw Exception('An unexpected error occurred while fetching user data.');
     }
   }
@@ -231,10 +182,6 @@ class AuthRepositoryImpl implements AuthRepository {
         'birthDate': data.birthDate?.toIso8601String(),
       };
 
-      if (kDebugMode) {
-        print("Updating profile with data: $requestData");
-      }
-
       final response = await _dio.put('/users/me', data: requestData);
 
       if (response.statusCode != 200 && response.statusCode != 204) {
@@ -243,8 +190,6 @@ class AuthRepositoryImpl implements AuthRepository {
           'Failed to update profile: ${messageValue?.toString() ?? 'Unknown error'}',
         );
       }
-
-      print("Profile updated successfully!");
 
       await getUserData(forceRefresh: true);
     } on DioException catch (e) {
@@ -255,10 +200,8 @@ class AuthRepositoryImpl implements AuthRepository {
             messageValue?.toString() ??
             'Update failed: ${e.response!.statusCode}';
       }
-      print("DioException updating profile: $errorMessage");
       throw Exception(errorMessage);
     } catch (e) {
-      print("Unexpected error updating profile: $e");
       throw Exception('An unexpected error occurred.');
     }
   }
@@ -269,13 +212,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _storage.delete(key: 'jwt_token');
       await _prefs.remove(_userProfileCacheKey);
-      if (kDebugMode) {
-        print("Token and cache cleared!");
-      }
     } catch (e) {
-      if (kDebugMode) {
-        print("Error during logout: $e");
-      }
+      // Error during logout
     }
   }
 }

@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart'; // For kDebugMode
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mens/core/services/api_service.dart'; // Provides apiServiceProvider (adjust path if needed)
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
@@ -116,13 +115,11 @@ class ProductRepositoryImpl implements ProductRepository {
           'Failed to load products: Invalid response structure or missing "items" key.',
         );
       }
-    } on DioException catch (e) {
+    } on DioException {
       // Handle Dio-specific errors (network, timeout, status codes)
-      print("Error fetching products: ${e.message}");
       throw Exception('Failed to load products due to network error.');
     } catch (e) {
       // Handle potential JSON parsing errors or other unexpected issues
-      print("Error parsing products: $e");
       throw Exception('Failed to parse products.');
     }
   }
@@ -192,13 +189,11 @@ class ProductRepositoryImpl implements ProductRepository {
       } else {
         throw Exception('Failed to load products: Invalid response structure.');
       }
-    } on DioException catch (e) {
+    } on DioException {
       // Handle Dio-specific errors (network, timeout, status codes)
-      print("Error fetching paginated products: ${e.message}");
       throw Exception('Failed to load products due to network error.');
     } catch (e) {
       // Handle potential JSON parsing errors or other unexpected issues
-      print("Error parsing paginated products: $e");
       throw Exception('Failed to parse products.');
     }
   }
@@ -220,11 +215,9 @@ class ProductRepositoryImpl implements ProductRepository {
       } else {
         throw Exception('Failed to load product details: Invalid response.');
       }
-    } on DioException catch (e) {
-      print("Error fetching product $productId: ${e.message}");
+    } on DioException {
       throw Exception('Failed to load product details.');
     } catch (e) {
-      print("Error parsing product $productId: $e");
       throw Exception('Failed to parse product details.');
     }
   }
@@ -250,20 +243,8 @@ class ProductRepositoryImpl implements ProductRepository {
         'images': images.map((img) => img.toJson()).toList(),
       };
 
-      if (kDebugMode) {
-        print('=== ADD PRODUCT REQUEST ===');
-        print('Endpoint: POST /products');
-        print('Request body: $requestBody');
-      }
-
       // Send POST request to the /products endpoint
       final response = await _dio.post('/products', data: requestBody);
-
-      if (kDebugMode) {
-        print('=== ADD PRODUCT RESPONSE ===');
-        print('Status code: ${response.statusCode}');
-        print('Response data: ${response.data}');
-      }
 
       // Check for successful status codes
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -273,18 +254,7 @@ class ProductRepositoryImpl implements ProductRepository {
             'Failed to add product: ${response.statusCode}';
         throw Exception(serverMessage);
       }
-
-      if (kDebugMode) {
-        print("✅ Product added successfully!");
-      }
     } on DioException catch (e) {
-      if (kDebugMode) {
-        print('=== ADD PRODUCT ERROR ===');
-        print('Error type: ${e.type}');
-        print('Status code: ${e.response?.statusCode}');
-        print('Response data: ${e.response?.data}');
-        print('Request path: ${e.requestOptions.path}');
-      }
       String errorMessage = 'Network error adding product.';
       if (e.response != null) {
         final dynamic messageValue = e.response!.data?['message'];
@@ -294,14 +264,8 @@ class ProductRepositoryImpl implements ProductRepository {
             errors?.toString() ??
             'Failed with status: ${e.response!.statusCode}';
       }
-      if (kDebugMode) {
-        print("❌ Error message: $errorMessage");
-      }
       throw Exception(errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-        print("❌ Unexpected error adding product: $e");
-      }
       throw Exception('An unexpected error occurred while adding the product.');
     }
   }
@@ -328,10 +292,6 @@ class ProductRepositoryImpl implements ProductRepository {
         'images': images.map((img) => img.toJson()).toList(),
       };
 
-      if (kDebugMode) {
-        print('Updating product $productId with data: $requestBody');
-      }
-
       final response = await _dio.put(
         '/products/$productId',
         data: requestBody,
@@ -343,10 +303,6 @@ class ProductRepositoryImpl implements ProductRepository {
             messageValue?.toString() ?? 'Update failed: ${response.statusCode}';
         throw Exception(serverMessage);
       }
-
-      if (kDebugMode) {
-        print("✅ Product updated successfully!");
-      }
     } on DioException catch (e) {
       String errorMessage = 'Network error updating product.';
       if (e.response != null) {
@@ -356,14 +312,8 @@ class ProductRepositoryImpl implements ProductRepository {
             (e.response!.data?['errors']?.toString() ??
                 'Update failed with status: ${e.response!.statusCode}');
       }
-      if (kDebugMode) {
-        print("❌ DioException updating product: $errorMessage");
-      }
       throw Exception(errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-        print("❌ Unexpected error updating product: $e");
-      }
       throw Exception('An unexpected error occurred while updating product.');
     }
   }
@@ -379,7 +329,6 @@ class ProductRepositoryImpl implements ProductRepository {
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Failed to delete product: ${response.statusCode}');
       }
-      print("Product $productId deleted successfully.");
     } on DioException catch (e) {
       String errorMessage = 'Network error deleting product.';
       if (e.response != null) {
@@ -389,10 +338,8 @@ class ProductRepositoryImpl implements ProductRepository {
             messageValue?.toString() ??
             'Delete failed: ${e.response!.statusCode}';
       }
-      print("DioException deleting product: $errorMessage");
       throw Exception(errorMessage);
     } catch (e) {
-      print("Unexpected error deleting product: $e");
       throw Exception('An unexpected error occurred while deleting.');
     }
   }
