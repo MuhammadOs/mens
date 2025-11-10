@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for image picking
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:mens/core/navigation/navigation_service.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/features/seller/profile/notifiers/shop_info_notifier.dart';
@@ -53,11 +54,11 @@ class ShopInformationScreen extends HookConsumerWidget {
     ref.listen(shopInfoNotifierProvider, (previous, next) {
       // Show success message on successful save (of text fields or image)
       if (previous?.isLoading == true && next is AsyncData) {
-        // SnackBar removed: Shop info success notification suppressed.
+        showGlobalSuccessDialog(ref.watch(l10nProvider).shopInfoSaved);
       }
       // Show error message on failure
       else if (next is AsyncError && !(next.isLoading)) {
-        // SnackBar removed: Shop info error notification suppressed.
+        showGlobalErrorDialog(next.error.toString());
       }
     });
     final authState = ref.watch(authNotifierProvider);

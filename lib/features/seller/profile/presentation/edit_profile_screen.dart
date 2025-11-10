@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:mens/core/navigation/navigation_service.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/features/seller/profile/notifiers/edit_profile_notifier.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
@@ -33,11 +34,11 @@ class EditProfileScreen extends HookConsumerWidget {
     // --- State Listener for Save ---
     ref.listen(editProfileNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
-        // SnackBar removed: profileSavedSuccess notification suppressed.
-        // Ensure context is still valid before popping
-        if (context.mounted) {}
+        // Show success dialog
+        showGlobalSuccessDialog(l10n.profileSavedSuccess);
       } else if (next is AsyncError) {
-        // SnackBar removed: errorSaving notification suppressed.
+        // Show error dialog
+        showGlobalErrorDialog(next.error.toString());
       }
     });
     return Scaffold(

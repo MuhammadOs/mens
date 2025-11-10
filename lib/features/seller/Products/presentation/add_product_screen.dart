@@ -1,10 +1,10 @@
 import 'dart:io'; // Required for FileImage
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:go_router/go_router.dart'; // Required for context.pop()
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for image picking
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:mens/core/navigation/navigation_service.dart';
 import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/add_product_notifier.dart';
@@ -70,20 +70,22 @@ class AddProductScreen extends HookConsumerWidget {
     // --- State Listener for Add Product Status ---
     ref.listen(addProductNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
-        // SnackBar removed: productAddedSuccess notification suppressed.
-
-        // Navigate back and refresh the products list
-        if (context.mounted) {
-          context.pop(); // Go back to products screen
-          // Refresh all product providers after navigation completes
-          Future.microtask(() {
-            ref.invalidate(productsProvider);
-            ref.read(paginatedProductsProvider.notifier).refresh();
-            ref.read(paginatedAdminProductsProvider.notifier).refresh();
-          });
-        }
+        // Show success dialog and then navigate back + refresh lists
+        showGlobalSuccessDialog(
+          ref.watch(l10nProvider).productAddedSuccess,
+          onOk: () {
+            // Pop the current route via global navigator and refresh providers
+            appNavigatorKey.currentState?.pop();
+            Future.microtask(() {
+              ref.invalidate(productsProvider);
+              ref.read(paginatedProductsProvider.notifier).refresh();
+              ref.read(paginatedAdminProductsProvider.notifier).refresh();
+            });
+          },
+        );
       } else if (next is AsyncError && !(next.isLoading)) {
-        // SnackBar removed: errorAddingProduct notification suppressed.
+        // Show error dialog
+        showGlobalErrorDialog(next.error.toString());
       }
     });
 
