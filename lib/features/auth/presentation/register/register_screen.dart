@@ -30,10 +30,40 @@ class RegisterScreen extends HookConsumerWidget {
       registerNotifierProvider.select((value) => value.registrationStatus),
       (previous, next) {
         if (next is AsyncError) {
-          // SnackBar removed: registration error notification suppressed.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog<void>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Error'),
+                content: Text(next.error?.toString() ?? 'Unknown error'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          });
         } else if (next is AsyncData && next.value == true) {
-          // SnackBar removed: registration success notification suppressed.
-          context.go(AppRoutes.signIn);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog<void>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Success'),
+                content: Text(l10n.registrationSuccess),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      context.go(AppRoutes.signIn);
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          });
         }
       },
     );

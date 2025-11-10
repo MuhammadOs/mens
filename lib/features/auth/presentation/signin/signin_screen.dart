@@ -28,10 +28,44 @@ class SignInScreen extends HookConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // 2. Listen for errors or success from the AuthNotifier
+    // 2. Listen for errors or success from the AuthNotifier and show dialogs
     ref.listen(authNotifierProvider, (previous, next) {
+      // On error, show an error dialog
       if (next is AsyncError) {
-        // SnackBar removed: auth error notification suppressed.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog<void>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Error'),
+              content: Text(next.error?.toString() ?? 'Unknown error'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        });
+      }
+
+      // On successful login (user profile returned), show a success dialog
+      if (next is AsyncData && next.value != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog<void>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Success'),
+              content: const Text('You have signed in successfully.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        });
       }
     });
 
