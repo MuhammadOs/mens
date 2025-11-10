@@ -186,7 +186,7 @@ class ConversationsView extends HookConsumerWidget {
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: SizedBox.shrink()),
         error: (error, stack) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -422,22 +422,10 @@ class ConversationDetailView extends HookConsumerWidget {
     // Listen for reply status
     ref.listen(replyNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.replySentSuccess),
-            backgroundColor: theme.colorScheme.primary,
-          ),
-        );
+        // SnackBar removed: replySentSuccess notification suppressed.
         replyController.clear();
       } else if (next is AsyncError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "${AppLocalizations.of(context)!.errorSendingReply} ${next.error}",
-            ),
-            backgroundColor: theme.colorScheme.error,
-          ),
-        );
+        // SnackBar removed: errorSendingReply notification suppressed.
       }
     });
 
@@ -558,14 +546,7 @@ class ConversationDetailView extends HookConsumerWidget {
                         }
                       },
                 icon: replyState.isLoading
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                      )
+                    ? SizedBox.shrink()
                     : const Icon(Icons.send),
                 tooltip: 'Send Reply',
               ),

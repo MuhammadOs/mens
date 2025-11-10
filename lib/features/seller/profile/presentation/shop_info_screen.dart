@@ -53,22 +53,11 @@ class ShopInformationScreen extends HookConsumerWidget {
     ref.listen(shopInfoNotifierProvider, (previous, next) {
       // Show success message on successful save (of text fields or image)
       if (previous?.isLoading == true && next is AsyncData) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Shop info saved!"),
-            backgroundColor: Colors.green,
-          ), // TODO: Localize
-        );
+        // SnackBar removed: Shop info success notification suppressed.
       }
       // Show error message on failure
       else if (next is AsyncError && !(next.isLoading)) {
-        // Only show error if not loading
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorSaving),
-            backgroundColor: Colors.red,
-          ),
-        );
+        // SnackBar removed: Shop info error notification suppressed.
       }
     });
     final authState = ref.watch(authNotifierProvider);
@@ -82,11 +71,7 @@ class ShopInformationScreen extends HookConsumerWidget {
             loading: () => (newImageFile.value == null)
                 ? const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
+                    child: SizedBox(width: 24, height: 24),
                   )
                 : IconButton(
                     icon: const Icon(Icons.check, color: Colors.grey),
@@ -168,9 +153,6 @@ class ShopInformationScreen extends HookConsumerWidget {
                           child: CircleAvatar(
                             radius: 60,
                             backgroundColor: Colors.black54,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
                           ),
                         )
                       else // Show edit button otherwise

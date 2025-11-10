@@ -38,12 +38,22 @@ class PaginatedResponse<T> {
             .toList() ??
         [];
 
+    final page = (json['page'] as num?)?.toInt() ?? 1;
+    final pageSize = (json['pageSize'] as num?)?.toInt() ?? 10;
+    final totalCount = (json['totalCount'] as num?)?.toInt() ?? 0;
+
+    // Compute totalPages if server omitted it or returned an invalid value.
+    final serverTotalPages = (json['totalPages'] as num?)?.toInt();
+    final computedTotalPages = serverTotalPages != null && serverTotalPages > 0
+        ? serverTotalPages
+        : (pageSize > 0 ? ((totalCount + pageSize - 1) ~/ pageSize) : 1);
+
     return PaginatedResponse<T>(
       items: items,
-      page: (json['page'] as num?)?.toInt() ?? 1,
-      pageSize: (json['pageSize'] as num?)?.toInt() ?? 10,
-      totalCount: (json['totalCount'] as num?)?.toInt() ?? 0,
-      totalPages: (json['totalPages'] as num?)?.toInt() ?? 1,
+      page: page,
+      pageSize: pageSize,
+      totalCount: totalCount,
+      totalPages: computedTotalPages > 0 ? computedTotalPages : 1,
     );
   }
 }

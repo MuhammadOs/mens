@@ -33,22 +33,11 @@ class EditProfileScreen extends HookConsumerWidget {
     // --- State Listener for Save ---
     ref.listen(editProfileNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.profileSavedSuccess),
-            backgroundColor: theme.colorScheme.primary,
-          ),
-        );
+        // SnackBar removed: profileSavedSuccess notification suppressed.
         // Ensure context is still valid before popping
         if (context.mounted) {}
       } else if (next is AsyncError) {
-        // Optionally show error on save failure
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("${l10n.errorSaving} ${next.error}"),
-            backgroundColor: theme.colorScheme.error,
-          ),
-        );
+        // SnackBar removed: errorSaving notification suppressed.
       }
     });
     return Scaffold(
@@ -58,11 +47,7 @@ class EditProfileScreen extends HookConsumerWidget {
           profileState.isLoading
               ? const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
+                  child: SizedBox(width: 24, height: 24),
                 )
               : IconButton(
                   icon: const Icon(Icons.check),

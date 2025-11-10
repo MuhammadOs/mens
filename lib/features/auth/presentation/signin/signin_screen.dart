@@ -31,12 +31,7 @@ class SignInScreen extends HookConsumerWidget {
     // 2. Listen for errors or success from the AuthNotifier
     ref.listen(authNotifierProvider, (previous, next) {
       if (next is AsyncError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error.toString().replaceAll("Exception: ", "")),
-            backgroundColor: Colors.red,
-          ),
-        );
+        // SnackBar removed: auth error notification suppressed.
       }
     });
 
@@ -209,19 +204,13 @@ class SignInScreen extends HookConsumerWidget {
                                         );
                                   }
                                 },
-                          child: authState.isLoading
-                              ? const CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF192A3C),
-                                  ),
-                                )
-                              : Text(
-                                  l10n.loginButton,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                          child: Text(
+                            l10n.loginButton,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ],

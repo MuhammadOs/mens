@@ -30,19 +30,9 @@ class RegisterScreen extends HookConsumerWidget {
       registerNotifierProvider.select((value) => value.registrationStatus),
       (previous, next) {
         if (next is AsyncError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(next.error.toString()),
-              backgroundColor: Colors.red,
-            ),
-          );
+          // SnackBar removed: registration error notification suppressed.
         } else if (next is AsyncData && next.value == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.registrationSuccess),
-              backgroundColor: Colors.green,
-            ),
-          );
+          // SnackBar removed: registration success notification suppressed.
           context.go(AppRoutes.signIn);
         }
       },
@@ -225,21 +215,15 @@ class RegisterScreen extends HookConsumerWidget {
                                   registerNotifier.register();
                                 }
                               },
-                        child: registerState.registrationStatus.isLoading
-                            ? CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  colorScheme.onPrimary,
-                                ),
-                              )
-                            : Text(
-                                registerState.currentStep == 2
-                                    ? l10n.registerButton
-                                    : l10n.nextButton,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                        child: Text(
+                          registerState.currentStep == 2
+                              ? l10n.registerButton
+                              : l10n.nextButton,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),

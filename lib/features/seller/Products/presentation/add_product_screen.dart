@@ -70,12 +70,8 @@ class AddProductScreen extends HookConsumerWidget {
     // --- State Listener for Add Product Status ---
     ref.listen(addProductNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.productAddedSuccess),
-            backgroundColor: colorScheme.primary,
-          ),
-        );
+        // SnackBar removed: productAddedSuccess notification suppressed.
+
         // Navigate back and refresh the products list
         if (context.mounted) {
           context.pop(); // Go back to products screen
@@ -87,19 +83,7 @@ class AddProductScreen extends HookConsumerWidget {
           });
         }
       } else if (next is AsyncError && !(next.isLoading)) {
-        // Show generic error message for production
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorAddingProduct),
-            backgroundColor: colorScheme.error,
-            duration: const Duration(seconds: 5),
-            action: SnackBarAction(
-              label: 'Dismiss',
-              textColor: Colors.white,
-              onPressed: () {},
-            ),
-          ),
-        );
+        // SnackBar removed: errorAddingProduct notification suppressed.
       }
     });
 
@@ -399,14 +383,7 @@ class AddProductScreen extends HookConsumerWidget {
                           // Validate the form first
                           if (formKey.currentState?.validate() ?? false) {
                             if (mainImage.value == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Please add a main product image",
-                                  ),
-                                  backgroundColor: Colors.orange,
-                                ), // TODO: Localize
-                              );
+                              // SnackBar removed: please add a main product image notification suppressed.
                               return;
                             }
                             // Combine main image and additional images
@@ -416,12 +393,7 @@ class AddProductScreen extends HookConsumerWidget {
                             ];
 
                             if (selectedSubCategoryId.value == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.pleaseSelectCategory),
-                                  backgroundColor: colorScheme.secondary,
-                                ),
-                              );
+                              // SnackBar removed: pleaseSelectCategory notification suppressed.
                               return;
                             }
 
@@ -440,24 +412,12 @@ class AddProductScreen extends HookConsumerWidget {
                               images: allImages,
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.pleaseFixErrors),
-                                backgroundColor: colorScheme.error,
-                              ),
-                            );
+                            // SnackBar removed: pleaseFixErrors notification suppressed.
                           }
                         },
                   // Show loading indicator on the button
                   child: addProductState.isLoading
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
+                      ? const SizedBox(height: 24, width: 24)
                       : Text(l10n.addProduct),
                 ),
               ),

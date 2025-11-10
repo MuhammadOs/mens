@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,11 +8,11 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Load keystore properties
+// Load keystore properties from android/key.properties (kept out of VCS)
 val keystorePropertiesFile = rootProject.file("key.properties")
-val keystoreProperties = java.util.Properties()
+val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -30,7 +33,7 @@ android {
         // Updated to unique application ID - CHANGE THIS to your own package name
         applicationId = "com.muhammados.mens"
         // Google Play requires minimum SDK 21 (Android 5.0)
-        minSdk = 21
+        minSdk = flutter.minSdkVersion
         // Google Play requires targeting Android 15 (API 35) for new apps in 2025
         targetSdk = 35
         versionCode = flutter.versionCode
@@ -40,21 +43,21 @@ android {
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
             }
         }
     }
 
     buildTypes {
         release {
-            // Sign with release keystore for production builds
+            // Sign with release keystore for production builds if configured.
+            // If no keystore is provided (keystorePropertiesFile missing), Gradle will use the debug key.
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
-                // Fallback to debug signing if keystore not configured
                 signingConfigs.getByName("debug")
             }
             // Enable code shrinking, obfuscation, and optimization

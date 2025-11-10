@@ -83,26 +83,9 @@ class EditProductScreen extends HookConsumerWidget {
           previous is AsyncLoading; // Check if previous state was loading
 
       if (wasLoading && next is AsyncData) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Product updated!"),
-            backgroundColor: Colors.green,
-          ), // TODO: Localize
-        );
+        // SnackBar removed: product updated notification suppressed.
       } else if (wasLoading && next is AsyncError) {
-        // Show generic error message for production
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorUpdatingProduct),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-            action: SnackBarAction(
-              label: 'Dismiss',
-              textColor: Colors.white,
-              onPressed: () {},
-            ),
-          ),
-        );
+        // SnackBar removed: errorUpdatingProduct notification suppressed.
       }
     });
 
@@ -115,11 +98,7 @@ class EditProductScreen extends HookConsumerWidget {
           editOperationState.isLoading
               ? const Padding(
                   padding: EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
+                  child: SizedBox(width: 24, height: 24),
                 )
               : IconButton(
                   icon: const Icon(Icons.check),

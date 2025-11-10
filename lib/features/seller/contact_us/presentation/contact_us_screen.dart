@@ -24,19 +24,9 @@ class ContactUsScreen extends HookConsumerWidget {
       if (previous is AsyncLoading && next is AsyncData) {
         textController.clear(); // Clear text field on success
         ref.invalidate(messagesProvider); // Refresh the message list
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.messageSentSuccess),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // SnackBar removed: messageSentSuccess notification suppressed.
       } else if (next is AsyncError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorSendingMessage),
-            backgroundColor: Colors.red,
-          ),
-        );
+        // SnackBar removed: errorSendingMessage notification suppressed.
       }
     });
 
@@ -169,11 +159,7 @@ class _MessageInputField extends HookConsumerWidget {
           isLoading
               ? const Padding(
                   padding: EdgeInsets.all(12.0),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
+                  child: SizedBox(width: 24, height: 24),
                 )
               : IconButton(
                   icon: Icon(Icons.send),

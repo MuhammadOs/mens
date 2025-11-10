@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -10,14 +11,28 @@ import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/features/seller/categories/domain/category.dart';
 import 'package:mens/shared/widgets/products_list_items.dart';
 import 'package:mens/shared/widgets/products_list_skeleton.dart';
-import 'package:mens/shared/widgets/pagination_widget.dart';
+// pagination_widget was removed in favor of infinite scroll
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:mens/shared/providers/overlay_suppression_provider.dart';
 
 class PaginatedProductsScreen extends HookConsumerWidget {
   const PaginatedProductsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Suppress global loading overlay while this screen is visible
+    useEffect(() {
+      // Defer setting the suppression flag to avoid nested provider updates
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(overlaySuppressionProvider.notifier).setSuppressed(true);
+      });
+      return () {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(overlaySuppressionProvider.notifier).setSuppressed(false);
+        });
+      };
+    }, const []);
+
     final l10n = ref.watch(l10nProvider);
 
     // Get Logged-in User's Category ID
@@ -35,11 +50,15 @@ class PaginatedProductsScreen extends HookConsumerWidget {
 
     // State for selected tab index
     final selectedTabIndex = useState(0);
+    // Local flag to indicate category-change loading so we can show skeletons
+    final categoryLoading = useState(false);
+    // Scroll controller for infinite scroll (load more on scroll)
+    final scrollController = useScrollController();
 
-    // TabController
+    // TabController (no implicit "All" tab)
     final tabController = useTabController(
       initialLength: subCategoriesAsyncValue.maybeWhen(
-        data: (subCats) => subCats.length + 1,
+        data: (subCats) => subCats.isNotEmpty ? subCats.length : 1,
         orElse: () => 1,
       ),
       keys: [subCategoriesAsyncValue.asData?.value.length ?? 0],
@@ -54,16 +73,16 @@ class PaginatedProductsScreen extends HookConsumerWidget {
 
           // Load products based on selected tab
           final subCategories = subCategoriesAsyncValue.asData?.value ?? [];
-          if (selectedTabIndex.value == 0) {
-            // "All" tab
+          if (subCategories.isEmpty) {
+            // No subcategories: load all products
+            categoryLoading.value = true;
             notifier.loadAll();
           } else {
-            // Specific subcategory tab
-            final selectedSubCategoryIndex = selectedTabIndex.value - 1;
-            if (selectedSubCategoryIndex >= 0 &&
-                selectedSubCategoryIndex < subCategories.length) {
-              final selectedSubCatId =
-                  subCategories[selectedSubCategoryIndex].id;
+            // Map selected tab index directly to subcategory index
+            final selectedIndex = selectedTabIndex.value;
+            if (selectedIndex >= 0 && selectedIndex < subCategories.length) {
+              final selectedSubCatId = subCategories[selectedIndex].id;
+              categoryLoading.value = true;
               notifier.loadBySubCategory(selectedSubCatId);
             }
           }
@@ -73,6 +92,24 @@ class PaginatedProductsScreen extends HookConsumerWidget {
       tabController.addListener(listener);
       return () => tabController.removeListener(listener);
     }, [tabController, subCategoriesAsyncValue]);
+
+    // Attach scroll listener to implement infinite scroll
+    useEffect(() {
+      void onScroll() {
+        if (!scrollController.hasClients) return;
+        final maxScroll = scrollController.position.maxScrollExtent;
+        final current = scrollController.position.pixels;
+        // Trigger load when within 200px of bottom
+        if (current >= (maxScroll - 200)) {
+          if (paginatedState.canLoadMore) {
+            notifier.loadNextPage();
+          } else {}
+        }
+      }
+
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController, paginatedState]);
 
     // Load initial data when component mounts
     useEffect(() {
@@ -85,6 +122,16 @@ class PaginatedProductsScreen extends HookConsumerWidget {
       }
       return null;
     }, []);
+
+    // When provider finishes loading, clear the categoryLoading flag so UI
+    // will stop showing skeletons. This listens specifically to the loading
+    // state and clears our local flag when loading completes.
+    useEffect(() {
+      if (!paginatedState.isLoading) {
+        categoryLoading.value = false;
+      }
+      return null;
+    }, [paginatedState.isLoading]);
 
     return Scaffold(
       appBar: AppBar(
@@ -126,7 +173,14 @@ class PaginatedProductsScreen extends HookConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () => notifier.refresh(),
-        child: _buildBody(context, paginatedState, notifier, l10n),
+        child: _buildBody(
+          context,
+          paginatedState,
+          notifier,
+          l10n,
+          categoryLoading.value,
+          scrollController,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(AppRoutes.addProduct),
@@ -135,8 +189,16 @@ class PaginatedProductsScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, paginatedState, notifier, l10n) {
-    if (paginatedState.isLoading && !paginatedState.hasData) {
+  Widget _buildBody(
+    BuildContext context,
+    paginatedState,
+    notifier,
+    l10n,
+    bool categoryLoading,
+    ScrollController scrollController,
+  ) {
+    if ((paginatedState.isLoading && !paginatedState.hasData) ||
+        categoryLoading) {
       return Skeletonizer(child: ProductListSkeleton());
     }
 
@@ -157,6 +219,7 @@ class PaginatedProductsScreen extends HookConsumerWidget {
         // Products list
         Expanded(
           child: ListView.separated(
+            controller: scrollController,
             padding: const EdgeInsets.all(16),
             itemCount:
                 paginatedState.allItems.length +
@@ -164,15 +227,53 @@ class PaginatedProductsScreen extends HookConsumerWidget {
             separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               if (index >= paginatedState.allItems.length) {
-                // Loading more indicator
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
+                // Loading more skeleton row
+                return Skeletonizer(
+                  enabled: true,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          // ignore: deprecated_member_use
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
                       children: [
-                        const CircularProgressIndicator(),
-                        const SizedBox(height: 8),
-                        Text(l10n.loadingMore),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Skeleton.replace(
+                            width: 64,
+                            height: 64,
+                            child: Container(
+                              width: 64,
+                              height: 64,
+                              color: Colors.grey[300],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Bone.text(),
+                              const SizedBox(height: 8),
+                              Bone.text(words: 2),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [Bone.icon()],
+                        ),
                       ],
                     ),
                   ),
@@ -183,25 +284,9 @@ class PaginatedProductsScreen extends HookConsumerWidget {
           ),
         ),
 
-        // Pagination controls
-        if (paginatedState.currentPage != null)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: Border(
-                top: BorderSide(
-                  color: Theme.of(context).dividerColor,
-                  width: 1,
-                ),
-              ),
-            ),
-            child: PaginationWidget(
-              paginatedData: paginatedState.currentPage!,
-              onPageChanged: (page) => notifier.loadPage(page),
-              compact: true, // Use compact mode to save space
-            ),
-          ),
+        // (infinite scroll implemented via ScrollController) -- keep a small
+        // bottom padding to avoid content being obscured by FAB.
+        const SizedBox(height: 16),
       ],
     );
   }

@@ -3,6 +3,8 @@
 <plist version="1.0">
 <dict>
 	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photos to analyze body poses.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to let you upload a brand picture.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>

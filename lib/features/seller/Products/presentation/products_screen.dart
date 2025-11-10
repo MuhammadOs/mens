@@ -13,6 +13,7 @@ import 'package:mens/shared/widgets/products_list_items.dart';
 import 'package:mens/shared/widgets/products_list_skeleton.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
+import 'package:mens/shared/providers/overlay_suppression_provider.dart';
 
 class ProductsScreen extends HookConsumerWidget {
   // Use HookConsumerWidget
@@ -20,6 +21,18 @@ class ProductsScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Suppress global loading overlay while this screen is visible
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(overlaySuppressionProvider.notifier).setSuppressed(true);
+      });
+      return () {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(overlaySuppressionProvider.notifier).setSuppressed(false);
+        });
+      };
+    }, const []);
+
     final l10n = ref.watch(l10nProvider);
 
     // 1. Get Logged-in User's Category ID
@@ -40,14 +53,13 @@ class ProductsScreen extends HookConsumerWidget {
     // State for selected tab index
     final selectedTabIndex = useState(0);
 
-    // TabController - Length depends on fetched subcategories + "All"
+    // TabController - Length depends on fetched subcategories (no 'All' tab)
     // Use a key to rebuild if the number of tabs changes
     final tabController = useTabController(
       initialLength: subCategoriesAsyncValue.maybeWhen(
-        data: (subCats) => subCats.length + 1, // +1 for "All"
-        orElse: () => 1, // Default to 1 tab ("All") during loading/error
+        data: (subCats) => subCats.isNotEmpty ? subCats.length : 1,
+        orElse: () => 1,
       ),
-      // Use the length of subcategories as a key to force rebuild
       keys: [subCategoriesAsyncValue.asData?.value.length ?? 0],
     );
 
@@ -69,15 +81,21 @@ class ProductsScreen extends HookConsumerWidget {
         title: Text(l10n.productsTitle),
         // Build TabBar dynamically based on fetched subcategories
         bottom: subCategoriesAsyncValue.maybeWhen(
-          data: (subCategories) => TabBar(
-            controller: tabController,
-            isScrollable: true,
-            tabs: [
-              Tab(text: l10n.productsAll), // "All" tab first
-              // Dynamically create tabs for each subcategory
-              ...subCategories.map((subCat) => Tab(text: subCat.name)),
-            ],
-          ),
+          data: (subCategories) {
+            // If there are no subcategories, don't show tabs
+            if (subCategories.isEmpty) {
+              return const PreferredSize(
+                preferredSize: Size.fromHeight(0),
+                child: SizedBox.shrink(),
+              );
+            }
+
+            return TabBar(
+              controller: tabController,
+              isScrollable: true,
+              tabs: [...subCategories.map((subCat) => Tab(text: subCat.name))],
+            );
+          },
           // Show a minimal placeholder TabBar during loading/error
           orElse: () => PreferredSize(
             preferredSize: const Size.fromHeight(kTextTabBarHeight),
@@ -85,9 +103,10 @@ class ProductsScreen extends HookConsumerWidget {
               // Skeleton for tabs
               child: TabBar(
                 isScrollable: true,
-                // Need a dummy controller if main one isn't ready
-                controller: useTabController(initialLength: 1, keys: [0]),
+                controller: useTabController(initialLength: 3, keys: [0]),
                 tabs: const [
+                  Tab(child: Bone.text(width: 60)),
+                  Tab(child: Bone.text(width: 60)),
                   Tab(child: Bone.text(width: 60)),
                 ], // Minimal placeholder
               ),
@@ -112,23 +131,20 @@ class ProductsScreen extends HookConsumerWidget {
             // Use subcategories from the already watched provider
             final subCategories = subCategoriesAsyncValue.asData?.value ?? [];
 
-            // --- LOCAL FILTERING (Now Dynamic) ---
+            // --- LOCAL FILTERING (No 'All' tab) ---
             final List<Product> filteredProducts;
-            if (selectedTabIndex.value == 0) {
-              // "All" tab
+            if (subCategories.isEmpty) {
+              // No subcategories available: show all products
               filteredProducts = allProducts;
             } else {
-              // Get the SubCategory corresponding to the selected tab index (index - 1)
-              final selectedSubCategoryIndex = selectedTabIndex.value - 1;
-              if (selectedSubCategoryIndex >= 0 &&
-                  selectedSubCategoryIndex < subCategories.length) {
-                final selectedSubCatId =
-                    subCategories[selectedSubCategoryIndex].id;
+              final selectedIndex = selectedTabIndex.value;
+              if (selectedIndex >= 0 && selectedIndex < subCategories.length) {
+                final selectedSubCatId = subCategories[selectedIndex].id;
                 filteredProducts = allProducts
                     .where((p) => p.subCategoryId == selectedSubCatId)
                     .toList();
               } else {
-                // Fallback (shouldn't happen if TabController length is correct)
+                // Fallback to all products if index is out of range
                 filteredProducts = allProducts;
               }
             }

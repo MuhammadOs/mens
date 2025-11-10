@@ -8,10 +8,16 @@ import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';
 import 'package:mens/features/seller/Products/presentation/product_details_screen.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ProductListItem extends HookConsumerWidget {
-  const ProductListItem({super.key, required this.product});
+  const ProductListItem({
+    super.key,
+    required this.product,
+    this.isLoading = false,
+  });
   final Product product;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,7 +26,63 @@ class ProductListItem extends HookConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     // Local state for tracking delete loading status
-    final isLoading = useState(false);
+    // (rename to avoid clash with the `isLoading` parameter)
+    final isDeleting = useState(false);
+
+    // Show skeletonized row using `skeletonizer` when loading
+    if (isLoading) {
+      return Skeletonizer(
+        enabled: true,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Skeleton.replace(
+                  width: 80,
+                  height: 80,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    color: Colors.grey[300],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Bone.text(),
+                    const SizedBox(height: 8),
+                    Bone.text(words: 2),
+                    const SizedBox(height: 8),
+                    Bone.text(words: 3),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [Bone.icon(), const SizedBox(height: 8), Bone.icon()],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return GestureDetector(
       onTap: () {
@@ -93,8 +155,7 @@ class ProductListItem extends HookConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    product.storeName ??
-                        l10n.storeNamePlaceholder, // TODO: Add l10n.storeNamePlaceholder
+                    product.subCategoryName,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.hintColor,
                     ),
@@ -140,18 +201,8 @@ class ProductListItem extends HookConsumerWidget {
                   tooltip: l10n.edit, // TODO: Add l10n.edit
                 ),
                 // Show loading spinner *instead of* the delete icon while deleting
-                isLoading.value
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        // Apply padding to match IconButton's tap target size (approx)
-                        child: Padding(
-                          padding: EdgeInsets.all(
-                            14.0,
-                          ), // Adjust padding as needed
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
+                isDeleting.value
+                    ? const SizedBox(width: 20, height: 20)
                     : IconButton(
                         icon: Icon(
                           Icons.delete_outline,
@@ -190,7 +241,7 @@ class ProductListItem extends HookConsumerWidget {
 
                           // 2. If user confirmed, proceed with deletion
                           if (confirmed == true) {
-                            isLoading.value = true; // Show loading spinner
+                            isDeleting.value = true; // Show loading spinner
                             try {
                               // 3. Call the repository method
                               await ref
@@ -206,27 +257,13 @@ class ProductListItem extends HookConsumerWidget {
                                   .read(paginatedAdminProductsProvider.notifier)
                                   .refresh();
 
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.productDeleted),
-                                    backgroundColor: theme.colorScheme.primary,
-                                  ), // TODO: Localize
-                                );
-                              }
+                              // SnackBar removed: productDeleted notification suppressed.
                             } catch (e) {
                               // 5. Error: Show generic error message
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.errorDeletingProduct),
-                                    backgroundColor: theme.colorScheme.error,
-                                  ),
-                                );
-                              }
+                              // SnackBar removed: errorDeletingProduct notification suppressed.
                             } finally {
                               // Always hide loading spinner after completion
-                              isLoading.value = false;
+                              isDeleting.value = false;
                             }
                           }
                         },
