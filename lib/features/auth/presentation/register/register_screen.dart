@@ -31,6 +31,7 @@ class RegisterScreen extends HookConsumerWidget {
       (previous, next) {
         if (next is AsyncError) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
             showDialog<void>(
               context: context,
               builder: (ctx) => AlertDialog(
@@ -47,6 +48,7 @@ class RegisterScreen extends HookConsumerWidget {
           });
         } else if (next is AsyncData && next.value == true) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
             showDialog<void>(
               context: context,
               builder: (ctx) => AlertDialog(
@@ -56,6 +58,7 @@ class RegisterScreen extends HookConsumerWidget {
                   TextButton(
                     onPressed: () {
                       Navigator.of(ctx).pop();
+                      if (!context.mounted) return;
                       context.go(AppRoutes.signIn);
                     },
                     child: const Text('OK'),

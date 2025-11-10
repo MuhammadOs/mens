@@ -33,6 +33,7 @@ class SignInScreen extends HookConsumerWidget {
       // On error, show an error dialog
       if (next is AsyncError) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
           showDialog<void>(
             context: context,
             builder: (ctx) => AlertDialog(
@@ -52,6 +53,7 @@ class SignInScreen extends HookConsumerWidget {
       // On successful login (user profile returned), show a success dialog
       if (next is AsyncData && next.value != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
           showDialog<void>(
             context: context,
             builder: (ctx) => AlertDialog(
