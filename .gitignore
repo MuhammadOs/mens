@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local signing files (keep private)
+android/key.properties
+android/key.properties.template
+android/app/*.jks
+android/app/*.keystore
+
+# Local signing docs and scripts
+android/README_SIGNING.md
+scripts/generate-keystore-*.ps1
