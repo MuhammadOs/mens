@@ -4,6 +4,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for XFile
+// ✅ 1. Import fluttertoast and localization
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/domain/product_image.dart';
@@ -12,8 +15,6 @@ import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart'; // Adjust path if needed
 import 'package:skeletonizer/skeletonizer.dart'; // Import Skeletonizer
-
-// ignore_for_file: unused_import
 
 class EditProductScreen extends HookConsumerWidget {
   final int productId; // Product ID passed via router
@@ -25,10 +26,10 @@ class EditProductScreen extends HookConsumerWidget {
     final l10n = ref.watch(l10nProvider);
     final theme = Theme.of(context);
 
-    // 1. Fetch initial product data using the ID-specific provider
+    // 1. Fetch initial product data
     final productAsyncValue = ref.watch(productByIdProvider(productId));
 
-    // 2. Watch the separate notifier for the *status* of update operations
+    // 2. Watch the separate notifier for update status
     final editOperationState = ref.watch(editProductNotifierProvider);
     // 3. Read the notifier to trigger update actions
     final editNotifier = ref.read(editProductNotifierProvider.notifier);
@@ -38,7 +39,6 @@ class EditProductScreen extends HookConsumerWidget {
     final descriptionController = useTextEditingController();
     final priceController = useTextEditingController();
     final stockController = useTextEditingController();
-    // State hook for the selected subcategory ID
     final selectedSubCategoryId = useState<int?>(null);
 
     // --- Image State ---
@@ -50,7 +50,7 @@ class EditProductScreen extends HookConsumerWidget {
       0,
     ); // Track which image is marked as primary
 
-    // --- Functions ---
+    // --- Functions (Unchanged) ---
     Future<void> pickImages() async {
       final List<XFile> pickedFiles = await imagePicker.pickMultiImage();
       if (pickedFiles.isNotEmpty) {
@@ -77,28 +77,54 @@ class EditProductScreen extends HookConsumerWidget {
       primaryImageIndex.value = index;
     }
 
-    // --- State Listener for Operation Status ---
+    // ✅ 2. --- State Listener (Updated for Toasts) ---
     ref.listen(editProductNotifierProvider, (previous, next) {
       final bool wasLoading =
           previous is AsyncLoading; // Check if previous state was loading
 
       if (wasLoading && next is AsyncData) {
-        // SnackBar removed: product updated notification suppressed.
+        // --- Show Success Toast ---
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final successMsg =l10n.productUpdatedSuccess;
+          Fluttertoast.showToast(
+            msg: successMsg,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        });
       } else if (wasLoading && next is AsyncError) {
-        // SnackBar removed: errorUpdatingProduct notification suppressed.
+        // --- Show Error Toast ---
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Fluttertoast.showToast(
+            msg: "${l10n.errorUpdatingProduct}: ${next.error.toString()}",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: theme.colorScheme.error,
+            textColor: theme.colorScheme.onError,
+            fontSize: 16.0,
+          );
+        });
       }
     });
 
     // --- Build Method ---
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit Product"), // TODO: Localize
+        // ✅ 3. Localized Title
+        title: Text(l10n.editProductTitle),
         actions: [
-          // Show loading indicator based on the OPERATION state
+          // ✅ 4. Improved Loading Indicator
           editOperationState.isLoading
               ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: SizedBox(width: 24, height: 24),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
                 )
               : IconButton(
                   icon: const Icon(Icons.check),
@@ -119,8 +145,7 @@ class EditProductScreen extends HookConsumerWidget {
                         description: descriptionController.text,
                         price: double.tryParse(priceController.text) ?? 0.0,
                         stockQuantity: int.tryParse(stockController.text) ?? 0,
-                        subCategoryId:
-                            selectedSubCategoryId.value ??
+                        subCategoryId: selectedSubCategoryId.value ??
                             currentProductData.subCategoryId,
                         images: images.value,
                         primaryImageIndex: primaryImageIndex.value,
@@ -147,15 +172,12 @@ class EditProductScreen extends HookConsumerWidget {
             priceController.text = product.price.toStringAsFixed(2);
             stockController.text = product.stockQuantity.toString();
 
-            // Only set subcategory from product data if user hasn't changed it
             if (selectedSubCategoryId.value == null) {
               selectedSubCategoryId.value = product.subCategoryId;
             }
 
-            // Only set images from product data on the very first load
             if (images.value.isEmpty && product.images.isNotEmpty) {
               images.value = List<dynamic>.from(product.images);
-              // Find the primary image index
               final primaryIndex = product.images.indexWhere(
                 (img) => img.isPrimary,
               );
@@ -195,7 +217,6 @@ class EditProductScreen extends HookConsumerWidget {
                               )
                               .toList();
 
-                          // Use the state hook value for the dropdown
                           final isValidValue = subCats.any(
                             (cat) => cat.id == selectedSubCategoryId.value,
                           );
@@ -395,7 +416,8 @@ class EditProductScreen extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Tap an image to set it as primary", // TODO: Localize
+                    // ✅ 5. Localized Hint Text
+                    l10n.tapToSetPrimary,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.hintColor,
                     ),

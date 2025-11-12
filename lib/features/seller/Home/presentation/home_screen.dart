@@ -118,16 +118,6 @@ class HomeScreen extends ConsumerWidget {
                 },
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _DashboardCard(
-                title: l10n.tryOn,
-                icon: Icons.preview_outlined,
-                color: Colors.red.shade100,
-                iconColor: Colors.red,
-                onTap: () {},
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -211,6 +201,7 @@ class _OrderCard extends ConsumerWidget {
                       style: TextStyle(
                         color: Colors.orange.shade800,
                         fontWeight: FontWeight.bold,
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -234,9 +225,27 @@ class _OrderCard extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {},
-                child: Text(l10n.orderDetails, style: TextStyle(fontSize: 12)),
+              const SizedBox(width: 8),
+              Flexible(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    l10n.orderDetails,
+                    style: const TextStyle(fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
             ],
           ),

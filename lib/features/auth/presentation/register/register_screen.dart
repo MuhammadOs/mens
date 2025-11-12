@@ -31,16 +31,25 @@ class RegisterScreen extends HookConsumerWidget {
       (previous, next) {
         if (next is AsyncError) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
-            showDialog<void>(
+            showDialog(
               context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Error'),
+              builder: (context) => AlertDialog(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.error,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 30,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(l10n.errorRegistering)),
+                  ],
+                ),
                 content: Text(next.error?.toString() ?? 'Unknown error'),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    child: const Text('OK'),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(l10n.ok),
                   ),
                 ],
               ),
@@ -48,23 +57,29 @@ class RegisterScreen extends HookConsumerWidget {
           });
         } else if (next is AsyncData && next.value == true) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
-            showDialog<void>(
+            showDialog(
               context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Success'),
-                content: Text(l10n.registrationSuccess),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      if (!context.mounted) return;
-                      context.go(AppRoutes.signIn);
-                    },
-                    child: const Text('OK'),
+              builder: (context) {
+                Future.delayed(const Duration(milliseconds: 1500), () {
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                });
+                return AlertDialog(
+                  title: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 30,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(l10n.registerPageTitle),
+                    ],
                   ),
-                ],
-              ),
+                  content: Text(l10n.registrationSuccess),
+                );
+              },
             );
           });
         }

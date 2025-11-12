@@ -5,7 +5,7 @@ import 'package:mens/shared/models/paginated_response.dart';
 import 'package:mens/shared/models/pagination_params.dart';
 import 'package:mens/shared/providers/paginated_notifier.dart';
 
-/// Filter parameters for product queries
+// ... (ProductFilters class is unchanged) ...
 class ProductFilters {
   final int? categoryId;
   final int? subCategoryId;
@@ -38,9 +38,30 @@ class PaginatedProductsNotifier extends PaginatedNotifier<Product> {
   /// Get current filters
   ProductFilters get currentFilters => _currentFilters;
 
+  /// Call this from the screen to set the base category.
+  void setMainCategory(int categoryId) {
+    if (_currentFilters.categoryId != categoryId) {
+      _currentFilters = _currentFilters.copyWith(categoryId: categoryId);
+    }
+  }
+
   @override
   Future<PaginatedResponse<Product>> fetchPage(PaginationParams params) async {
     final repository = ref.read(productRepositoryProvider);
+
+    // GUARD CLAUSE: Don't fetch if the main category is missing.
+    if (_currentFilters.categoryId == null) {
+      
+      // ✅ THE CORRECT FIX: Use the constructor from your file.
+      return PaginatedResponse<Product>(
+        items: [],
+        page: params.page,       // The page that was requested
+        pageSize: params.pageSize, // The page size that was requested
+        totalCount: 0,             // 0 items found
+        totalPages: 1,             // An empty result still counts as 1 page
+      );
+    }
+
     return repository.getProductsPaginated(
       pagination: params,
       categoryId: _currentFilters.categoryId,
@@ -50,7 +71,14 @@ class PaginatedProductsNotifier extends PaginatedNotifier<Product> {
 
   /// Load products with new filters
   Future<void> loadWithFilters(ProductFilters filters) async {
-    _currentFilters = filters;
+    // ✅ THE FIX IS HERE
+    // Don't use copyWith for subCategoryId, as it will ignore null.
+    // Manually construct the new state to ensure null is applied.
+    _currentFilters = ProductFilters(
+      categoryId: _currentFilters.categoryId, // Preserve the main category
+      subCategoryId: filters.subCategoryId,    // Apply the new subCategory (even if null)
+    );
+
     await loadFirstPage();
   }
 
@@ -59,8 +87,10 @@ class PaginatedProductsNotifier extends PaginatedNotifier<Product> {
     await loadWithFilters(ProductFilters(subCategoryId: subCategoryId));
   }
 
-  /// Load all products (no filters)
+  /// Load all products (for the main category)
   Future<void> loadAll() async {
+    // This now correctly passes ProductFilters(subCategoryId: null)
+    // to loadWithFilters, which will apply the null.
     await loadWithFilters(const ProductFilters());
   }
 }
@@ -68,5 +98,5 @@ class PaginatedProductsNotifier extends PaginatedNotifier<Product> {
 /// Provider for paginated products
 final paginatedProductsProvider =
     NotifierProvider<PaginatedProductsNotifier, PaginatedState<Product>>(
-      PaginatedProductsNotifier.new,
-    );
+  PaginatedProductsNotifier.new,
+);

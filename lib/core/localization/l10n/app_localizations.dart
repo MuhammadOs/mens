@@ -119,7 +119,7 @@ abstract class AppLocalizations {
   /// No description provided for @systemTheme.
   ///
   /// In en, this message translates to:
-  /// **'System'**
+  /// **'System Default'**
   String get systemTheme;
 
   /// No description provided for @lightTheme.
@@ -899,7 +899,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorUpdatingProduct.
   ///
   /// In en, this message translates to:
-  /// **'Failed to update product. Please try again.'**
+  /// **'Error updating product'**
   String get errorUpdatingProduct;
 
   /// No description provided for @errorDeletingProduct.
@@ -947,7 +947,7 @@ abstract class AppLocalizations {
   /// No description provided for @pleaseFixErrors.
   ///
   /// In en, this message translates to:
-  /// **'Please fix errors in the form'**
+  /// **'Please fix the errors in the form'**
   String get pleaseFixErrors;
 
   /// No description provided for @invalidPrice.
@@ -1171,6 +1171,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search conversations'**
   String get searchConversations;
+
+  /// No description provided for @loggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging in...'**
+  String get loggingIn;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Failed'**
+  String get loginFailed;
+
+  /// No description provided for @errorRegistering.
+  ///
+  /// In en, this message translates to:
+  /// **'Error registering account'**
+  String get errorRegistering;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'Ok'**
+  String get ok;
+
+  /// No description provided for @errorWhileLoggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while trying to Login'**
+  String get errorWhileLoggingIn;
+
+  /// No description provided for @loginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Successful!'**
+  String get loginSuccess;
+
+  /// No description provided for @success.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get success;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @shopInfoSavedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop information has been updated successfully!'**
+  String get shopInfoSavedSuccess;
+
+  /// No description provided for @editProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Product'**
+  String get editProductTitle;
+
+  /// No description provided for @productUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Product updated successfully!'**
+  String get productUpdatedSuccess;
+
+  /// No description provided for @tapToSetPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap an image to set it as primary'**
+  String get tapToSetPrimary;
+
+  /// No description provided for @errorCouldNotLaunchUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open this link'**
+  String get errorCouldNotLaunchUrl;
 }
 
 class _AppLocalizationsDelegate

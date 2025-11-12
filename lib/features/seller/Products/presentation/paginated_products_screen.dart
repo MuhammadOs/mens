@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -11,78 +10,67 @@ import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/features/seller/categories/domain/category.dart';
 import 'package:mens/shared/widgets/products_list_items.dart';
 import 'package:mens/shared/widgets/products_list_skeleton.dart';
-// pagination_widget was removed in favor of infinite scroll
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:mens/shared/providers/overlay_suppression_provider.dart';
 
 class PaginatedProductsScreen extends HookConsumerWidget {
   const PaginatedProductsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Suppress global loading overlay while this screen is visible
-    useEffect(() {
-      // Defer setting the suppression flag to avoid nested provider updates
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(overlaySuppressionProvider.notifier).setSuppressed(true);
-      });
-      return () {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(overlaySuppressionProvider.notifier).setSuppressed(false);
-        });
-      };
-    }, const []);
-
     final l10n = ref.watch(l10nProvider);
+    final notifier = ref.read(paginatedProductsProvider.notifier);
+    final paginatedState = ref.watch(paginatedProductsProvider);
 
-    // Get Logged-in User's Category ID
     final userProfile = ref.watch(authNotifierProvider).asData?.value;
     final userCategoryId = userProfile?.store?.categoryId;
 
-    // Fetch Subcategories for the User's Main Category
     final subCategoriesAsyncValue = userCategoryId != null
         ? ref.watch(subCategoriesProvider(userCategoryId))
         : const AsyncValue<List<SubCategory>>.loading();
 
-    // Get paginated products state
-    final paginatedState = ref.watch(paginatedProductsProvider);
-    final notifier = ref.read(paginatedProductsProvider.notifier);
-
-    // State for selected tab index
     final selectedTabIndex = useState(0);
-    // Local flag to indicate category-change loading so we can show skeletons
-    final categoryLoading = useState(false);
-    // Scroll controller for infinite scroll (load more on scroll)
-    final scrollController = useScrollController();
 
-    // TabController (no implicit "All" tab)
     final tabController = useTabController(
       initialLength: subCategoriesAsyncValue.maybeWhen(
-        data: (subCats) => subCats.isNotEmpty ? subCats.length : 1,
+        data: (subCats) => subCats.length + 1,
         orElse: () => 1,
       ),
       keys: [subCategoriesAsyncValue.asData?.value.length ?? 0],
     );
 
-    // Handle tab changes and load filtered data
+    final scrollController = useScrollController();
+
+    // Load next page when scrolling near bottom
+    useEffect(() {
+      void onScroll() {
+        if (!scrollController.hasClients) return;
+        final max = scrollController.position.maxScrollExtent;
+        final pos = scrollController.position.pixels;
+        if (pos >= (max - 200) && paginatedState.canLoadMore) {
+          notifier.loadNextPage();
+        }
+      }
+
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController, paginatedState.canLoadMore]);
+
+    // Handle tab switching
     useEffect(() {
       void listener() {
         if (!tabController.indexIsChanging &&
             selectedTabIndex.value != tabController.index) {
           selectedTabIndex.value = tabController.index;
 
-          // Load products based on selected tab
           final subCategories = subCategoriesAsyncValue.asData?.value ?? [];
-          if (subCategories.isEmpty) {
-            // No subcategories: load all products
-            categoryLoading.value = true;
+          if (selectedTabIndex.value == 0) {
             notifier.loadAll();
           } else {
-            // Map selected tab index directly to subcategory index
-            final selectedIndex = selectedTabIndex.value;
-            if (selectedIndex >= 0 && selectedIndex < subCategories.length) {
-              final selectedSubCatId = subCategories[selectedIndex].id;
-              categoryLoading.value = true;
+            final selectedSubCategoryIndex = selectedTabIndex.value - 1;
+            if (selectedSubCategoryIndex >= 0 &&
+                selectedSubCategoryIndex < subCategories.length) {
+              final selectedSubCatId =
+                  subCategories[selectedSubCategoryIndex].id;
               notifier.loadBySubCategory(selectedSubCatId);
             }
           }
@@ -93,78 +81,47 @@ class PaginatedProductsScreen extends HookConsumerWidget {
       return () => tabController.removeListener(listener);
     }, [tabController, subCategoriesAsyncValue]);
 
-    // Attach scroll listener to implement infinite scroll
+    // Initial load
     useEffect(() {
-      void onScroll() {
-        if (!scrollController.hasClients) return;
-        final maxScroll = scrollController.position.maxScrollExtent;
-        final current = scrollController.position.pixels;
-        // Trigger load when within 200px of bottom
-        if (current >= (maxScroll - 200)) {
-          if (paginatedState.canLoadMore) {
-            notifier.loadNextPage();
-          } else {}
-        }
-      }
+    // 1. We must wait until we have the user's category ID
+    if (userCategoryId != null) {
+      
+      // 2. Tell the notifier what the main category is
+      // This is the new, critical line.
+      notifier.setMainCategory(userCategoryId);
 
-      scrollController.addListener(onScroll);
-      return () => scrollController.removeListener(onScroll);
-    }, [scrollController, paginatedState]);
-
-    // Load initial data when component mounts
-    useEffect(() {
+      // 3. Load the initial "All" page
+      // Only load if we haven't loaded before
       if (!paginatedState.hasData &&
           !paginatedState.isLoading &&
           paginatedState.error == null) {
+        
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifier.loadFirstPage();
+          notifier.loadAll();
         });
       }
-      return null;
-    }, []);
-
-    // When provider finishes loading, clear the categoryLoading flag so UI
-    // will stop showing skeletons. This listens specifically to the loading
-    // state and clears our local flag when loading completes.
-    useEffect(() {
-      if (!paginatedState.isLoading) {
-        categoryLoading.value = false;
-      }
-      return null;
-    }, [paginatedState.isLoading]);
+    }
+    return null;
+  }, [userCategoryId]);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          l10n.productsTitle,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        iconTheme: IconThemeData(
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-        elevation: 0,
+        title: Text(l10n.productsTitle),
         bottom: subCategoriesAsyncValue.maybeWhen(
           data: (subCategories) => TabBar(
             controller: tabController,
             isScrollable: true,
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(
-              context,
-            ).colorScheme.onSurfaceVariant,
-            indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
               Tab(text: l10n.productsAll),
-              ...subCategories.map((subCat) => Tab(text: subCat.name)),
+              ...subCategories.map((s) => Tab(text: s.name)),
             ],
           ),
           orElse: () => PreferredSize(
             preferredSize: const Size.fromHeight(kTextTabBarHeight),
             child: Skeletonizer(
               child: TabBar(
-                isScrollable: true,
                 controller: useTabController(initialLength: 1, keys: [0]),
+                isScrollable: true,
                 tabs: const [Tab(child: Bone.text(width: 60))],
               ),
             ),
@@ -172,15 +129,8 @@ class PaginatedProductsScreen extends HookConsumerWidget {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: () => notifier.refresh(),
-        child: _buildBody(
-          context,
-          paginatedState,
-          notifier,
-          l10n,
-          categoryLoading.value,
-          scrollController,
-        ),
+        onRefresh: () async => notifier.refresh(),
+        child: _buildBody(context, l10n, paginatedState, notifier, scrollController),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(AppRoutes.addProduct),
@@ -189,105 +139,42 @@ class PaginatedProductsScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildBody(
-    BuildContext context,
-    paginatedState,
-    notifier,
-    l10n,
-    bool categoryLoading,
-    ScrollController scrollController,
-  ) {
-    if ((paginatedState.isLoading && !paginatedState.hasData) ||
-        categoryLoading) {
+  Widget _buildBody(BuildContext context, l10n, state, notifier, ScrollController scrollController) {
+    // --- THIS IS THE KEY CHANGE ---
+    // Show a skeleton if we are in *any* loading state,
+    // not just the initial one. This ensures that
+    // switching tabs also shows the skeleton.
+    if (state.isLoading) {
       return Skeletonizer(child: ProductListSkeleton());
     }
+    // --- END OF CHANGE ---
 
-    if (paginatedState.error != null && !paginatedState.hasData) {
+    if (state.error != null && !state.hasData) {
       return _ErrorStateWithRefresh(
-        error: paginatedState.error!,
+        error: state.error.toString(),
         onRefresh: () => notifier.refresh(),
         l10n: l10n,
       );
     }
 
-    if (!paginatedState.hasData) {
+    if (state.allItems.isEmpty) {
       return _buildEmptyState(context, l10n);
     }
 
-    return Column(
-      children: [
-        // Products list
-        Expanded(
-          child: ListView.separated(
-            controller: scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount:
-                paginatedState.allItems.length +
-                (paginatedState.isLoadingMore ? 1 : 0),
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              if (index >= paginatedState.allItems.length) {
-                // Loading more skeleton row
-                return Skeletonizer(
-                  enabled: true,
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          // ignore: deprecated_member_use
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 5,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Skeleton.replace(
-                            width: 64,
-                            height: 64,
-                            child: Container(
-                              width: 64,
-                              height: 64,
-                              color: Colors.grey[300],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Bone.text(),
-                              const SizedBox(height: 8),
-                              Bone.text(words: 2),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [Bone.icon()],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-              return ProductListItem(product: paginatedState.allItems[index]);
-            },
-          ),
-        ),
-
-        // (infinite scroll implemented via ScrollController) -- keep a small
-        // bottom padding to avoid content being obscured by FAB.
-        const SizedBox(height: 16),
-      ],
+    return ListView.separated(
+      controller: scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: state.allItems.length + (state.isLoadingMore ? 1 : 0),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        if (index >= state.allItems.length) {
+          return const Skeletonizer(
+            child: _ProductListItemSkeleton(),
+          );
+        }
+        return ProductListItem(product: state.allItems[index]);
+      },
     );
   }
 
@@ -305,8 +192,8 @@ class PaginatedProductsScreen extends HookConsumerWidget {
                   l10n.noProductsInCategory,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).hintColor,
-                  ),
+                        color: Theme.of(context).hintColor,
+                      ),
                 ),
               ),
             ),
@@ -344,17 +231,11 @@ class _ErrorStateWithRefresh extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: theme.colorScheme.error,
-                    ),
+                    Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
                     const SizedBox(height: 16),
-                    Text(
-                      '${l10n.errorLoading}: $error',
-                      style: TextStyle(color: theme.colorScheme.error),
-                      textAlign: TextAlign.center,
-                    ),
+                    Text('${l10n.errorLoading}: $error',
+                        style: TextStyle(color: theme.colorScheme.error),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: onRefresh,
@@ -367,6 +248,43 @@ class _ErrorStateWithRefresh extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _ProductListItemSkeleton extends StatelessWidget {
+  const _ProductListItemSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Card(
+      margin: EdgeInsets.zero, // The separatorBuilder handles spacing
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Image placeholder
+            Bone(
+              width: 80,
+              height: 80,
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+            SizedBox(width: 16),
+            // Text column
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Bone.text(width: 150),
+                  SizedBox(height: 8),
+                  Bone.text(width: 80),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,10 +1,13 @@
 import 'dart:io'; // Required for FileImage
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart'; // Required for context.pop()
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for image picking
+// ✅ 1. Import fluttertoast and localization
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/core/navigation/navigation_service.dart';
 import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/add_product_notifier.dart';
@@ -13,7 +16,6 @@ import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-
 import '../../../auth/notifiers/auth_notifier.dart'; // For loading skeleton
 
 class AddProductScreen extends HookConsumerWidget {
@@ -44,7 +46,7 @@ class AddProductScreen extends HookConsumerWidget {
     final imagePicker = useMemoized(() => ImagePicker());
 
     // --- Functions ---
-    // Function to pick the main image
+    // (Image picking functions are unchanged)
     Future<void> pickMainImage() async {
       final XFile? pickedImage = await imagePicker.pickImage(
         source: ImageSource.gallery,
@@ -54,11 +56,9 @@ class AddProductScreen extends HookConsumerWidget {
       }
     }
 
-    // Function to pick additional images
     Future<void> pickAdditionalImages() async {
       final List<XFile> pickedImages = await imagePicker.pickMultiImage();
       if (pickedImages.isNotEmpty) {
-        // Use a Set to avoid duplicates if user selects the same image again
         final currentPaths = additionalImages.value.map((f) => f.path).toSet();
         final newImages = pickedImages
             .where((f) => !currentPaths.contains(f.path))
@@ -67,25 +67,39 @@ class AddProductScreen extends HookConsumerWidget {
       }
     }
 
-    // --- State Listener for Add Product Status ---
+    // ✅ 2. --- State Listener (Updated for Toasts) ---
     ref.listen(addProductNotifierProvider, (previous, next) {
       if (previous is AsyncLoading && next is AsyncData) {
-        // Show success dialog and then navigate back + refresh lists
-        showGlobalSuccessDialog(
-          ref.watch(l10nProvider).productAddedSuccess,
-          onOk: () {
-            // Pop the current route via global navigator and refresh providers
-            appNavigatorKey.currentState?.pop();
-            Future.microtask(() {
-              ref.invalidate(productsProvider);
-              ref.read(paginatedProductsProvider.notifier).refresh();
-              ref.read(paginatedAdminProductsProvider.notifier).refresh();
-            });
-          },
+        // --- Show Success Toast ---
+        final successMsg = l10n.productAddedSuccess;
+        Fluttertoast.showToast(
+          msg: successMsg,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
+
+        // Navigate back and refresh
+        if (context.mounted) {
+          context.pop(); // Go back to products screen
+          Future.microtask(() {
+            ref.invalidate(productsProvider);
+            ref.read(paginatedProductsProvider.notifier).refresh();
+            ref.read(paginatedAdminProductsProvider.notifier).refresh();
+          });
+        }
       } else if (next is AsyncError && !(next.isLoading)) {
-        // Show error dialog
-        showGlobalErrorDialog(next.error.toString());
+        // --- Show Error Toast ---
+        Fluttertoast.showToast(
+          msg: "${l10n.errorAddingProduct}: ${next.error.toString()}",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          textColor: Theme.of(context).colorScheme.onError,
+          fontSize: 16.0,
+        );
       }
     });
 
@@ -113,7 +127,6 @@ class AddProductScreen extends HookConsumerWidget {
                       color: theme.colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        // Add a subtle border
                         color: theme.colorScheme.onSurface.withOpacity(0.1),
                       ),
                     ),
@@ -170,7 +183,6 @@ class AddProductScreen extends HookConsumerWidget {
                 builder: (context, ref, _) {
                   final authState = ref.watch(authNotifierProvider);
                   final userProfile = authState.asData?.value;
-                  // Fetch subcategories for "Clothes" (ID 1) - Adjust ID if needed
                   final subCategoriesAsync = ref.watch(
                     subCategoriesProvider(userProfile?.store?.categoryId ?? 1),
                   );
@@ -184,9 +196,7 @@ class AddProductScreen extends HookConsumerWidget {
                             ),
                           )
                           .toList();
-                      // Validate value only if subCats is not empty
-                      final isValidValue =
-                          subCats.isNotEmpty &&
+                      final isValidValue = subCats.isNotEmpty &&
                           subCats.any(
                             (cat) => cat.id == selectedSubCategoryId.value,
                           );
@@ -299,8 +309,7 @@ class AddProductScreen extends HookConsumerWidget {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount:
-                      additionalImages.value.length +
-                      1, // +1 for the add button
+                      additionalImages.value.length + 1, // +1 for the add button
                   separatorBuilder: (context, index) =>
                       const SizedBox(width: 8),
                   itemBuilder: (context, index) {
@@ -382,22 +391,34 @@ class AddProductScreen extends HookConsumerWidget {
                   onPressed: addProductState.isLoading
                       ? null
                       : () {
+                          // ✅ 3. ADDED VALIDATION TOASTS
+                          void showErrorToast(String msg) {
+                            Fluttertoast.showToast(
+                              msg: msg,
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: colorScheme.error,
+                              textColor: colorScheme.onError,
+                              fontSize: 16.0,
+                            );
+                          }
+                          
                           // Validate the form first
                           if (formKey.currentState?.validate() ?? false) {
                             if (mainImage.value == null) {
-                              // SnackBar removed: please add a main product image notification suppressed.
+                              showErrorToast(l10n.pleaseAddMainImage);
                               return;
                             }
+                            if (selectedSubCategoryId.value == null) {
+                              showErrorToast(l10n.pleaseSelectCategory);
+                              return;
+                            }
+
                             // Combine main image and additional images
                             final allImages = [
                               mainImage.value!,
                               ...additionalImages.value,
                             ];
-
-                            if (selectedSubCategoryId.value == null) {
-                              // SnackBar removed: pleaseSelectCategory notification suppressed.
-                              return;
-                            }
 
                             // Call the notifier to submit
                             addProductNotifier.submitProduct(
@@ -414,12 +435,19 @@ class AddProductScreen extends HookConsumerWidget {
                               images: allImages,
                             );
                           } else {
-                            // SnackBar removed: pleaseFixErrors notification suppressed.
+                            showErrorToast(l10n.pleaseFixErrors);
                           }
                         },
-                  // Show loading indicator on the button
+                  // ✅ 4. UPDATED LOADING INDICATOR
                   child: addProductState.isLoading
-                      ? const SizedBox(height: 24, width: 24)
+                      ? SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: colorScheme.onPrimary,
+                            strokeWidth: 3,
+                          ),
+                        )
                       : Text(l10n.addProduct),
                 ),
               ),

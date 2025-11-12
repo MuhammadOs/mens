@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+// ✅ 1. Import AwesomeDialog
+import 'package:awesome_dialog/awesome_dialog.dart'; 
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/core/navigation/navigation_service.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/features/seller/profile/notifiers/edit_profile_notifier.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
@@ -31,24 +32,63 @@ class EditProfileScreen extends HookConsumerWidget {
     final nationalIdController = useTextEditingController();
     final birthDateController = useTextEditingController();
 
-    // --- State Listener for Save ---
+    // ✅ 2. Updated State Listener for Save
     ref.listen(editProfileNotifierProvider, (previous, next) {
+      // Don't show dialogs for the initial load sequence
+      if (previous == null) {
+        return;
+      }
+
+      // --- Handle Save Success ---
       if (previous is AsyncLoading && next is AsyncData) {
-        // Show success dialog
-        showGlobalSuccessDialog(l10n.profileSavedSuccess);
-      } else if (next is AsyncError) {
-        // Show error dialog
-        showGlobalErrorDialog(next.error.toString());
+        if (context.mounted) {
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.bottomSlide,
+            title: l10n.success,
+            desc: l10n.profileSavedSuccess,
+            btnOkOnPress: () {
+              // Pop the screen after success
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+          ).show();
+        }
+      }
+      
+      // --- Handle Save Error ---
+      else if (previous is AsyncLoading && next is AsyncError) {
+        if (context.mounted) {
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.error,
+            animType: AnimType.bottomSlide,
+            title: l10n.error,
+            desc: next.error.toString(), // Show the actual error
+            btnOkOnPress: () {}, // Just dismiss
+            btnOkColor: Colors.red,
+          ).show();
+        }
       }
     });
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.editProfile),
         actions: [
+          // This logic is correct: it shows a spinner during
+          // initial load AND during the save operation.
           profileState.isLoading
               ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: SizedBox(width: 24, height: 24),
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  // Use a smaller indicator for the app bar
+                  child: SizedBox(
+                    width: 24, 
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  ),
                 )
               : IconButton(
                   icon: const Icon(Icons.check),
@@ -74,7 +114,7 @@ class EditProfileScreen extends HookConsumerWidget {
       ),
       body: profileState.when(
         data: (profile) {
-          // Pre-fill controllers using useEffect to run only once or when profile changes
+          // Pre-fill controllers using useEffect
           useEffect(
             () {
               firstNameController.text = profile.firstName;
@@ -88,7 +128,7 @@ class EditProfileScreen extends HookConsumerWidget {
               return null; // No cleanup needed
             },
             [profile],
-          ); // Dependency array ensures this runs when profile data changes
+          ); // Dependency array
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -140,7 +180,6 @@ class EditProfileScreen extends HookConsumerWidget {
                         readOnly: true, // Prevents keyboard from showing
                         style: TextStyle(color: theme.colorScheme.onSurface),
                         decoration: InputDecoration(
-                          // Uses theme's InputDecorationTheme
                           hintText: 'dd-MM-yyyy',
                           suffixIcon: Icon(
                             Icons.calendar_today,
@@ -148,10 +187,8 @@ class EditProfileScreen extends HookConsumerWidget {
                           ),
                         ),
                         onTap: () async {
-                          // Hide keyboard if it somehow appears
                           FocusScope.of(context).requestFocus(FocusNode());
 
-                          // Parse current date from text field if it exists
                           DateTime initialDate;
                           try {
                             if (birthDateController.text.isNotEmpty) {
@@ -171,9 +208,8 @@ class EditProfileScreen extends HookConsumerWidget {
                             initialDate: initialDate,
                             firstDate: DateTime(1950),
                             lastDate:
-                                DateTime.now(), // User cannot be born in the future
+                                DateTime.now(), 
                             builder: (context, child) {
-                              // Apply app's theme to the date picker dialog
                               return Theme(data: theme, child: child!);
                             },
                           );
@@ -192,49 +228,57 @@ class EditProfileScreen extends HookConsumerWidget {
             ),
           );
         },
-        // Show loading spinner while initial profile data is fetched
+        // Show loading skeleton
         loading: () => Skeletonizer(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
-              // Build a placeholder matching the form structure
               children: [
-                CircleAvatar(radius: 60), // Placeholder for image
-                SizedBox(height: 24),
-                // Use Bone widgets (provided by Skeletonizer) for text field placeholders
-                Bone.text(width: 100), // Label placeholder
-                SizedBox(height: 8),
+                // Use Bone widgets for placeholders
+                const SizedBox(height: 24),
                 Bone(
                   height: 50,
                   width: double.infinity,
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
                 ),
-                SizedBox(height: 16),
-                Bone.text(width: 100),
-                SizedBox(height: 8),
+                const SizedBox(height: 16),
                 Bone(
                   height: 50,
                   width: double.infinity,
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
                 ),
-                SizedBox(height: 16),
-                Bone.text(width: 100),
-                SizedBox(height: 8),
+                const SizedBox(height: 16),
                 Bone(
                   height: 50,
                   width: double.infinity,
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
                 ),
-                // Add more Bone widgets to match all fields in your form
+                 const SizedBox(height: 16),
+                Bone(
+                  height: 50,
+                  width: double.infinity,
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                ),
+                 const SizedBox(height: 16),
+                Bone(
+                  height: 50,
+                  width: double.infinity,
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                ),
+                 const SizedBox(height: 16),
+                Bone(
+                  height: 50,
+                  width: double.infinity,
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                ),
               ],
             ),
           ),
         ),
+        // Show error with refresh
         error: (e, st) => RefreshIndicator(
           onRefresh: () async {
-            // Invalidate the provider to re-fetch the data
             ref.invalidate(editProfileNotifierProvider);
-            // We don't need to await, RefreshIndicator handles the future
           },
           child: LayoutBuilder(
             builder: (context, constraints) {

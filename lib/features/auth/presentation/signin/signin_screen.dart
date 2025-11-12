@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+// ✅ 1. Import fluttertoast
+import 'package:fluttertoast/fluttertoast.dart'; 
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
+// ✅ 2. Import app_localizations for the success toast
+import 'package:mens/core/localization/l10n/app_localizations.dart'; 
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/shared/theme/theme_provider.dart';
@@ -28,45 +32,46 @@ class SignInScreen extends HookConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // 2. Listen for errors or success from the AuthNotifier and show dialogs
+    // ✅ 3. Updated ref.listen block to use Toasts
     ref.listen(authNotifierProvider, (previous, next) {
-      // On error, show an error dialog
+      if (!context.mounted) return;
+
+      // --- Handle Error ---
       if (next is AsyncError) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!context.mounted) return;
-          showDialog<void>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Error'),
-              content: Text(next.error?.toString() ?? 'Unknown error'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-        });
+        Fluttertoast.showToast(
+          msg: next.error?.toString() ?? l10n.errorWhileLoggingIn,
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Theme.of(context).colorScheme.error,
+          textColor: Theme.of(context).colorScheme.onError,
+          fontSize: 16.0,
+        );
       }
 
-      // On successful login (user profile returned), show a success dialog
+      // --- Handle Success ---
       if (next is AsyncData && next.value != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!context.mounted) return;
-          showDialog<void>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Success'),
-              content: const Text('You have signed in successfully.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
+        // Manually look up both localization objects
+        final l10nEn = lookupAppLocalizations(AppLocales.english);
+        final l10nAr = lookupAppLocalizations(AppLocales.arabic);
+        
+        // Combine the messages
+        final successMessage = l10n.loginSuccess;
+
+        // 1. Show the combined success toast
+        Fluttertoast.showToast(
+          msg: successMessage,
+          toastLength: Toast.LENGTH_LONG, // Long toast for 2 lines
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green, // Or a theme success color
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+
+        // 2. Navigate after a short delay
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          if (context.mounted) {
+            context.go(AppRoutes.home);
+          }
         });
       }
     });
@@ -191,7 +196,7 @@ class SignInScreen extends HookConsumerWidget {
                           if (value == null || value.isEmpty) {
                             return l10n.validationEmailEmpty;
                           }
-                          // ✅ MODIFIED: Updated validation logic
+                          // Updated validation logic
                           final isEmail = value.contains('@');
                           final isPhone = RegExp(
                             r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$',
@@ -240,13 +245,23 @@ class SignInScreen extends HookConsumerWidget {
                                         );
                                   }
                                 },
-                          child: Text(
-                            l10n.loginButton,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          // ✅ 4. Updated button child
+                          child: authState.isLoading
+                              ? SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: colorScheme.onPrimary,
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : Text(
+                                  l10n.loginButton,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ],

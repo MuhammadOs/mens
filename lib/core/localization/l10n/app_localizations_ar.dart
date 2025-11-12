@@ -18,7 +18,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get language => 'اللغة';
 
   @override
-  String get systemTheme => 'النظام';
+  String get systemTheme => 'الافتراضي للنظام';
 
   @override
   String get lightTheme => 'فاتح';
@@ -415,8 +415,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorAddingProduct => 'خطأ في إضافة المنتج';
 
   @override
-  String get errorUpdatingProduct =>
-      'Failed to update product. Please try again.';
+  String get errorUpdatingProduct => 'خطأ في تحديث المنتج';
 
   @override
   String get errorDeletingProduct =>
@@ -436,13 +435,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong. Please try again.';
 
   @override
-  String get pleaseAddMainImage => 'الرجاء إضافة صورة المنتج الرئيسية';
+  String get pleaseAddMainImage => 'الرجاء إضافة صورة رئيسية للمنتج';
 
   @override
-  String get pleaseSelectCategory => 'الرجاء اختيار الفئة';
+  String get pleaseSelectCategory => 'الرجاء اختيار فئة';
 
   @override
-  String get pleaseFixErrors => 'الرجاء إصلاح الأخطاء في النموذج';
+  String get pleaseFixErrors => 'برجاء إصلاح الخطأ للتمكن من إضافة منتج';
 
   @override
   String get invalidPrice => 'السعر غير صالح';
@@ -558,4 +557,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get searchConversations => 'البحث في المحادثات';
+
+  @override
+  String get loggingIn => 'جاري تسجيل الدخول...';
+
+  @override
+  String get loginFailed => 'فشل تسجيل الدخول';
+
+  @override
+  String get errorRegistering => 'خطأ في تسجيل الحساب';
+
+  @override
+  String get ok => 'موافق';
+
+  @override
+  String get errorWhileLoggingIn => 'حدث خطأ أثناء تسجيل الدخول';
+
+  @override
+  String get loginSuccess => 'تم تسجيل الدخول بنجاح!';
+
+  @override
+  String get success => 'نجاح';
+
+  @override
+  String get error => 'خطأ';
+
+  @override
+  String get shopInfoSavedSuccess => 'تم تحديث معلومات المتجر بنجاح!';
+
+  @override
+  String get editProductTitle => 'تعديل المنتج';
+
+  @override
+  String get productUpdatedSuccess => 'تم تحديث المنتج بنجاح!';
+
+  @override
+  String get tapToSetPrimary => 'انقر على الصورة لتعيينها كأساسية';
+
+  @override
+  String get errorCouldNotLaunchUrl => 'حدث خطأ أثناء فتح هذا الرابط';
 }

@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
-  String get systemTheme => 'System';
+  String get systemTheme => 'System Default';
 
   @override
   String get lightTheme => 'Light';
@@ -414,8 +414,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAddingProduct => 'Error adding product';
 
   @override
-  String get errorUpdatingProduct =>
-      'Failed to update product. Please try again.';
+  String get errorUpdatingProduct => 'Error updating product';
 
   @override
   String get errorDeletingProduct =>
@@ -441,7 +440,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseSelectCategory => 'Please select a category';
 
   @override
-  String get pleaseFixErrors => 'Please fix errors in the form';
+  String get pleaseFixErrors => 'Please fix the errors in the form';
 
   @override
   String get invalidPrice => 'Invalid Price';
@@ -557,4 +556,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchConversations => 'Search conversations';
+
+  @override
+  String get loggingIn => 'Logging in...';
+
+  @override
+  String get loginFailed => 'Login Failed';
+
+  @override
+  String get errorRegistering => 'Error registering account';
+
+  @override
+  String get ok => 'Ok';
+
+  @override
+  String get errorWhileLoggingIn => 'Error while trying to Login';
+
+  @override
+  String get loginSuccess => 'Login Successful!';
+
+  @override
+  String get success => 'Success';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get shopInfoSavedSuccess =>
+      'Shop information has been updated successfully!';
+
+  @override
+  String get editProductTitle => 'Edit Product';
+
+  @override
+  String get productUpdatedSuccess => 'Product updated successfully!';
+
+  @override
+  String get tapToSetPrimary => 'Tap an image to set it as primary';
+
+  @override
+  String get errorCouldNotLaunchUrl => 'Could not open this link';
 }

@@ -46,6 +46,7 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
   Future<void> login(String email, String password) async {
     state = const AsyncValue.loading();
+    
     final repo = ref.read(authRepositoryProvider);
     try {
       final userData = await repo.login(email, password);

@@ -212,7 +212,6 @@ class RegisterNotifier extends Notifier<RegisterState> {
     );
   }
 
-  // ✅ UPDATE THE REGISTER METHOD
   Future<void> register() async {
     state = state.copyWith(registrationStatus: const AsyncValue.loading());
     try {

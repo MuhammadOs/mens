@@ -255,7 +255,7 @@ class _ErrorStateWithRefresh extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      l10n.pullDownToRefresh, // TODO: Add localization key 'pullDownToRefresh'
+                      l10n.pullDownToRefresh,
                       style: TextStyle(color: theme.hintColor),
                     ),
                   ],

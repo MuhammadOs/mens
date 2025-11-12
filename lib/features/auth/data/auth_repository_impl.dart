@@ -167,7 +167,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> updateProfile(UserProfileData data) async {
     try {
-      // ✅ HELPER FUNCTION: Convert empty strings to null
       String? valueOrNull(String? value) {
         return (value == null || value.isEmpty) ? null : value;
       }

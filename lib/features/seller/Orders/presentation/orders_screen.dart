@@ -110,13 +110,12 @@ class OrdersScreen extends HookConsumerWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.ordersTitle),),
+      appBar: AppBar(title: Text(l10n.ordersTitle)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 16),
         children: [
-          // ✅ MODIFIED: This is now a horizontally scrolling list
           SizedBox(
-            height: 90, // Give the list a fixed height
+            height: 100,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),

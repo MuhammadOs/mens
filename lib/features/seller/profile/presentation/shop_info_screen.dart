@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:image_picker/image_picker.dart'; // Required for image picking
+import 'package:image_picker/image_picker.dart';
+// ✅ 1. Import fluttertoast
+import 'package:fluttertoast/fluttertoast.dart';
+// ✅ 2. Import l10n for success message
+import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/core/navigation/navigation_service.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/features/seller/profile/notifiers/shop_info_notifier.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
-import 'package:skeletonizer/skeletonizer.dart'; // Import Skeletonizer
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ShopInformationScreen extends HookConsumerWidget {
   const ShopInformationScreen({super.key});
@@ -49,18 +52,40 @@ class ShopInformationScreen extends HookConsumerWidget {
       }
     }
 
-    // --- State Listener ---
-    // Listens for save success/failure messages from the notifier
+    // ✅ 3. --- State Listener (Updated for Toasts) ---
     ref.listen(shopInfoNotifierProvider, (previous, next) {
-      // Show success message on successful save (of text fields or image)
+      // --- Handle Save Success ---
       if (previous?.isLoading == true && next is AsyncData) {
-        showGlobalSuccessDialog(ref.watch(l10nProvider).shopInfoSaved);
+        // We use addPostFrameCallback to prevent conflicts
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Manually look up the success message
+          final successMsg = l10n.shopInfoSavedSuccess;
+          Fluttertoast.showToast(
+            msg: successMsg,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        });
       }
-      // Show error message on failure
-      else if (next is AsyncError && !(next.isLoading)) {
-        showGlobalErrorDialog(next.error.toString());
+      // --- Handle Save Error ---
+      else if (previous?.isLoading == true && next is AsyncError) {
+        // We use addPostFrameCallback to prevent conflicts
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Fluttertoast.showToast(
+            msg: next.error.toString(),
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            textColor: Theme.of(context).colorScheme.onError,
+            fontSize: 16.0,
+          );
+        });
       }
     });
+
     final authState = ref.watch(authNotifierProvider);
     final userProfile = authState.asData?.value;
 
@@ -85,7 +110,6 @@ class ShopInformationScreen extends HookConsumerWidget {
                     .read(shopInfoNotifierProvider)
                     .asData
                     ?.value;
-                // TODO: Add form validation if needed using a Form widget + GlobalKey
                 final updatedData = ShopInfoData(
                   shopName: shopNameController.text,
                   vatNumber: vatController.text,
@@ -154,6 +178,9 @@ class ShopInformationScreen extends HookConsumerWidget {
                           child: CircleAvatar(
                             radius: 60,
                             backgroundColor: Colors.black54,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
                           ),
                         )
                       else // Show edit button otherwise

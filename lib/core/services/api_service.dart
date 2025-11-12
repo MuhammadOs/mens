@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mens/features/auth/data/auth_repository_impl.dart';
-import 'package:mens/shared/providers/loading_provider.dart';
+// We remove the global loading provider, as we'll handle loading locally.
+// import 'package:mens/shared/providers/loading_provider.dart';
 
 // Create a provider for secure storage
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
@@ -27,10 +28,13 @@ final apiServiceProvider = Provider((ref) {
   _dio.interceptors.clear();
 
   // Add a LogInterceptor for debugging network requests in development
+  // (Don't ship with this enabled in release builds)
   _dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
 
-  // Add LoadingInterceptor to manage global loading state
-  _dio.interceptors.add(LoadingInterceptor(ref));
+  // NOTE: We have *removed* the LoadingInterceptor.
+  // This is intentional. We will handle loading state inside our
+  // AwesomeDialogHelper, called from the UI. This prevents
+  // a global spinner from conflicting with our modal dialogs.
 
   // Add our custom AuthInterceptor to handle tokens and 401 errors
   _dio.interceptors.add(AuthInterceptor(storage, prefs, ref));
@@ -46,86 +50,36 @@ class AuthInterceptor extends Interceptor {
 
   AuthInterceptor(this._storage, this._prefs, this._ref);
 
-  /// This method is called for every request before it is sent.
-  /// It adds the JWT token to the 'Authorization' header.
   @override
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // Read the token from secure storage.
     final token = await _storage.read(key: 'jwt_token');
-
-    // If a token exists, add it to the request header.
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
-
-    // Continue with the request.
     handler.next(options);
   }
 
-  /// This method is called when a request results in an error.
-  /// It specifically checks for 401 Unauthorized errors to handle session expiry.
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    // Check if the error is a 401 Unauthorized response.
+    // This is perfect. A 401 is a global event (session expired)
+    // and should be handled globally (log out).
     if (err.response?.statusCode == 401) {
       try {
-        // 1. Manually clear the JWT token from secure storage.
         await _storage.delete(key: 'jwt_token');
-
-        // 2. Clear the cached user profile data from shared preferences.
-        await _prefs.remove(
-          'user_profile_cache',
-        ); // Ensure this key matches your repository key
-
-        // 3. Update the AuthNotifier's state to logged out (null).
-        //    This change will be picked up by the GoRouter's redirect logic,
-        //    automatically navigating the user to the sign-in screen.
-        //    We use Future.microtask to ensure this state update happens safely
-        //    after the current build/event cycle.
+        await _prefs.remove('user_profile_cache');
         Future.microtask(() {
           _ref.read(authNotifierProvider.notifier).setLoggedOut();
         });
       } catch (e) {
-        // Error during automatic logout process
+        // Error during automatic logout
       }
-
-      // We still pass the error along so the original UI that made the request
-      // can stop its loading indicator and handle the error if needed.
       return handler.next(err);
     }
-
-    // If the error is not a 401, just pass it along without any special handling.
+    // For all other errors (404, 500, 422, etc.), we let them
+    // propagate to the notifier so the UI can handle them locally.
     return handler.next(err);
-  }
-}
-
-/// A custom Dio Interceptor to manage global loading state.
-class LoadingInterceptor extends Interceptor {
-  final Ref _ref;
-
-  LoadingInterceptor(this._ref);
-
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // Increment loading counter before sending request
-    _ref.read(loadingNotifierProvider.notifier).increment();
-    handler.next(options);
-  }
-
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    // Decrement loading counter after receiving response
-    _ref.read(loadingNotifierProvider.notifier).decrement();
-    handler.next(response);
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Decrement loading counter on error
-    _ref.read(loadingNotifierProvider.notifier).decrement();
-    handler.next(err);
   }
 }
