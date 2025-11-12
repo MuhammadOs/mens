@@ -254,9 +254,9 @@ class HomeDrawer extends ConsumerWidget {
   Widget _buildSocialIcons(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     // TODO: Replace with your actual social media URLs
-    const String facebookUrl = "https://github.com/MuhammadOs";
+    const String facebookUrl = "https://www.facebook.com/your-page";
     const String instagramUrl = "https://www.instagram.com/your-page";
-    const String whatsappUrl = "https://wa.me/+201222777122"; // e.g., https://wa.me/201234567890
+    const String whatsappUrl = "https://wa.me/your-number"; // e.g., https://wa.me/201234567890
     const String xUrl = "https://www.x.com/your-page";
 
     return Row(

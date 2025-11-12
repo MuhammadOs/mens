@@ -29,8 +29,8 @@ This will:
 
 After running the script:
 
-1. Create `android/key.properties` file
-2. Add your passwords (see template at `android/key.properties.template`)
+1. Create `android/keystore.properties` file
+2. Add your passwords (see template at `android/keystore.properties.template`)
 3. Backup `upload-keystore.jks` and passwords to a secure location
 
 ### Step 2: Build Release App Bundle
@@ -93,7 +93,7 @@ Before uploading, prepare these materials:
 
 ## 🔐 Security Best Practices
 
-- ✅ `key.properties` is already in `.gitignore`
+- ✅ `keystore.properties` is already in `.gitignore`
 - ✅ No debug code in production build
 - ⚠️ **BACKUP your keystore!** Store in:
   - Password manager
@@ -137,7 +137,7 @@ Before clicking "Submit for Review":
 **Common Issues:**
 
 - Build errors → Run `flutter clean` then rebuild
-- Signing errors → Check `key.properties` file exists and has correct paths
+- Signing errors → Check `keystore.properties` file exists and has correct paths
 - Version conflict → Increment version code in `pubspec.yaml` (e.g., 1.0.0+2)
 - API level error → Already fixed! You're targeting API 35
 

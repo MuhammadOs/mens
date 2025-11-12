@@ -8,8 +8,8 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Load keystore properties from android/key.properties (kept out of VCS)
-val keystorePropertiesFile = rootProject.file("key.properties")
+// Load keystore properties from android/keystore.properties (kept out of VCS)
+val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))

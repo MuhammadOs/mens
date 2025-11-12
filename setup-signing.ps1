@@ -53,7 +53,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "================================================" -ForegroundColor Green
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Cyan
-    Write-Host "1. Create android/key.properties file with:" -ForegroundColor White
+    Write-Host "1. Create android/keystore.properties file with:" -ForegroundColor White
     Write-Host ""
     Write-Host "   storePassword=YOUR_PASSWORD_HERE" -ForegroundColor Yellow
     Write-Host "   keyPassword=YOUR_PASSWORD_HERE" -ForegroundColor Yellow

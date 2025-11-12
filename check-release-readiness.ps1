@@ -46,11 +46,11 @@ if ($pubspec -match 'version:\s*([\d\.]+\+\d+)') {
 # Check 4: Signing Configuration
 Write-Host "4. Signing Configuration..." -NoNewline
 $keystoreExists = Test-Path "android\app\upload-keystore.jks"
-$keyPropsExists = Test-Path "android\key.properties"
+$keyPropsExists = Test-Path "android\keystore.properties"
 
 if ($keystoreExists -and $keyPropsExists) {
     Write-Host " ✓ PASS" -ForegroundColor Green
-    Write-Host "   Keystore and key.properties found" -ForegroundColor Gray
+    Write-Host "   Keystore and keystore.properties found" -ForegroundColor Gray
 } elseif (-not $keystoreExists -and -not $keyPropsExists) {
     Write-Host " ⚠ NOT SET UP" -ForegroundColor Yellow
     Write-Host "   Run: .\setup-signing.ps1 to create keystore" -ForegroundColor Yellow
@@ -60,7 +60,7 @@ if ($keystoreExists -and $keyPropsExists) {
         Write-Host "   Missing: upload-keystore.jks" -ForegroundColor Yellow
     }
     if (-not $keyPropsExists) {
-        Write-Host "   Missing: key.properties" -ForegroundColor Yellow
+        Write-Host "   Missing: keystore.properties" -ForegroundColor Yellow
     }
 }
 

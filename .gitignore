@@ -45,8 +45,7 @@ app.*.map.json
 /android/app/release
 
 # Local signing files (keep private)
-android/key.properties
-android/key.properties.template
+android/keystore.properties
 android/app/*.jks
 android/app/*.keystore
 

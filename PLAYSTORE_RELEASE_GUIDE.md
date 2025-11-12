@@ -16,8 +16,8 @@
 3. Enter a strong password when prompted (SAVE THIS PASSWORD!)
 4. Fill in your organization details
 5. Move `upload-keystore.jks` to `android/app/` folder
-6. Create `android/key.properties` file (see template at `android/key.properties.template`)
-7. Add your actual passwords to `android/key.properties`
+6. Create `android/keystore.properties` file (see template at `android/keystore.properties.template`)
+7. Add your actual passwords to `android/keystore.properties`
 
 **⚠️ CRITICAL**: Backup your `upload-keystore.jks` file and passwords! If lost, you cannot update your app.
 
@@ -134,7 +134,7 @@ Before submitting your app, prepare these items:
 
 ## 🔐 Security Checklist
 
-- [ ] `key.properties` is in `.gitignore` ✅ (Already configured)
+- [ ] `keystore.properties` is in `.gitignore` ✅ (Already configured)
 - [ ] `upload-keystore.jks` is backed up securely
 - [ ] Passwords stored in password manager
 - [ ] No print statements in code ✅ (Already removed)
@@ -159,7 +159,7 @@ Before submitting your app, prepare these items:
 
 ### Issue: "App signing error"
 
-**Solution**: Verify your `key.properties` file exists and has correct paths/passwords
+**Solution**: Verify your `keystore.properties` file exists and has correct paths/passwords
 
 ---
 
