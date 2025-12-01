@@ -83,26 +83,24 @@ class PaginatedProductsScreen extends HookConsumerWidget {
 
     // Initial load
     useEffect(() {
-    // 1. We must wait until we have the user's category ID
-    if (userCategoryId != null) {
-      
-      // 2. Tell the notifier what the main category is
-      // This is the new, critical line.
-      notifier.setMainCategory(userCategoryId);
+      // 1. We must wait until we have the user's category ID
+      if (userCategoryId != null) {
+        // 2. Tell the notifier what the main category is
+        // This is the new, critical line.
+        notifier.setMainCategory(userCategoryId);
 
-      // 3. Load the initial "All" page
-      // Only load if we haven't loaded before
-      if (!paginatedState.hasData &&
-          !paginatedState.isLoading &&
-          paginatedState.error == null) {
-        
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifier.loadAll();
-        });
+        // 3. Load the initial "All" page
+        // Only load if we haven't loaded before
+        if (!paginatedState.hasData &&
+            !paginatedState.isLoading &&
+            paginatedState.error == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            notifier.loadAll();
+          });
+        }
       }
-    }
-    return null;
-  }, [userCategoryId]);
+      return null;
+    }, [userCategoryId]);
 
     return Scaffold(
       appBar: AppBar(
@@ -130,7 +128,13 @@ class PaginatedProductsScreen extends HookConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async => notifier.refresh(),
-        child: _buildBody(context, l10n, paginatedState, notifier, scrollController),
+        child: _buildBody(
+          context,
+          l10n,
+          paginatedState,
+          notifier,
+          scrollController,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(AppRoutes.addProduct),
@@ -139,7 +143,13 @@ class PaginatedProductsScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, l10n, state, notifier, ScrollController scrollController) {
+  Widget _buildBody(
+    BuildContext context,
+    l10n,
+    state,
+    notifier,
+    ScrollController scrollController,
+  ) {
     // --- THIS IS THE KEY CHANGE ---
     // Show a skeleton if we are in *any* loading state,
     // not just the initial one. This ensures that
@@ -169,9 +179,7 @@ class PaginatedProductsScreen extends HookConsumerWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         if (index >= state.allItems.length) {
-          return const Skeletonizer(
-            child: _ProductListItemSkeleton(),
-          );
+          return const Skeletonizer(child: _ProductListItemSkeleton());
         }
         return ProductListItem(product: state.allItems[index]);
       },
@@ -192,8 +200,8 @@ class PaginatedProductsScreen extends HookConsumerWidget {
                   l10n.noProductsInCategory,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).hintColor,
-                      ),
+                    color: Theme.of(context).hintColor,
+                  ),
                 ),
               ),
             ),
@@ -231,11 +239,17 @@ class _ErrorStateWithRefresh extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: theme.colorScheme.error,
+                    ),
                     const SizedBox(height: 16),
-                    Text('${l10n.errorLoading}: $error',
-                        style: TextStyle(color: theme.colorScheme.error),
-                        textAlign: TextAlign.center),
+                    Text(
+                      '${l10n.errorLoading}: $error',
+                      style: TextStyle(color: theme.colorScheme.error),
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: onRefresh,
@@ -253,7 +267,7 @@ class _ErrorStateWithRefresh extends StatelessWidget {
 }
 
 class _ProductListItemSkeleton extends StatelessWidget {
-  const _ProductListItemSkeleton({super.key});
+  const _ProductListItemSkeleton();
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mens/features/admin/conversations/data/conversations_repository.dart';
+import 'package:mens/features/user/conversations/data/conversations_repository.dart';
 
 final replyNotifierProvider = NotifierProvider<ReplyNotifier, AsyncValue<void>>(
   ReplyNotifier.new,

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mens/core/services/image_upload_service.dart';
-import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
+import 'package:mens/features/user/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/domain/product_image.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';

@@ -6,7 +6,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for XFile
 // ✅ 1. Import fluttertoast and localization
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/domain/product_image.dart';
@@ -85,7 +84,7 @@ class EditProductScreen extends HookConsumerWidget {
       if (wasLoading && next is AsyncData) {
         // --- Show Success Toast ---
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          final successMsg =l10n.productUpdatedSuccess;
+          final successMsg = l10n.productUpdatedSuccess;
           Fluttertoast.showToast(
             msg: successMsg,
             toastLength: Toast.LENGTH_SHORT,
@@ -119,7 +118,10 @@ class EditProductScreen extends HookConsumerWidget {
           // ✅ 4. Improved Loading Indicator
           editOperationState.isLoading
               ? const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
                   child: SizedBox(
                     width: 24,
                     height: 24,
@@ -145,7 +147,8 @@ class EditProductScreen extends HookConsumerWidget {
                         description: descriptionController.text,
                         price: double.tryParse(priceController.text) ?? 0.0,
                         stockQuantity: int.tryParse(stockController.text) ?? 0,
-                        subCategoryId: selectedSubCategoryId.value ??
+                        subCategoryId:
+                            selectedSubCategoryId.value ??
                             currentProductData.subCategoryId,
                         images: images.value,
                         primaryImageIndex: primaryImageIndex.value,

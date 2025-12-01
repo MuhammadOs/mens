@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mens/core/services/api_service.dart';
-import 'package:mens/features/admin/conversations/domain/conversation.dart';
+import 'package:mens/features/user/conversations/domain/conversation.dart';
 
 abstract class ConversationsRepository {
   Future<List<Conversation>> getAllConversations();

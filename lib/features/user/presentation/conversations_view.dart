@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/features/admin/conversations/data/conversations_repository.dart';
-import 'package:mens/features/admin/conversations/domain/conversation.dart';
-import 'package:mens/features/admin/conversations/presentation/notifiers/reply_notifier.dart';
-import 'package:mens/features/admin/presentation/admin_drawer.dart';
+import 'package:mens/features/user/conversations/data/conversations_repository.dart';
+import 'package:mens/features/user/conversations/domain/conversation.dart';
+import 'package:mens/features/user/conversations/presentation/notifiers/reply_notifier.dart';
+import 'package:mens/features/user/presentation/user_drawer.dart';
 
 class ConversationsView extends HookConsumerWidget {
   const ConversationsView({super.key});
@@ -33,7 +32,7 @@ class ConversationsView extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      drawer: const AdminDrawer(),
+      //drawer: const UserDrawer(),
       appBar: AppBar(
         title: Text(
           l10n.userConversations,

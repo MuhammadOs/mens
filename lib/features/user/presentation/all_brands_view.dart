@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/features/admin/brands/domain/brand.dart';
-import 'package:mens/features/admin/presentation/admin_drawer.dart';
-import 'package:mens/features/admin/presentation/notifiers/paginated_brands_notifier.dart';
+import 'package:mens/features/user/brands/domain/brand.dart';
+import 'package:mens/features/user/presentation/user_drawer.dart';
+import 'package:mens/features/user/presentation/notifiers/paginated_brands_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/widgets/pagination_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -29,7 +29,7 @@ class AllBrandsView extends HookConsumerWidget {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      drawer: const AdminDrawer(),
+      //drawer: const UserDrawer(),
       appBar: AppBar(
         title: Text(
           l10n.allBrandsTitle,

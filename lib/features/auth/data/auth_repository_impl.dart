@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mens/features/auth/domain/auth_respository.dart';
 import 'package:mens/features/auth/notifiers/register_notifier.dart';
-import 'package:mens/features/seller/profile/notifiers/edit_profile_notifier.dart';
+import 'package:mens/features/user/profile/notifiers/edit_profile_notifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mens/core/services/api_service.dart';
 import 'package:mens/features/auth/domain/user_profile.dart';

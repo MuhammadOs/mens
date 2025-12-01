@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
-import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/core/routing/app_router.dart';
+import 'package:mens/shared/widgets/app_back_button.dart';
 import 'package:mens/features/auth/notifiers/register_notifier.dart';
 import 'package:mens/features/auth/presentation/register/brand_info_step.dart';
 import 'package:mens/features/auth/presentation/register/owner_info_step.dart';
 import 'package:mens/features/auth/presentation/register/profile_info_step.dart';
-import 'package:mens/shared/theme/theme_provider.dart';
 
 class RegisterScreen extends HookConsumerWidget {
   const RegisterScreen({super.key});
@@ -19,8 +18,7 @@ class RegisterScreen extends HookConsumerWidget {
     final l10n = ref.watch(l10nProvider);
     final registerState = ref.watch(registerNotifierProvider);
     final registerNotifier = ref.read(registerNotifierProvider.notifier);
-    final currentTheme = ref.watch(themeProvider);
-    final currentLocale = ref.watch(localeProvider);
+    // read theme/locale only when needed (kept for side-effects in menu)
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -31,14 +29,16 @@ class RegisterScreen extends HookConsumerWidget {
       (previous, next) {
         if (next is AsyncError) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            final rootCtx = Navigator.of(context, rootNavigator: true).context;
+            if (!rootCtx.mounted) return;
             showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
+              context: rootCtx,
+              builder: (ctx) => AlertDialog(
                 title: Row(
                   children: [
                     Icon(
                       Icons.error,
-                      color: Theme.of(context).colorScheme.error,
+                      color: Theme.of(ctx).colorScheme.error,
                       size: 30,
                     ),
                     const SizedBox(width: 12),
@@ -48,7 +48,7 @@ class RegisterScreen extends HookConsumerWidget {
                 content: Text(next.error?.toString() ?? 'Unknown error'),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => Navigator.of(ctx).pop(),
                     child: Text(l10n.ok),
                   ),
                 ],
@@ -57,12 +57,14 @@ class RegisterScreen extends HookConsumerWidget {
           });
         } else if (next is AsyncData && next.value == true) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            final rootCtx = Navigator.of(context, rootNavigator: true).context;
+            if (!rootCtx.mounted) return;
             showDialog(
-              context: context,
-              builder: (context) {
+              context: rootCtx,
+              builder: (ctx) {
                 Future.delayed(const Duration(milliseconds: 1500), () {
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
+                  if (ctx.mounted) {
+                    Navigator.of(ctx).pop();
                   }
                 });
                 return AlertDialog(
@@ -93,6 +95,16 @@ class RegisterScreen extends HookConsumerWidget {
     ];
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: AppBackButton(
+          size: 36,
+          backgroundColor: const Color(0xFF0F3B5C),
+          iconColor: Colors.white,
+          onPressed: () => context.go(AppRoutes.roleSelection),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
@@ -100,71 +112,6 @@ class RegisterScreen extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  PopupMenuButton<String>(
-                    icon: Icon(
-                      Icons.settings,
-                      color: colorScheme.onSurface.withOpacity(0.7),
-                    ),
-                    onSelected: (value) {
-                      if (value == 'toggle_theme') {
-                        ref
-                            .read(themeProvider.notifier)
-                            .setTheme(
-                              currentTheme == ThemeMode.dark
-                                  ? ThemeMode.light
-                                  : ThemeMode.dark,
-                            );
-                      } else if (value == 'toggle_locale') {
-                        ref
-                            .read(localeProvider.notifier)
-                            .setLocale(
-                              currentLocale.languageCode == 'en'
-                                  ? AppLocales.arabic
-                                  : AppLocales.english,
-                            );
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem(
-                        value: 'toggle_theme',
-                        child: Row(
-                          children: [
-                            Icon(
-                              currentTheme == ThemeMode.dark
-                                  ? Icons.light_mode
-                                  : Icons.dark_mode,
-                              color: colorScheme.onSurface,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              currentTheme == ThemeMode.dark
-                                  ? l10n.lightTheme
-                                  : l10n.darkTheme,
-                            ),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'toggle_locale',
-                        child: Row(
-                          children: [
-                            Icon(Icons.language, color: colorScheme.onSurface),
-                            const SizedBox(width: 8),
-                            Text(
-                              currentLocale.languageCode == 'en'
-                                  ? l10n.arabic
-                                  : l10n.english,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
               Center(
                 child: ClipOval(
                   child: Image.asset(
@@ -229,23 +176,11 @@ class RegisterScreen extends HookConsumerWidget {
                 children: [
                   // Back Button (Icon only)
                   if (registerState.currentStep > 0)
-                    SizedBox(
-                      height: 50,
-                      width: 60,
-                      child: OutlinedButton(
-                        onPressed: registerNotifier.previousStep,
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: colorScheme.primary),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: Icon(
-                          Icons.arrow_back,
-                          color: colorScheme.primary,
-                        ),
-                      ),
+                    AppBackButton(
+                      size: 36,
+                      backgroundColor: const Color(0xFF0F3B5C),
+                      iconColor: Colors.white,
+                      onPressed: registerNotifier.previousStep,
                     ),
                   if (registerState.currentStep > 0) const SizedBox(width: 16),
                   // Next/Register Button

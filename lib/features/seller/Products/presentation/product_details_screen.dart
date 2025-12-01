@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
+import 'package:mens/shared/widgets/app_back_button.dart';
 
 class ProductDetailsScreen extends HookConsumerWidget {
   final Product product;
@@ -24,8 +25,10 @@ class ProductDetailsScreen extends HookConsumerWidget {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: AppBackButton(
+          size: 36,
+          backgroundColor: const Color(0xFF0F3B5C),
+          iconColor: Colors.white,
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

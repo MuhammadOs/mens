@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mens/features/admin/admin_repository.dart';
+import 'package:mens/features/user/admin_repository.dart';
+import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
 import 'package:mens/shared/models/paginated_response.dart';
 import 'package:mens/shared/models/pagination_params.dart';
@@ -19,10 +20,14 @@ class PaginatedAdminProductsNotifier extends PaginatedNotifier<Product> {
   @override
   Future<PaginatedResponse<Product>> fetchPage(PaginationParams params) async {
     final repository = ref.read(adminRepositoryProvider);
+    final userProfile = ref.read(authNotifierProvider).asData?.value;
+    final storeId = userProfile?.store?.id.toString();
+
     return repository.getAllProductsPaginated(
       pagination: params,
       categoryId: _categoryId?.toString(),
       subCategoryId: _subCategoryId?.toString(),
+      storeId: storeId,
     );
   }
 }

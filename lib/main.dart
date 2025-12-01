@@ -11,7 +11,7 @@ import 'package:mens/shared/widgets/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();  
 
   final prefs = await SharedPreferences.getInstance();
   final languageCode = prefs.getString('languageCode') ?? 'en';

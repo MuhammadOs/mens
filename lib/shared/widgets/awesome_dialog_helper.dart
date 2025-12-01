@@ -25,9 +25,14 @@ class AwesomeDialogHelper {
     bool autoDismissSuccess = false,
     VoidCallback? onSuccessOk,
   }) async {
-    // 1. Show Loading
+    // Capture a stable root context before any awaits to avoid using
+    // the (possibly disposed) caller context after async gaps.
+    final rootCtx = Navigator.of(context, rootNavigator: true).context;
+
+    // 1. Show Loading using the root context so the dialog attaches to the
+    // app-level navigator and is less likely to be affected by widget disposal.
     final loadingNotifier = _showLoadingDialog(
-      context,
+      rootCtx,
       message: loadingMessage,
     );
 
@@ -39,25 +44,27 @@ class AwesomeDialogHelper {
       _closeLoadingDialog(loadingNotifier);
 
       // 4. Show Success (if title is provided)
-      if (successTitle != null && context.mounted) {
-        await _showSuccessDialog(
-          context,
-          title: successTitle,
-          message: successMessage,
-          autoDismiss: autoDismissSuccess,
-          okText: okText,
-          onOk: onSuccessOk,
-        );
+      if (successTitle != null) {
+        if (rootCtx.mounted) {
+          await _showSuccessDialog(
+            rootCtx,
+            title: successTitle,
+            message: successMessage,
+            autoDismiss: autoDismissSuccess,
+            okText: okText,
+            onOk: onSuccessOk,
+          );
+        }
       }
       return true; // API call succeeded
     } catch (e) {
       // 5. Close Loading
       _closeLoadingDialog(loadingNotifier);
 
-      // 6. Show Error
-      if (context.mounted) {
+      // 6. Show Error using the previously-captured root context
+      if (rootCtx.mounted) {
         await _showErrorDialog(
-          context,
+          rootCtx,
           title: errorTitle,
           message: e.toString().replaceAll("Exception: ", ""),
           okText: okText,
@@ -172,7 +179,7 @@ class AwesomeDialogHelper {
                 onOk?.call();
               },
               child: Text(okText),
-            )
+            ),
           ],
         ),
       );
@@ -191,7 +198,11 @@ class AwesomeDialogHelper {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.error, color: Theme.of(context).colorScheme.error, size: 30),
+            Icon(
+              Icons.error,
+              color: Theme.of(context).colorScheme.error,
+              size: 30,
+            ),
             const SizedBox(width: 12),
             Text(title),
           ],
@@ -201,7 +212,7 @@ class AwesomeDialogHelper {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(okText),
-          )
+          ),
         ],
       ),
     );

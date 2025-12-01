@@ -8,7 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
-import 'package:mens/features/seller/profile/notifiers/shop_info_notifier.dart';
+import 'package:mens/features/user/profile/notifiers/shop_info_notifier.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
 import 'package:skeletonizer/skeletonizer.dart';

@@ -53,7 +53,7 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           _buildInfoCard(context, ref),
           const SizedBox(height: 16),
-          _buildActionList(context, l10n),
+          _buildActionList(context, ref, l10n),
         ],
       ),
     );
@@ -85,7 +85,11 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionList(BuildContext context, AppLocalizations l10n) {
+  Widget _buildActionList(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Card(
@@ -114,7 +118,17 @@ class ProfileScreen extends ConsumerWidget {
             _ActionTile(
               icon: Icons.contact_mail,
               text: l10n.contactUsTitle,
-              onTap: () => context.push(AppRoutes.contactUs),
+              onTap: () {
+                final authState = ref.read(authNotifierProvider);
+                final role = (authState.asData?.value?.role ?? '')
+                    .toString()
+                    .toLowerCase();
+                if (role == 'admin') {
+                  context.push(AppRoutes.adminConversations);
+                } else {
+                  context.push(AppRoutes.contactUs);
+                }
+              },
             ),
           ],
         ),

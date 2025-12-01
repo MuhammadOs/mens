@@ -4,7 +4,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 // ✅ 1. Import new packages
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/core/routing/app_router.dart';
@@ -127,7 +126,15 @@ class HomeDrawer extends ConsumerWidget {
                     ),
                     onTap: () {
                       context.pop();
-                      context.push(AppRoutes.contactUs);
+                      final authState = ref.read(authNotifierProvider);
+                      final role = (authState.asData?.value?.role ?? '')
+                          .toString()
+                          .toLowerCase();
+                      if (role == 'admin') {
+                        context.push(AppRoutes.adminConversations);
+                      } else {
+                        context.push(AppRoutes.contactUs);
+                      }
                     },
                   ),
                   const SizedBox(height: 16),
@@ -222,9 +229,9 @@ class HomeDrawer extends ConsumerWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-              fontWeight: FontWeight.bold,
-            ),
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -256,7 +263,8 @@ class HomeDrawer extends ConsumerWidget {
     // TODO: Replace with your actual social media URLs
     const String facebookUrl = "https://www.facebook.com/your-page";
     const String instagramUrl = "https://www.instagram.com/your-page";
-    const String whatsappUrl = "https://wa.me/your-number"; // e.g., https://wa.me/201234567890
+    const String whatsappUrl =
+        "https://wa.me/your-number"; // e.g., https://wa.me/201234567890
     const String xUrl = "https://www.x.com/your-page";
 
     return Row(

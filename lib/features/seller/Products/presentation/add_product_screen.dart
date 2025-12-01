@@ -6,9 +6,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart'; // Required for image picking
 // ✅ 1. Import fluttertoast and localization
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/features/admin/presentation/notifiers/paginated_admin_products_notifier.dart';
+import 'package:mens/features/user/presentation/notifiers/paginated_admin_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/add_product_notifier.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';
@@ -196,7 +195,8 @@ class AddProductScreen extends HookConsumerWidget {
                             ),
                           )
                           .toList();
-                      final isValidValue = subCats.isNotEmpty &&
+                      final isValidValue =
+                          subCats.isNotEmpty &&
                           subCats.any(
                             (cat) => cat.id == selectedSubCategoryId.value,
                           );
@@ -309,7 +309,8 @@ class AddProductScreen extends HookConsumerWidget {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount:
-                      additionalImages.value.length + 1, // +1 for the add button
+                      additionalImages.value.length +
+                      1, // +1 for the add button
                   separatorBuilder: (context, index) =>
                       const SizedBox(width: 8),
                   itemBuilder: (context, index) {
@@ -402,7 +403,7 @@ class AddProductScreen extends HookConsumerWidget {
                               fontSize: 16.0,
                             );
                           }
-                          
+
                           // Validate the form first
                           if (formKey.currentState?.validate() ?? false) {
                             if (mainImage.value == null) {

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
-import 'package:mens/features/admin/presentation/all_brands_view.dart';
-import 'package:mens/features/admin/presentation/all_products_view.dart';
-import 'package:mens/features/admin/presentation/conversations_view.dart';
+import 'package:mens/features/user/presentation/conversations_view.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/auth/presentation/signin/signin_screen.dart';
-import 'package:mens/features/seller/Home/presentation/home_screen.dart';
+import 'package:mens/features/auth/presentation/register/roles_selection.dart';
+import 'package:mens/features/auth/presentation/register/customer_register.dart';
+// seller home screen import removed (unused in router)
 import 'package:mens/features/seller/Orders/presentation/orders_screen.dart';
 import 'package:mens/features/seller/Products/presentation/add_product_screen.dart';
 import 'package:mens/features/seller/Products/presentation/edit_products_screen.dart';
@@ -16,16 +16,19 @@ import 'package:mens/features/seller/Products/presentation/products_screen.dart'
 import 'package:mens/features/seller/Products/presentation/paginated_products_screen.dart';
 import 'package:mens/features/seller/Statistics/presentation/stat_screen.dart';
 import 'package:mens/features/seller/contact_us/presentation/contact_us_screen.dart';
-import 'package:mens/features/seller/profile/presentation/edit_profile_screen.dart';
-import 'package:mens/features/seller/profile/presentation/help_support_screen.dart';
-import 'package:mens/features/seller/profile/presentation/notification_screen.dart';
-import 'package:mens/features/seller/profile/presentation/profile_screen.dart';
-import 'package:mens/features/seller/profile/presentation/shop_info_screen.dart';
+import 'package:mens/features/user/presentation/user_home_screen.dart';
+import 'package:mens/features/user/profile/presentation/edit_profile_screen.dart';
+import 'package:mens/features/user/profile/presentation/help_support_screen.dart';
+import 'package:mens/features/user/profile/presentation/notification_screen.dart';
+import 'package:mens/features/user/profile/presentation/profile_screen.dart';
+import 'package:mens/features/user/profile/presentation/shop_info_screen.dart';
 
 class AppRoutes {
   static const signIn = '/signIn';
   static const settings = '/settings';
   static const register = '/register';
+  static const roleSelection = '/register/role-selection';
+  static const registerCustomer = '/register/customer';
   static const home = '/home';
   static const adminHome = '/admin/home';
   static const adminProducts = '/admin/products';
@@ -44,6 +47,8 @@ class AppRoutes {
   static const editProduct = '/products/:id/edit';
   static const productDetails = '/product-details';
   static const contactUs = '/contact-us';
+  static const customersHome = 'customers-home';
+  static const userHome = '/user/home';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -62,8 +67,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomeScreen(),
+        path: AppRoutes.roleSelection,
+        builder: (context, state) => const RoleSelectionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.registerCustomer,
+        builder: (context, state) => const RegisterCustomerScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminHome,
@@ -71,11 +80,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminProducts,
-        builder: (context, state) => const AllProductsView(),
+        builder: (context, state) => const AdminHomeScreen(initialIndex: 0),
       ),
       GoRoute(
         path: AppRoutes.adminBrands,
-        builder: (context, state) => const AllBrandsView(),
+        builder: (context, state) => const AdminHomeScreen(initialIndex: 1),
       ),
       GoRoute(
         path: AppRoutes.adminConversations,
@@ -144,14 +153,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.contactUs,
         builder: (context, state) => const ContactUsScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.userHome,
+        builder: (context, state) => const AdminHomeScreen(),
+      ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
       final authState = ref.watch(authNotifierProvider); // Watch the full state
       final bool isLoggedIn = authNotifier.isLoggedIn; // Use the getter
 
       final location = state.matchedLocation;
+      // Consider any path under /register as an auth route (role selection, register, customer)
       final isGoingToAuthRoute =
-          (location == AppRoutes.signIn || location == AppRoutes.register);
+          location == AppRoutes.signIn || location.startsWith('/register');
 
       // --- NEWER, STRICTER REDIRECTION RULES ---
 
@@ -181,7 +195,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (userRole == 'Admin') {
           // If admin is logged in and tries to go to a seller route, redirect to admin products
           if (location == AppRoutes.home || isGoingToAuthRoute) {
-            return AppRoutes.adminProducts;
+            return AppRoutes.adminHome;
           }
         } else if (userRole == 'StoreOwner') {
           // If seller is logged in and tries to go to an admin route, redirect to seller home

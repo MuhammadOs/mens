@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 // ✅ 1. Import fluttertoast
-import 'package:fluttertoast/fluttertoast.dart'; 
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 // ✅ 2. Import app_localizations for the success toast
-import 'package:mens/core/localization/l10n/app_localizations.dart'; 
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/shared/theme/theme_provider.dart';
@@ -50,11 +49,7 @@ class SignInScreen extends HookConsumerWidget {
 
       // --- Handle Success ---
       if (next is AsyncData && next.value != null) {
-        // Manually look up both localization objects
-        final l10nEn = lookupAppLocalizations(AppLocales.english);
-        final l10nAr = lookupAppLocalizations(AppLocales.arabic);
-        
-        // Combine the messages
+        // Use localized success message
         final successMessage = l10n.loginSuccess;
 
         // 1. Show the combined success toast
@@ -70,7 +65,8 @@ class SignInScreen extends HookConsumerWidget {
         // 2. Navigate after a short delay
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (context.mounted) {
-            context.go(AppRoutes.home);
+            // Navigate to the unified user home (4-tab) for both Admin and User roles
+            context.go(AppRoutes.userHome);
           }
         });
       }
@@ -273,7 +269,23 @@ class SignInScreen extends HookConsumerWidget {
                   text: l10n.dontHaveAccount,
                   linkText: l10n.register,
                   onTap: () {
-                    context.go(AppRoutes.register);
+                    // Use push to keep navigation stack and avoid unexpected redirects
+                    // Add a debug print in case navigation fails during testing
+                    // ignore: avoid_print
+                    print('Register link tapped, navigating to role selection');
+                    // print current route info for debugging
+                    // ignore: avoid_print
+                    print(
+                      'Before push route: ${ModalRoute.of(context)?.settings.name ?? Uri.base.path}',
+                    );
+                    context.push(AppRoutes.roleSelection);
+                    // schedule a microtask to print the location after navigation
+                    Future.microtask(() {
+                      // ignore: avoid_print
+                      print(
+                        'After push route: ${ModalRoute.of(context)?.settings.name ?? Uri.base.path}',
+                      );
+                    });
                   },
                 ),
                 const SizedBox(height: 8),
