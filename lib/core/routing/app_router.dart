@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
-import 'package:mens/features/user/presentation/conversations_view.dart';
+import 'package:mens/features/user/conversations/presentation/conversations_view.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/auth/presentation/signin/signin_screen.dart';
@@ -16,7 +16,7 @@ import 'package:mens/features/seller/Products/presentation/products_screen.dart'
 import 'package:mens/features/seller/Products/presentation/paginated_products_screen.dart';
 import 'package:mens/features/seller/Statistics/presentation/stat_screen.dart';
 import 'package:mens/features/seller/contact_us/presentation/contact_us_screen.dart';
-import 'package:mens/features/user/presentation/user_home_screen.dart';
+import 'package:mens/features/user/user_home/presentation/user_home_screen.dart';
 import 'package:mens/features/user/profile/presentation/edit_profile_screen.dart';
 import 'package:mens/features/user/profile/presentation/help_support_screen.dart';
 import 'package:mens/features/user/profile/presentation/notification_screen.dart';
@@ -30,9 +30,9 @@ class AppRoutes {
   static const roleSelection = '/register/role-selection';
   static const registerCustomer = '/register/customer';
   static const home = '/home';
-  static const adminHome = '/admin/home';
-  static const adminProducts = '/admin/products';
-  static const adminBrands = '/admin/brands';
+  static const userHome = '/user/home';
+  static const userProducts = '/user/products';
+  static const userBrands = '/user/brands';
   static const adminConversations = '/admin/conversations';
   static const products = '/products';
   static const paginatedProducts = '/paginated-products';
@@ -48,7 +48,6 @@ class AppRoutes {
   static const productDetails = '/product-details';
   static const contactUs = '/contact-us';
   static const customersHome = 'customers-home';
-  static const userHome = '/user/home';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -75,16 +74,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterCustomerScreen(),
       ),
       GoRoute(
-        path: AppRoutes.adminHome,
-        redirect: (context, state) => AppRoutes.adminProducts,
+        path: AppRoutes.userHome,
+        redirect: (context, state) => AppRoutes.userProducts,
       ),
       GoRoute(
-        path: AppRoutes.adminProducts,
-        builder: (context, state) => const AdminHomeScreen(initialIndex: 0),
+        path: AppRoutes.userProducts,
+        builder: (context, state) => const UserHomeScreen(initialIndex: 0),
       ),
       GoRoute(
-        path: AppRoutes.adminBrands,
-        builder: (context, state) => const AdminHomeScreen(initialIndex: 1),
+        path: AppRoutes.userBrands,
+        builder: (context, state) => const UserHomeScreen(initialIndex: 1),
       ),
       GoRoute(
         path: AppRoutes.adminConversations,
@@ -155,7 +154,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.userHome,
-        builder: (context, state) => const AdminHomeScreen(),
+        builder: (context, state) => const UserHomeScreen(),
       ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
@@ -195,7 +194,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (userRole == 'Admin') {
           // If admin is logged in and tries to go to a seller route, redirect to admin products
           if (location == AppRoutes.home || isGoingToAuthRoute) {
-            return AppRoutes.adminHome;
+            return AppRoutes.userHome;
           }
         } else if (userRole == 'StoreOwner') {
           // If seller is logged in and tries to go to an admin route, redirect to seller home
@@ -206,7 +205,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
         // If logged in and trying to access auth routes, redirect based on role
         if (isGoingToAuthRoute) {
-          return userRole == 'Admin' ? AppRoutes.adminProducts : AppRoutes.home;
+          return userRole == 'Admin' ? AppRoutes.userProducts : AppRoutes.home;
         }
       }
 

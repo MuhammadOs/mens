@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 
-class OrderDetailsScreen extends StatelessWidget {
+class OrderDetailsScreen extends ConsumerWidget {
   const OrderDetailsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = ref.watch(l10nProvider);
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(title: const Text("Order Details")),
+      appBar: AppBar(title: Text(l10n.orderDetailsTitle)), // Localized
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "4 Items",
-              style: TextStyle(color: Colors.white, fontSize: 16),
+            Text(
+              // Localized count
+              l10n.orderItemsCount(4),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 10),
 
@@ -29,7 +34,7 @@ class OrderDetailsScreen extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white),
+                      border: Border.all(color: theme.colorScheme.onSurface),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
@@ -40,17 +45,14 @@ class OrderDetailsScreen extends StatelessWidget {
                           color: Colors.grey,
                         ), // Image
                         const SizedBox(width: 15),
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "1x Product title",
-                              style: TextStyle(color: Colors.white),
+                              // Localized Item format
+                              l10n.orderItemFormat(1, "Product title"),
                             ),
-                            Text(
-                              "22.99 \$",
-                              style: TextStyle(color: Colors.white70),
-                            ),
+                            const Text("22.99 \$"),
                           ],
                         ),
                       ],
@@ -65,39 +67,41 @@ class OrderDetailsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               width: double.infinity,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.white),
+                border: Border.all(color: theme.colorScheme.onSurface),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Total : 120.99 \$",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    // Localized Total
+                    l10n.orderTotalLabel("120.99 \$"),
+                    style: const TextStyle(fontSize: 16),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    "Payment Method : Cash",
-                    style: TextStyle(color: Colors.white),
+                    // Localized Payment Method
+                    l10n.paymentMethodLabel(l10n.paymentMethodCash),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    "Shipping Address : 6th of October",
-                    style: TextStyle(color: Colors.white),
+                    // Localized Address
+                    l10n.shippingAddressLabel("6th of October"),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    "Order ID : 441654165",
-                    style: TextStyle(color: Colors.white),
+                    // Localized ID
+                    l10n.orderIdLabel("441654165"),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    "Status : Delivered",
-                    style: TextStyle(color: Colors.white),
+                    // Localized Status
+                    l10n.statusLabel(l10n.statusDelivered),
                   ),
                 ],
               ),
             ),
+            SizedBox(height: 8),
           ],
         ),
       ),

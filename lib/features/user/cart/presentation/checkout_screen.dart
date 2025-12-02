@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mens/shared/widgets/app_back_button.dart';
 import 'package:mens/features/user/cart/cart.dart';
+import 'package:mens/shared/widgets/app_back_button.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final List<CartItem> items;
@@ -12,6 +12,8 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   int _paymentMethod = 0; // 0 = Cash, 1 = Card
+  bool _isLoading = false;
+
   double get total => widget.items.fold(0, (sum, item) => sum + item.subtotal);
 
   @override
@@ -19,233 +21,326 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      // Background color handled by theme
       appBar: AppBar(
-        title: const Text("Order Summary"),
-        backgroundColor: Colors.transparent,
-        foregroundColor: theme.colorScheme.onSurface,
-        leading: const AppBackButton(outlined: true),
+        title: const Text("Checkout"),
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AppBackButton(
+            outlined: true,
+            // Ensure visibility on AppBar background
+            iconColor: theme.appBarTheme.foregroundColor ?? Colors.white,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Order Summary Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.cardColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  ...widget.items.map(
-                    (e) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "${e.title}  x ${e.quantity}",
-                            style: const TextStyle(color: Colors.black87),
-                          ),
-                          Text(
-                            "${e.subtotal.toStringAsFixed(2)} \$",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const Divider(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Total",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "${total.toStringAsFixed(2)} \$",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+            _buildSectionTitle(theme, "Order Summary"),
+            const SizedBox(height: 12),
+            _buildOrderSummary(theme),
 
-            // Payment Method
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  RadioListTile(
-                    value: 0,
-                    groupValue: _paymentMethod,
-                    onChanged: (val) => setState(() => _paymentMethod = val!),
-                    title: const Text(
-                      "Cash on delivery",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    fillColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                  RadioListTile(
-                    value: 1,
-                    groupValue: _paymentMethod,
-                    onChanged: (val) => setState(() => _paymentMethod = val!),
-                    title: const Text(
-                      "Master Card, Visa, etc.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    fillColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
+            _buildSectionTitle(theme, "Payment Method"),
+            const SizedBox(height: 12),
+            _buildPaymentMethod(theme),
 
-            // Shipping Address Form
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Shipping Address",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    children: [
-                      Expanded(child: _buildInput("City")),
-                      const SizedBox(width: 10),
-                      Expanded(child: _buildInput("Street")),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(child: _buildInput("Building no.")),
-                      const SizedBox(width: 10),
-                      Expanded(child: _buildInput("Floor no.")),
-                      const SizedBox(width: 10),
-                      Expanded(child: _buildInput("Flat no.")),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  _buildInput("Notes"),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
+            _buildSectionTitle(theme, "Shipping Address"),
+            const SizedBox(height: 12),
+            _buildShippingForm(theme),
+
+            const SizedBox(height: 32),
 
             // Place Order Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                onPressed: _isLoading ? null : _handlePlaceOrder,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 2,
                 ),
-                onPressed: _showSuccessDialog,
-                child: const Text(
-                  "Place Order",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _isLoading
+                    ? SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      )
+                    : const Text("Place Order", style: TextStyle(fontSize: 18)),
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInput(String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(hint, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        const SizedBox(height: 5),
-        Container(
-          height: 45,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
+  Widget _buildSectionTitle(ThemeData theme, String title) {
+    return Text(
+      title,
+      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+
+  Widget _buildOrderSummary(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          child: const TextField(
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        ],
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
+      ),
+      child: Column(
+        children: [
+          ...widget.items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Quantity Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      "${item.quantity}x",
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Title
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Price
+                  Text(
+                    "\$${item.subtotal.toStringAsFixed(2)}",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          Divider(color: theme.colorScheme.outline.withOpacity(0.2)),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Total",
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "\$${total.toStringAsFixed(2)}",
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethod(ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(children: [_buildRadioTile(theme, 0, "Cash", Icons.money)]),
+    );
+  }
+
+  Widget _buildRadioTile(
+    ThemeData theme,
+    int value,
+    String title,
+    IconData icon,
+  ) {
+    return RadioListTile<int>(
+      value: value,
+      groupValue: _paymentMethod,
+      onChanged: (val) => setState(() => _paymentMethod = val!),
+      activeColor: theme.colorScheme.primary,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      title: Row(
+        children: [
+          Icon(
+            icon,
+            size: 20,
+            color: theme.colorScheme.onSurface.withOpacity(0.7),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShippingForm(ThemeData theme) {
+    // We wrap fields in a container just for layout,
+    // the styling comes from the InputDecorationTheme in AppTheme
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: _buildTextField("City")),
+            const SizedBox(width: 12),
+            Expanded(child: _buildTextField("Street")),
+          ],
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: _buildTextField("Building")),
+            const SizedBox(width: 12),
+            Expanded(child: _buildTextField("Floor")),
+            const SizedBox(width: 12),
+            Expanded(child: _buildTextField("Flat")),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildTextField("Additional Notes", maxLines: 3),
       ],
     );
   }
 
+  Widget _buildTextField(String label, {int maxLines = 1}) {
+    return TextField(
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        // The AppTheme already defines borders, colors, and padding
+        // so we don't need manual decoration here unless overriding.
+        alignLabelWithHint: maxLines > 1,
+      ),
+    );
+  }
+
+  Future<void> _handlePlaceOrder() async {
+    setState(() => _isLoading = true);
+
+    // Simulate API call
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+      _showSuccessDialog();
+    }
+  }
+
   void _showSuccessDialog() {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
-        backgroundColor: const Color(0xFF15202B),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Colors.white),
-        ),
+        backgroundColor: theme.colorScheme.surface,
+        surfaceTintColor: theme.colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.green,
-                child: Icon(Icons.check, size: 40, color: Colors.white),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Order placed successfully",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  size: 48,
+                  color: Colors.green,
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
-                "Order ID: 22158112387",
-                style: TextStyle(color: Colors.white70),
+              const SizedBox(height: 24),
+              Text(
+                "Order Placed!",
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Close dialog
-                  Navigator.pop(context); // Close Checkout
-                  Navigator.pop(context); // Close Cart (Back to home)
-                },
-                child: const Text(
-                  "Back to Home",
-                  style: TextStyle(color: Colors.white),
+              const SizedBox(height: 8),
+              Text(
+                "Order ID: #2215811",
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    // Pop Dialog
+                    Navigator.pop(context);
+                    // Pop Checkout
+                    Navigator.pop(context);
+                    // Pop Cart (to get back to home/products)
+                    // Note: In real app, consider using context.goNamed(AppRoutes.home)
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text("Back to Shopping"),
                 ),
               ),
             ],

@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+// Note: Ensure your AppLocalizations import is correct based on your project structure
+// usually: import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/user/cart/cart.dart';
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/user/cart/presentation/all_orders_screen.dart';
 import 'package:mens/features/user/cart/presentation/checkout_screen.dart';
+import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
 
-class CartScreen extends StatefulWidget {
+class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
 
   @override
-  State<CartScreen> createState() => _CartScreenState();
+  ConsumerState<CartScreen> createState() => _CartScreenState();
 }
 
-class _CartScreenState extends State<CartScreen> {
+class _CartScreenState extends ConsumerState<CartScreen> {
   final _repo = CartRepository.instance;
 
   void _increment(int index) {
@@ -42,19 +47,22 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = ref.watch(l10nProvider);
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
+        title: Text(l10n.cart),
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const AllOrdersScreen()),
             ),
-            icon: Icon(Icons.receipt_long, color: theme.colorScheme.onSurface),
+            icon: Icon(Icons.receipt_long, color: Colors.white),
             label: Text(
-              "Orders",
-              style: TextStyle(color: theme.colorScheme.onSurface),
+              l10n.cartOrders, // Localized
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -63,14 +71,16 @@ class _CartScreenState extends State<CartScreen> {
         valueListenable: _repo.items,
         builder: (context, items, _) {
           return items.isEmpty
-              ? _buildEmptyState(theme)
-              : _buildCartList(theme, items);
+              // Pass l10n to helper methods
+              ? _buildEmptyState(theme, l10n)
+              : _buildCartList(theme, l10n, items);
         },
       ),
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
+  // Updated signature to accept l10n
+  Widget _buildEmptyState(ThemeData theme, dynamic l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -82,7 +92,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
           const SizedBox(height: 18),
           Text(
-            "Your cart is empty",
+            l10n.cartEmptyTitle, // Localized
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
               color: theme.colorScheme.onSurface,
@@ -91,9 +101,9 @@ class _CartScreenState extends State<CartScreen> {
           const SizedBox(height: 28),
           ElevatedButton.icon(
             icon: const Icon(Icons.storefront_outlined),
-            label: Text("Start Shopping"),
+            label: Text(l10n.cartStartShopping), // Localized
             onPressed: () {
-              context.go(AppRoutes.adminProducts);
+              ref.read(adminNavIndexProvider.notifier).state = 0;
             },
           ),
         ],
@@ -101,7 +111,12 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildCartList(ThemeData theme, List<CartItem> cartItems) {
+  // Updated signature to accept l10n
+  Widget _buildCartList(
+    ThemeData theme,
+    dynamic l10n,
+    List<CartItem> cartItems,
+  ) {
     final total = cartItems.fold<double>(0, (s, e) => s + e.subtotal);
 
     return Column(
@@ -123,12 +138,16 @@ class _CartScreenState extends State<CartScreen> {
                     color: Colors.redAccent.withOpacity(0.06),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.delete_outline, color: Colors.redAccent),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                  ),
                 ),
                 onDismissed: (_) {
                   _removeItem(index);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Removed "${item.title}"')),
+                    // Localized with parameter
+                    SnackBar(content: Text(l10n.cartItemRemoved(item.title))),
                   );
                 },
                 child: Container(
@@ -178,7 +197,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              '\${item.price.toStringAsFixed(2)}',
+                              '\$${item.price.toStringAsFixed(2)}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(
                                   0.7,
@@ -190,7 +209,10 @@ class _CartScreenState extends State<CartScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Subtotal: \${item.subtotal.toStringAsFixed(2)}',
+                                  // Localized with parameter
+                                  l10n.cartItemSubtotal(
+                                    item.subtotal.toStringAsFixed(2),
+                                  ),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurface
                                         .withOpacity(0.6),
@@ -217,24 +239,14 @@ class _CartScreenState extends State<CartScreen> {
                                       ),
                                       child: Text(
                                         '${item.quantity}',
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(
-                                              color:
-                                                  theme.colorScheme.onSurface,
-                                            ),
+                                        style: theme.textTheme.bodyMedium,
                                       ),
                                     ),
                                     GestureDetector(
                                       onTap: () => _increment(index),
                                       child: CircleAvatar(
                                         radius: 14,
-                                        backgroundColor:
-                                            theme.colorScheme.primary,
-                                        child: Icon(
-                                          Icons.add,
-                                          size: 16,
-                                          color: theme.colorScheme.onPrimary,
-                                        ),
+                                        child: Icon(Icons.add, size: 16),
                                       ),
                                     ),
                                   ],
@@ -266,14 +278,14 @@ class _CartScreenState extends State<CartScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Total',
+                      l10n.cartTotal, // Localized
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      '\${total.toStringAsFixed(2)}',
+                      '\$${total.toStringAsFixed(2)}',
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: theme.colorScheme.onSurface,
                       ),
@@ -284,8 +296,6 @@ class _CartScreenState extends State<CartScreen> {
               const SizedBox(width: 12),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 14,
@@ -295,7 +305,6 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 onPressed: () {
-                  // go to checkout
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -303,7 +312,13 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   );
                 },
-                child: Text('Checkout', style: theme.textTheme.bodyLarge),
+                child: Text(
+                  l10n.cartCheckout,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ), // Localized
               ),
               const SizedBox(width: 8),
               IconButton(
@@ -311,18 +326,16 @@ class _CartScreenState extends State<CartScreen> {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (_) => AlertDialog(
-                      title: const Text('Clear cart'),
-                      content: const Text(
-                        'Are you sure you want to remove all items from the cart?',
-                      ),
+                      title: Text(l10n.cartClearDialogTitle), // Localized
+                      content: Text(l10n.cartClearDialogContent), // Localized
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
+                          child: Text(l10n.cartClearDialogCancel), // Localized
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Clear'),
+                          child: Text(l10n.cartClearDialogConfirm), // Localized
                         ),
                       ],
                     ),
@@ -341,9 +354,5 @@ class _CartScreenState extends State<CartScreen> {
         ),
       ],
     );
-  }
-
-  Widget _iconBtn(IconData icon, VoidCallback onTap) {
-    return const SizedBox.shrink();
   }
 }

@@ -182,7 +182,7 @@
     "loadingMore": "Loading more...",
     "loadMore": "Load more",
     "noMoreItems": "No more items",
-    "allBrandsTitle": "All Brands/Sellers",
+    "allBrandsTitle": "Brands",
     "searchHint": "Search",
     "allCategories": "All",
     "noBrandsFound": "No brands found",
@@ -221,5 +221,98 @@
     "errorUpdatingProduct": "Error updating product",
     "tapToSetPrimary": "Tap an image to set it as primary",
     "systemTheme": "System Default",
-    "errorCouldNotLaunchUrl": "Could not open this link"
+    "errorCouldNotLaunchUrl": "Could not open this link",
+    "cartOrders": "Orders",
+  "cartEmptyTitle": "Your cart is empty",
+  "cartStartShopping": "Start Shopping",
+  "cartItemRemoved": "Removed \"{title}\"",
+  "@cartItemRemoved": {
+    "description": "Message shown when an item is removed from cart",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "cartItemSubtotal": "Subtotal: ${price}",
+  "@cartItemSubtotal": {
+    "description": "Subtotal for a specific item row",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cartTotal": "Total",
+  "cartCheckout": "Checkout",
+  "cartClearDialogTitle": "Clear cart",
+  "cartClearDialogContent": "Are you sure you want to remove all items from the cart?",
+  "cartClearDialogCancel": "Cancel",
+  "cartClearDialogConfirm": "Clear",
+  "ordersTitle": "Your Orders",
+  "orderDetailsTitle": "Order Details",
+  "orderItemsCount": "{count} Items",
+  "@orderItemsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "orderItemFormat": "{quantity} x {title}",
+  "@orderItemFormat": {
+    "placeholders": {
+      "quantity": { "type": "int" },
+      "title": { "type": "String" }
+    }
+  },
+  "orderTotalPrice": "Total Price: {price}",
+  "@orderTotalPrice": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+  "orderTotalLabel": "Total : {price}",
+  "@orderTotalLabel": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+  "orderStatusLabel": "Order Status: {status}",
+  "@orderStatusLabel": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "statusLabel": "Status : {status}",
+  "@statusLabel": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "statusDelivered": "Delivered",
+  "orderIdLabel": "Order ID: {id}",
+  "@orderIdLabel": {
+    "placeholders": {
+      "id": { "type": "String" }
+    }
+  },
+  "paymentMethodLabel": "Payment Method : {method}",
+  "@paymentMethodLabel": {
+    "placeholders": {
+      "method": { "type": "String" }
+    }
+  },
+  "paymentMethodCash": "Cash",
+  "shippingAddressLabel": "Shipping Address : {address}",
+  "@shippingAddressLabel": {
+    "placeholders": {
+      "address": { "type": "String" }
+    }
+  },
+  "cart": "Cart",
+  "tryOnTitle": "Try On",
+  "underConstructionTitle": "Under Construction",
+  "comingSoonMessage": "This feature is coming soon.",
+  "brandOwner": "Owner",
+  "brandProducts": "Products",
+  "noProductsFound": "No products found for this brand"
 }

@@ -6,34 +6,43 @@ import 'package:mens/features/seller/Products/domain/product.dart';
 import 'package:mens/shared/models/paginated_response.dart';
 import 'package:mens/shared/models/pagination_params.dart';
 
-abstract class AdminRepository {
+abstract class UserRepository {
   Future<List<Product>> getAllProducts();
+  
   Future<PaginatedResponse<Product>> getAllProductsPaginated({
     PaginationParams? pagination,
     String? categoryId,
     String? subCategoryId,
     String? storeId,
   });
+
   Future<List<Brand>> getAllBrands();
+
   Future<PaginatedResponse<Brand>> getAllBrandsPaginated({
     PaginationParams? pagination,
     String? categoryId,
   });
+
+  // --- NEW METHOD ---
+  Future<PaginatedResponse<Product>> getProductsByBrandPaginated({
+    required int brandId,
+    required PaginationParams pagination,
+  });
 }
 
-final adminRepositoryProvider = Provider<AdminRepository>((ref) {
+final adminRepositoryProvider = Provider<UserRepository>((ref) {
   final dio = ref.watch(apiServiceProvider);
   return AdminRepositoryImpl(dio);
 });
 
-class AdminRepositoryImpl implements AdminRepository {
+class AdminRepositoryImpl implements UserRepository {
   final Dio _dio;
   AdminRepositoryImpl(this._dio);
 
   @override
   Future<List<Product>> getAllProducts() async {
     try {
-      final response = await _dio.get('/products'); // Fetches all products
+      final response = await _dio.get('/products');
       if (response.statusCode == 200 && response.data['items'] is List) {
         final List<dynamic> data = response.data['items'];
         return data.map((json) => Product.fromJson(json)).toList();
@@ -58,17 +67,9 @@ class AdminRepositoryImpl implements AdminRepository {
       'pageSize': paginationParams.pageSize,
     };
 
-    if (categoryId != null) {
-      queryParams['categoryId'] = categoryId;
-    }
-
-    if (subCategoryId != null) {
-      queryParams['subCategoryId'] = subCategoryId;
-    }
-
-    if (storeId != null) {
-      queryParams['storeId'] = storeId;
-    }
+    if (categoryId != null) queryParams['categoryId'] = categoryId;
+    if (subCategoryId != null) queryParams['subCategoryId'] = subCategoryId;
+    if (storeId != null) queryParams['storeId'] = storeId;
 
     try {
       final response = await _dio.get(
@@ -77,71 +78,66 @@ class AdminRepositoryImpl implements AdminRepository {
       );
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
-        final responseData = response.data as Map<String, dynamic>;
-
-        // Use the typed factory method to avoid type inference issues
         return PaginatedResponse.fromJsonTyped<Product>(
-          responseData,
+          response.data as Map<String, dynamic>,
           Product.fromJson,
         );
       }
 
-      // If the server returned a 500 or unexpected structure, and we have a storeId,
-      // attempt a fallback to the store-scoped endpoint which some backends require.
+      // Fallback logic for Store endpoints
       if ((response.statusCode == 500 || response.statusCode == null) &&
           storeId != null) {
-        try {
-          print(
-            'AdminRepository: /products returned ${response.statusCode}; trying /stores/$storeId/products fallback.',
-          );
-          final fallback = await _dio.get(
-            '/stores/$storeId/products',
-            queryParameters: queryParams,
-          );
-          if (fallback.statusCode == 200 &&
-              fallback.data is Map<String, dynamic>) {
-            return PaginatedResponse.fromJsonTyped<Product>(
-              fallback.data as Map<String, dynamic>,
-              Product.fromJson,
-            );
-          }
-        } catch (_) {
-          // Ignore and fall through to throw below
-        }
+        return _attemptStoreFallback(storeId, queryParams);
       }
 
       throw Exception('Failed to load all products');
     } on DioException catch (e) {
-      // If Dio raised and server returned 500, try fallback to store-scoped endpoint
-      final dioErr = e as DioException?;
-      final status = dioErr?.response?.statusCode;
-      if (status == 500 && storeId != null) {
+      // Fallback on Dio Error (500)
+      if (e.response?.statusCode == 500 && storeId != null) {
         try {
-          print(
-            'AdminRepository: DioException with 500; retrying /stores/$storeId/products',
-          );
-          final fallback = await _dio.get(
-            '/stores/$storeId/products',
-            queryParameters: queryParams,
-          );
-          if (fallback.statusCode == 200 &&
-              fallback.data is Map<String, dynamic>) {
-            return PaginatedResponse.fromJsonTyped<Product>(
-              fallback.data as Map<String, dynamic>,
-              Product.fromJson,
-            );
-          }
+          return await _attemptStoreFallback(storeId, queryParams);
         } catch (_) {
-          // swallow and rethrow network error below
+          // fall through
         }
       }
       throw Exception('Network error fetching all products.');
     }
   }
 
+  // --- NEW IMPLEMENTATION ---
+  @override
+  Future<PaginatedResponse<Product>> getProductsByBrandPaginated({
+    required int brandId,
+    required PaginationParams pagination,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{
+        'storeId': brandId, // Maps brandId to storeId
+        'page': pagination.page,
+        'pageSize': pagination.pageSize,
+      };
+
+      final response = await _dio.get(
+        '/products',
+        queryParameters: queryParams,
+      );
+
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        return PaginatedResponse.fromJsonTyped<Product>(
+          response.data as Map<String, dynamic>,
+          Product.fromJson,
+        );
+      }
+      
+      throw Exception('Failed to load products for brand $brandId');
+    } on DioException catch (e) {
+      // Optional: Add specific error handling or fallback here if needed
+      throw Exception('Network error fetching brand products: ${e.message}');
+    }
+  }
+
   @override
   Future<List<Brand>> getAllBrands() async {
-    // NOTE: This is an assumed endpoint. Replace with your actual API endpoint.
     try {
       final response = await _dio.get('/stores');
       if (response.statusCode == 200 && response.data['items'] is List) {
@@ -174,10 +170,8 @@ class AdminRepositoryImpl implements AdminRepository {
       final response = await _dio.get('/stores', queryParameters: queryParams);
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
-        final responseData = response.data as Map<String, dynamic>;
-
         return PaginatedResponse.fromJsonTyped<Brand>(
-          responseData,
+          response.data as Map<String, dynamic>,
           Brand.fromJson,
         );
       }
@@ -185,6 +179,25 @@ class AdminRepositoryImpl implements AdminRepository {
     } on DioException {
       throw Exception('Network error fetching all brands.');
     }
+  }
+
+  // Helper method to reduce code duplication for the store fallback logic
+  Future<PaginatedResponse<Product>> _attemptStoreFallback(
+    String storeId,
+    Map<String, dynamic> queryParams,
+  ) async {
+    print('AdminRepository: Attempting fallback /stores/$storeId/products');
+    final fallback = await _dio.get(
+      '/stores/$storeId/products',
+      queryParameters: queryParams,
+    );
+    if (fallback.statusCode == 200 && fallback.data is Map<String, dynamic>) {
+      return PaginatedResponse.fromJsonTyped<Product>(
+        fallback.data as Map<String, dynamic>,
+        Product.fromJson,
+      );
+    }
+    throw Exception('Fallback failed');
   }
 }
 

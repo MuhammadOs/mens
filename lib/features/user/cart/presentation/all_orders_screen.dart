@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/user/cart/presentation/order_details_screen.dart';
 
-class AllOrdersScreen extends StatelessWidget {
+class AllOrdersScreen extends ConsumerWidget {
   const AllOrdersScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = ref.watch(l10nProvider);
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(title: const Text("Your Orders")),
+      appBar: AppBar(title: Text(l10n.ordersTitle)), // Localized
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 4,
@@ -25,7 +29,7 @@ class AllOrdersScreen extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 20),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.white),
+                border: Border.all(color: theme.colorScheme.onSurface),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Stack(
@@ -34,39 +38,28 @@ class AllOrdersScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "1 x Product Title",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      const Text(
-                        "1 x Product Title",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      const Text(
-                        "1 x Product Title",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      const Text(
-                        "......",
-                        style: TextStyle(color: Colors.white70),
-                      ),
+                      // Localized Item format
+                      Text(l10n.orderItemFormat(1, "Product Title")),
+                      Text(l10n.orderItemFormat(1, "Product Title")),
+                      Text(l10n.orderItemFormat(1, "Product Title")),
+                      const Text("......"),
                       const SizedBox(height: 10),
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Total Price: 89.97 \$",
-                            style: TextStyle(color: Colors.white),
+                            // Localized Total Price
+                            l10n.orderTotalPrice("89.97 \$"),
                           ),
                           Text(
-                            "Order Status: Delivered",
-                            style: TextStyle(color: Colors.white),
+                            // Localized Status
+                            l10n.orderStatusLabel(l10n.statusDelivered),
                           ),
                         ],
                       ),
-                      const Text(
-                        "Order ID: 16541651",
-                        style: TextStyle(color: Colors.white70),
+                      Text(
+                        // Localized ID
+                        l10n.orderIdLabel("16541651"),
                       ),
                     ],
                   ),
@@ -76,13 +69,10 @@ class AllOrdersScreen extends StatelessWidget {
                     top: -25,
                     child: CircleAvatar(
                       radius: 15,
-                      backgroundColor: Colors.white,
+                      backgroundColor: theme.colorScheme.primary,
                       child: Text(
                         "${index + 1}",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

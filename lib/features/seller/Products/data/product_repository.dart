@@ -74,7 +74,6 @@ class ProductRepositoryImpl implements ProductRepository {
     final userProfile = _ref.read(authNotifierProvider).asData?.value;
     final storeId = userProfile?.store?.id;
     final role = userProfile?.role;
-
     if (storeId == null) {
       throw Exception('Store ID not found. Cannot fetch products.');
     }
@@ -107,7 +106,7 @@ class ProductRepositoryImpl implements ProductRepository {
                 .toList();
           }
         }
-        // For admin, keep the storeName from the product data
+        // For user, keep the storeName from the product data
 
         return products;
       } else {
@@ -135,7 +134,6 @@ class ProductRepositoryImpl implements ProductRepository {
     final userProfile = _ref.read(authNotifierProvider).asData?.value;
     final storeId = userProfile?.store?.id;
     final role = userProfile?.role;
-
     if (storeId == null) {
       throw Exception('Store ID not found. Cannot fetch products.');
     }
@@ -177,7 +175,7 @@ class ProductRepositoryImpl implements ProductRepository {
                 .toList();
           }
         }
-        // For admin, keep the storeName from the product data
+        // For user, keep the storeName from the product data
 
         return PaginatedResponse<Product>(
           items: items,

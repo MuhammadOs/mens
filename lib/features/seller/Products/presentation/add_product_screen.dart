@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart'; // Required for image picking
 // ✅ 1. Import fluttertoast and localization
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:mens/features/user/presentation/notifiers/paginated_admin_products_notifier.dart';
+import 'package:mens/features/user/products/presentation/notifiers/paginated_user_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/add_product_notifier.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';
@@ -86,7 +86,7 @@ class AddProductScreen extends HookConsumerWidget {
           Future.microtask(() {
             ref.invalidate(productsProvider);
             ref.read(paginatedProductsProvider.notifier).refresh();
-            ref.read(paginatedAdminProductsProvider.notifier).refresh();
+            ref.read(paginatedUserProductsProvider.notifier).refresh();
           });
         }
       } else if (next is AsyncError && !(next.isLoading)) {

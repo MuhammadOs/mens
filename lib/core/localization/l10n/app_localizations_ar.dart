@@ -291,7 +291,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get additionalImages => 'صور إضافية';
 
   @override
-  String get ordersTitle => 'الطلبات';
+  String get ordersTitle => 'طلباتك';
 
   @override
   String get ordersTotal => 'الإجمالي';
@@ -419,7 +419,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorDeletingProduct =>
-      'Failed to delete product. Please try again.';
+      'خطأ في حذف المنتج. يرجى المحاولة مرة اخرى';
 
   @override
   String get errorLoadingProduct => 'Failed to load product. Please try again.';
@@ -432,7 +432,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorUploadingImage => 'Failed to upload image. Please try again.';
 
   @override
-  String get somethingWentWrong => 'Something went wrong. Please try again.';
+  String get somethingWentWrong => 'حدث خطأ. يرجى المحاولة مرة اخرى';
 
   @override
   String get pleaseAddMainImage => 'الرجاء إضافة صورة رئيسية للمنتج';
@@ -499,7 +499,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noMoreItems => 'لا توجد عناصر أخرى';
 
   @override
-  String get allBrandsTitle => 'جميع العلامات التجارية/البائعين';
+  String get allBrandsTitle => 'العلامات التجارية';
 
   @override
   String get searchHint => 'بحث';
@@ -517,7 +517,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get errorPrefix => 'خطأ: ';
 
   @override
-  String get noProductsFound => 'لم يتم العثور على منتجات';
+  String get noProductsFound => 'لا توجد منتجات لهذه العلامة التجارية';
 
   @override
   String get replySentSuccess => 'تم إرسال الرد بنجاح!';
@@ -596,4 +596,114 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorCouldNotLaunchUrl => 'حدث خطأ أثناء فتح هذا الرابط';
+
+  @override
+  String get cartOrders => 'الطلبات';
+
+  @override
+  String get cartEmptyTitle => 'عربة التسوق فارغة';
+
+  @override
+  String get cartStartShopping => 'ابدأ التسوق';
+
+  @override
+  String cartItemRemoved(String title) {
+    return 'تم حذف \"$title\"';
+  }
+
+  @override
+  String cartItemSubtotal(String price) {
+    return 'المجموع: \$$price';
+  }
+
+  @override
+  String get cartTotal => 'الإجمالي';
+
+  @override
+  String get cartCheckout => 'إتمام الشراء';
+
+  @override
+  String get cartClearDialogTitle => 'إفراغ العربة';
+
+  @override
+  String get cartClearDialogContent =>
+      'هل أنت متأكد من رغبتك في إزالة جميع العناصر من العربة؟';
+
+  @override
+  String get cartClearDialogCancel => 'إلغاء';
+
+  @override
+  String get cartClearDialogConfirm => 'مسح';
+
+  @override
+  String get orderDetailsTitle => 'تفاصيل الطلب';
+
+  @override
+  String orderItemsCount(int count) {
+    return '$count عناصر';
+  }
+
+  @override
+  String orderItemFormat(int quantity, String title) {
+    return '$quantity x $title';
+  }
+
+  @override
+  String orderTotalPrice(String price) {
+    return 'إجمالي السعر: $price';
+  }
+
+  @override
+  String orderTotalLabel(String price) {
+    return 'الإجمالي : $price';
+  }
+
+  @override
+  String orderStatusLabel(String status) {
+    return 'حالة الطلب: $status';
+  }
+
+  @override
+  String statusLabel(String status) {
+    return 'الحالة : $status';
+  }
+
+  @override
+  String get statusDelivered => 'تم التوصيل';
+
+  @override
+  String orderIdLabel(String id) {
+    return 'رقم الطلب: $id';
+  }
+
+  @override
+  String paymentMethodLabel(String method) {
+    return 'طريقة الدفع : $method';
+  }
+
+  @override
+  String get paymentMethodCash => 'نقداً';
+
+  @override
+  String shippingAddressLabel(String address) {
+    return 'عنوان الشحن : $address';
+  }
+
+  @override
+  String get cart => 'عربة التسوق';
+
+  @override
+  String get tryOnTitle => 'تجربة الملابس';
+
+  @override
+  String get underConstructionTitle => 'قيد التطوير';
+
+  @override
+  String get comingSoonMessage => 'هذه الميزة ستتوفر قريباً.';
+
+  @override
+  String get brandOwner => 'المالك';
+
+  @override
+  String get brandProducts => 'المنتجات';
 }

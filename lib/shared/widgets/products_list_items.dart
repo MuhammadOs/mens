@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
-import 'package:mens/features/user/presentation/notifiers/paginated_admin_products_notifier.dart';
+import 'package:mens/features/user/products/presentation/notifiers/paginated_user_products_notifier.dart';
 import 'package:mens/features/seller/Products/data/product_repository.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
 import 'package:mens/features/seller/Products/presentation/notifiers/paginated_products_notifier.dart';
@@ -90,7 +90,7 @@ class ProductListItem extends HookConsumerWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                ProductDetailsScreen(product: product, isAdmin: false),
+                ProductDetailsScreen(product: product),
           ),
         );
       },
@@ -254,7 +254,7 @@ class ProductListItem extends HookConsumerWidget {
                                   .read(paginatedProductsProvider.notifier)
                                   .refresh();
                               ref
-                                  .read(paginatedAdminProductsProvider.notifier)
+                                  .read(paginatedUserProductsProvider.notifier)
                                   .refresh();
 
                               // SnackBar removed: productDeleted notification suppressed.

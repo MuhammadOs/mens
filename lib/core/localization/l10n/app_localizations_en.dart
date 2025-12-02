@@ -290,7 +290,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get additionalImages => 'Additional Images';
 
   @override
-  String get ordersTitle => 'Orders';
+  String get ordersTitle => 'Your Orders';
 
   @override
   String get ordersTotal => 'Total';
@@ -498,7 +498,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noMoreItems => 'No more items';
 
   @override
-  String get allBrandsTitle => 'All Brands/Sellers';
+  String get allBrandsTitle => 'Brands';
 
   @override
   String get searchHint => 'Search';
@@ -516,7 +516,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorPrefix => 'Error: ';
 
   @override
-  String get noProductsFound => 'No products found';
+  String get noProductsFound => 'No products found for this brand';
 
   @override
   String get replySentSuccess => 'Reply sent successfully!';
@@ -596,4 +596,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorCouldNotLaunchUrl => 'Could not open this link';
+
+  @override
+  String get cartOrders => 'Orders';
+
+  @override
+  String get cartEmptyTitle => 'Your cart is empty';
+
+  @override
+  String get cartStartShopping => 'Start Shopping';
+
+  @override
+  String cartItemRemoved(String title) {
+    return 'Removed \"$title\"';
+  }
+
+  @override
+  String cartItemSubtotal(String price) {
+    return 'Subtotal: \$$price';
+  }
+
+  @override
+  String get cartTotal => 'Total';
+
+  @override
+  String get cartCheckout => 'Checkout';
+
+  @override
+  String get cartClearDialogTitle => 'Clear cart';
+
+  @override
+  String get cartClearDialogContent =>
+      'Are you sure you want to remove all items from the cart?';
+
+  @override
+  String get cartClearDialogCancel => 'Cancel';
+
+  @override
+  String get cartClearDialogConfirm => 'Clear';
+
+  @override
+  String get orderDetailsTitle => 'Order Details';
+
+  @override
+  String orderItemsCount(int count) {
+    return '$count Items';
+  }
+
+  @override
+  String orderItemFormat(int quantity, String title) {
+    return '$quantity x $title';
+  }
+
+  @override
+  String orderTotalPrice(String price) {
+    return 'Total Price: $price';
+  }
+
+  @override
+  String orderTotalLabel(String price) {
+    return 'Total : $price';
+  }
+
+  @override
+  String orderStatusLabel(String status) {
+    return 'Order Status: $status';
+  }
+
+  @override
+  String statusLabel(String status) {
+    return 'Status : $status';
+  }
+
+  @override
+  String get statusDelivered => 'Delivered';
+
+  @override
+  String orderIdLabel(String id) {
+    return 'Order ID: $id';
+  }
+
+  @override
+  String paymentMethodLabel(String method) {
+    return 'Payment Method : $method';
+  }
+
+  @override
+  String get paymentMethodCash => 'Cash';
+
+  @override
+  String shippingAddressLabel(String address) {
+    return 'Shipping Address : $address';
+  }
+
+  @override
+  String get cart => 'Cart';
+
+  @override
+  String get tryOnTitle => 'Try On';
+
+  @override
+  String get underConstructionTitle => 'Under Construction';
+
+  @override
+  String get comingSoonMessage => 'This feature is coming soon.';
+
+  @override
+  String get brandOwner => 'Owner';
+
+  @override
+  String get brandProducts => 'Products';
 }

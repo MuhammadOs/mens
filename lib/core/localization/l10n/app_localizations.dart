@@ -659,7 +659,7 @@ abstract class AppLocalizations {
   /// No description provided for @ordersTitle.
   ///
   /// In en, this message translates to:
-  /// **'Orders'**
+  /// **'Your Orders'**
   String get ordersTitle;
 
   /// No description provided for @ordersTotal.
@@ -1055,7 +1055,7 @@ abstract class AppLocalizations {
   /// No description provided for @allBrandsTitle.
   ///
   /// In en, this message translates to:
-  /// **'All Brands/Sellers'**
+  /// **'Brands'**
   String get allBrandsTitle;
 
   /// No description provided for @searchHint.
@@ -1091,7 +1091,7 @@ abstract class AppLocalizations {
   /// No description provided for @noProductsFound.
   ///
   /// In en, this message translates to:
-  /// **'No products found'**
+  /// **'No products found for this brand'**
   String get noProductsFound;
 
   /// No description provided for @replySentSuccess.
@@ -1249,6 +1249,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open this link'**
   String get errorCouldNotLaunchUrl;
+
+  /// No description provided for @cartOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get cartOrders;
+
+  /// No description provided for @cartEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmptyTitle;
+
+  /// No description provided for @cartStartShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Shopping'**
+  String get cartStartShopping;
+
+  /// Message shown when an item is removed from cart
+  ///
+  /// In en, this message translates to:
+  /// **'Removed \"{title}\"'**
+  String cartItemRemoved(String title);
+
+  /// Subtotal for a specific item row
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal: \${price}'**
+  String cartItemSubtotal(String price);
+
+  /// No description provided for @cartTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get cartTotal;
+
+  /// No description provided for @cartCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get cartCheckout;
+
+  /// No description provided for @cartClearDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cart'**
+  String get cartClearDialogTitle;
+
+  /// No description provided for @cartClearDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove all items from the cart?'**
+  String get cartClearDialogContent;
+
+  /// No description provided for @cartClearDialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cartClearDialogCancel;
+
+  /// No description provided for @cartClearDialogConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get cartClearDialogConfirm;
+
+  /// No description provided for @orderDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Details'**
+  String get orderDetailsTitle;
+
+  /// No description provided for @orderItemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Items'**
+  String orderItemsCount(int count);
+
+  /// No description provided for @orderItemFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{quantity} x {title}'**
+  String orderItemFormat(int quantity, String title);
+
+  /// No description provided for @orderTotalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Price: {price}'**
+  String orderTotalPrice(String price);
+
+  /// No description provided for @orderTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total : {price}'**
+  String orderTotalLabel(String price);
+
+  /// No description provided for @orderStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Status: {status}'**
+  String orderStatusLabel(String status);
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status : {status}'**
+  String statusLabel(String status);
+
+  /// No description provided for @statusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get statusDelivered;
+
+  /// No description provided for @orderIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order ID: {id}'**
+  String orderIdLabel(String id);
+
+  /// No description provided for @paymentMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method : {method}'**
+  String paymentMethodLabel(String method);
+
+  /// No description provided for @paymentMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentMethodCash;
+
+  /// No description provided for @shippingAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping Address : {address}'**
+  String shippingAddressLabel(String address);
+
+  /// No description provided for @cart.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get cart;
+
+  /// No description provided for @tryOnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try On'**
+  String get tryOnTitle;
+
+  /// No description provided for @underConstructionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Under Construction'**
+  String get underConstructionTitle;
+
+  /// No description provided for @comingSoonMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature is coming soon.'**
+  String get comingSoonMessage;
+
+  /// No description provided for @brandOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get brandOwner;
+
+  /// No description provided for @brandProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get brandProducts;
 }
 
 class _AppLocalizationsDelegate

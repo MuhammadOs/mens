@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mens/features/user/admin_repository.dart';
+import 'package:mens/features/user/user_repository.dart';
 import 'package:mens/features/user/brands/domain/brand.dart';
 import 'package:mens/shared/models/paginated_response.dart';
 import 'package:mens/shared/models/pagination_params.dart';
