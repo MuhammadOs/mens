@@ -67,7 +67,7 @@ class AppTheme {
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: _darkBlue,
-      selectionColor: _darkBlue.withOpacity(0.3),
+      selectionColor: _darkBlue.withValues(alpha: 0.3),
       selectionHandleColor: _darkBlue,
     ),
     textTheme: const TextTheme(
@@ -165,13 +165,13 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: _errorColor, width: 1.5),
       ),
-      labelStyle: TextStyle(color: _black.withOpacity(0.6)),
+      labelStyle: TextStyle(color: _black.withValues(alpha: 0.6)),
       floatingLabelStyle: const TextStyle(
         color: _mediumDarkBlue,
       ), // Floating label in accent color
-      hintStyle: TextStyle(color: _black.withOpacity(0.4)),
-      prefixIconColor: _darkBlue.withOpacity(0.7),
-      suffixIconColor: _darkBlue.withOpacity(0.7),
+      hintStyle: TextStyle(color: _black.withValues(alpha: 0.4)),
+      prefixIconColor: _darkBlue.withValues(alpha: 0.7),
+      suffixIconColor: _darkBlue.withValues(alpha: 0.7),
     ),
   );
 
@@ -223,7 +223,7 @@ class AppTheme {
     ),
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: _white,
-      selectionColor: _white.withOpacity(0.3),
+      selectionColor: _white.withValues(alpha: 0.3),
       selectionHandleColor: _white,
     ),
     textTheme: const TextTheme(
@@ -303,7 +303,7 @@ class AppTheme {
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(
-          color: _white.withOpacity(0.1),
+          color: _white.withValues(alpha: 0.1),
           width: 1.0,
         ), // Subtle light border
       ),
@@ -322,13 +322,13 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: _errorColor, width: 1.5),
       ),
-      labelStyle: TextStyle(color: _white.withOpacity(0.6)),
+      labelStyle: TextStyle(color: _white.withValues(alpha: 0.6)),
       floatingLabelStyle: const TextStyle(
         color: _white,
       ), // Floating label in accent color
-      hintStyle: TextStyle(color: _white.withOpacity(0.4)),
-      prefixIconColor: _white.withOpacity(0.7),
-      suffixIconColor: _white.withOpacity(0.7),
+      hintStyle: TextStyle(color: _white.withValues(alpha: 0.4)),
+      prefixIconColor: _white.withValues(alpha: 0.7),
+      suffixIconColor: _white.withValues(alpha: 0.7),
     ),
   );
 }

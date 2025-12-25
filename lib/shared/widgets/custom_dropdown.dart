@@ -30,8 +30,8 @@ class CustomDropdownField<T> extends StatelessWidget {
           labelText,
           style: theme.textTheme.titleMedium?.copyWith(
             color: isDisabled
-                ? theme.colorScheme.onSurface.withOpacity(0.5)
-                : theme.colorScheme.onSurface.withOpacity(0.9),
+                ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
+                : theme.colorScheme.onSurface.withValues(alpha: 0.9),
           ),
         ),
         const SizedBox(height: 8),
@@ -44,7 +44,7 @@ class CustomDropdownField<T> extends StatelessWidget {
           // Use the theme for consistent styling
           style: theme.textTheme.bodyLarge?.copyWith(
             color: isDisabled
-                ? theme.colorScheme.onSurface.withOpacity(0.5)
+                ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
                 : theme.colorScheme.onSurface,
           ),
           decoration: InputDecoration(
@@ -52,7 +52,7 @@ class CustomDropdownField<T> extends StatelessWidget {
             hintText: hintText,
             // Use the global input decoration theme
             fillColor: isDisabled
-                ? theme.colorScheme.surfaceContainerHighest.withOpacity(0.5)
+                ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
                 : theme.inputDecorationTheme.fillColor,
             filled: true,
             border: theme.inputDecorationTheme.border,
@@ -60,7 +60,7 @@ class CustomDropdownField<T> extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: isDisabled
-                    ? theme.colorScheme.outline.withOpacity(0.2)
+                    ? theme.colorScheme.outline.withValues(alpha: 0.2)
                     : theme.colorScheme.outline.withAlpha(50),
                 width: 1.0,
               ),
@@ -68,7 +68,7 @@ class CustomDropdownField<T> extends StatelessWidget {
             disabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: theme.colorScheme.outline.withOpacity(0.2),
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
                 width: 1.0,
               ),
             ),
@@ -83,9 +83,9 @@ class CustomDropdownField<T> extends StatelessWidget {
           // Background color of the dropdown menu itself
           dropdownColor: theme.colorScheme.surface,
           iconEnabledColor: isDisabled
-              ? theme.colorScheme.onSurface.withOpacity(0.3)
-              : theme.colorScheme.onSurface.withOpacity(0.7),
-          iconDisabledColor: theme.colorScheme.onSurface.withOpacity(0.3),
+              ? theme.colorScheme.onSurface.withValues(alpha: 0.3)
+              : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          iconDisabledColor: theme.colorScheme.onSurface.withValues(alpha: 0.3),
         ),
       ],
     );

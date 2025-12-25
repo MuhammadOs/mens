@@ -1,5 +1,6 @@
 import 'dart:io'; // Required for File
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -129,7 +130,7 @@ class EditProductScreen extends HookConsumerWidget {
                   ),
                 )
               : IconButton(
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(FontAwesomeIcons.check),
                   onPressed: () async {
                     // --- SAVE LOGIC ---
                     final currentProductData = productAsyncValue.value;
@@ -320,7 +321,7 @@ class EditProductScreen extends HookConsumerWidget {
                                 ),
                               ),
                               child: Icon(
-                                Icons.add_photo_alternate_outlined,
+                                FontAwesomeIcons.images,
                                 color: theme.colorScheme.primary,
                                 size: 30,
                               ),
@@ -387,7 +388,7 @@ class EditProductScreen extends HookConsumerWidget {
                                             height: 94,
                                             color: Colors.grey[300],
                                             child: Icon(
-                                              Icons.broken_image,
+                                              FontAwesomeIcons.image,
                                               color: Colors.grey[600],
                                             ),
                                           ),
@@ -406,7 +407,7 @@ class EditProductScreen extends HookConsumerWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
-                                  Icons.close,
+                                  FontAwesomeIcons.xmark,
                                   color: Colors.white,
                                   size: 14,
                                 ),

@@ -1,27 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/features/user/cart/cart.dart';
+import 'package:mens/features/user/orders/data/order_repository.dart';
+import 'package:mens/features/user/orders/domain/order_models.dart';
 import 'package:mens/shared/widgets/app_back_button.dart';
 
-class CheckoutScreen extends StatefulWidget {
+class CheckoutScreen extends ConsumerStatefulWidget {
   final List<CartItem> items;
   const CheckoutScreen({super.key, required this.items});
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   int _paymentMethod = 0; // 0 = Cash, 1 = Card
   bool _isLoading = false;
 
+  // Controllers for address
+  final _cityController = TextEditingController();
+  final _streetController = TextEditingController();
+  final _buildingController = TextEditingController();
+  final _floorController = TextEditingController();
+  final _flatController = TextEditingController();
+  final _notesController = TextEditingController();
+
   double get total => widget.items.fold(0, (sum, item) => sum + item.subtotal);
+
+  @override
+  void dispose() {
+    _cityController.dispose();
+    _streetController.dispose();
+    _buildingController.dispose();
+    _floorController.dispose();
+    _flatController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      // Background color handled by theme
       appBar: AppBar(
         title: const Text("Checkout"),
         centerTitle: true,
@@ -29,7 +51,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           padding: const EdgeInsets.all(8.0),
           child: AppBackButton(
             outlined: true,
-            // Ensure visibility on AppBar background
             iconColor: theme.appBarTheme.foregroundColor ?? Colors.white,
             onPressed: () => Navigator.of(context).pop(),
           ),
@@ -64,6 +85,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 2,
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: _isLoading
                     ? SizedBox(
@@ -74,7 +100,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           color: theme.colorScheme.onPrimary,
                         ),
                       )
-                    : const Text("Place Order", style: TextStyle(fontSize: 18)),
+                    : const Text(
+                        "Place Order",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 20),
@@ -104,7 +136,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
@@ -121,7 +153,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -157,7 +189,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
           ),
-          Divider(color: theme.colorScheme.outline.withOpacity(0.2)),
+          Divider(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -187,7 +219,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -196,7 +228,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         ],
       ),
-      child: Column(children: [_buildRadioTile(theme, 0, "Cash", Icons.money)]),
+      child: Column(
+        children: [
+          _buildRadioTile(theme, 0, "Cash", FontAwesomeIcons.moneyBill),
+          Divider(height: 1, color: theme.dividerColor.withValues(alpha: 0.5)),
+          _buildRadioTile(theme, 1, "Credit Card", FontAwesomeIcons.creditCard),
+        ],
+      ),
     );
   }
 
@@ -217,7 +255,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           Icon(
             icon,
             size: 20,
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
           ),
           const SizedBox(width: 12),
           Text(
@@ -232,58 +270,114 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildShippingForm(ThemeData theme) {
-    // We wrap fields in a container just for layout,
-    // the styling comes from the InputDecorationTheme in AppTheme
     return Column(
       children: [
         Row(
           children: [
-            Expanded(child: _buildTextField("City")),
+            Expanded(child: _buildTextField("City", _cityController)),
             const SizedBox(width: 12),
-            Expanded(child: _buildTextField("Street")),
+            Expanded(child: _buildTextField("Street", _streetController)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildTextField("Building")),
+            Expanded(child: _buildTextField("Building", _buildingController)),
             const SizedBox(width: 12),
-            Expanded(child: _buildTextField("Floor")),
+            Expanded(child: _buildTextField("Floor", _floorController)),
             const SizedBox(width: 12),
-            Expanded(child: _buildTextField("Flat")),
+            Expanded(child: _buildTextField("Flat", _flatController)),
           ],
         ),
         const SizedBox(height: 12),
-        _buildTextField("Additional Notes", maxLines: 3),
+        _buildTextField("Additional Notes", _notesController, maxLines: 3),
       ],
     );
   }
 
-  Widget _buildTextField(String label, {int maxLines = 1}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+  }) {
     return TextField(
+      controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
-        // The AppTheme already defines borders, colors, and padding
-        // so we don't need manual decoration here unless overriding.
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         alignLabelWithHint: maxLines > 1,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
     );
   }
 
   Future<void> _handlePlaceOrder() async {
+    // Basic validation
+    if (_cityController.text.isEmpty || _streetController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Please fill in the required address fields (City, Street)",
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final repository = ref.read(orderRepositoryProvider);
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-      _showSuccessDialog();
+      // Construct Shipping Address String
+      final shippingAddress =
+          "${_cityController.text}, ${_streetController.text}, Bldg: ${_buildingController.text}, Floor: ${_floorController.text}, Flat: ${_flatController.text}";
+
+      // Map CartItems to OrderItemRequests
+      final orderItems = widget.items
+          .map(
+            (item) => OrderItemRequest(
+              productId:
+                  int.tryParse(item.id.toString()) ??
+                  0, // Assuming item.id is usable as productId
+              quantity: item.quantity,
+            ),
+          )
+          .toList();
+
+      final request = OrderRequest(
+        storeId: 0, // Default as per user request
+        items: orderItems,
+        paymentMethod: _paymentMethod == 0 ? "Cash" : "CreditCard",
+        addressId: 0, // Default as per user request
+        shippingAddress: shippingAddress,
+        notes: _notesController.text,
+      );
+
+      final response = await repository.createOrder(request);
+
+      if (mounted) {
+        // Clear Cart
+        CartRepository.instance.clear();
+
+        setState(() => _isLoading = false);
+        _showSuccessDialog(response.id.toString());
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
-  void _showSuccessDialog() {
+  void _showSuccessDialog(String orderId) {
     final theme = Theme.of(context);
 
     showDialog(
@@ -301,11 +395,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.check_rounded,
+                  FontAwesomeIcons.circleCheck,
                   size: 48,
                   color: Colors.green,
                 ),
@@ -320,7 +414,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                "Order ID: #2215811",
+                "Order ID: #$orderId",
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -334,8 +428,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     Navigator.pop(context);
                     // Pop Checkout
                     Navigator.pop(context);
-                    // Pop Cart (to get back to home/products)
-                    // Note: In real app, consider using context.goNamed(AppRoutes.home)
+                    // Check if we can pop back further (to user home)
                     if (Navigator.canPop(context)) {
                       Navigator.pop(context);
                     }

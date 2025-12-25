@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/shared/models/paginated_response.dart';
@@ -42,7 +43,7 @@ class PaginationWidget extends ConsumerWidget {
             onPressed: (paginatedData.page > 1)
                 ? () => onPageChanged(paginatedData.page - 1)
                 : null,
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(FontAwesomeIcons.chevronLeft),
             tooltip: l10n.previousPage,
           ),
 
@@ -91,7 +92,7 @@ class PaginationWidget extends ConsumerWidget {
             onPressed: (paginatedData.page < paginatedData.totalPages)
                 ? () => onPageChanged(paginatedData.page + 1)
                 : null,
-            icon: const Icon(Icons.chevron_right),
+            icon: const Icon(FontAwesomeIcons.chevronRight),
             tooltip: l10n.nextPage,
           ),
         ],
@@ -135,7 +136,7 @@ class PaginationWidget extends ConsumerWidget {
                 onPressed: (paginatedData.page > 1)
                     ? () => onPageChanged(paginatedData.page - 1)
                     : null,
-                icon: const Icon(Icons.chevron_left),
+                icon: const Icon(FontAwesomeIcons.chevronLeft),
                 tooltip: l10n.previousPage,
                 iconSize: 20,
               ),
@@ -199,7 +200,7 @@ class PaginationWidget extends ConsumerWidget {
                 onPressed: (paginatedData.page < paginatedData.totalPages)
                     ? () => onPageChanged(paginatedData.page + 1)
                     : null,
-                icon: const Icon(Icons.chevron_right),
+                icon: const Icon(FontAwesomeIcons.chevronRight),
                 tooltip: l10n.nextPage,
                 iconSize: 20,
               ),

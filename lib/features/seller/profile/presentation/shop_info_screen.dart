@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -99,11 +100,14 @@ class ShopInformationScreen extends HookConsumerWidget {
                     child: SizedBox(width: 24, height: 24),
                   )
                 : IconButton(
-                    icon: const Icon(Icons.check, color: Colors.grey),
+                    icon: const Icon(
+                      FontAwesomeIcons.check,
+                      color: Colors.grey,
+                    ),
                     onPressed: null,
                   ),
             orElse: () => IconButton(
-              icon: const Icon(Icons.check),
+              icon: const Icon(FontAwesomeIcons.check),
               onPressed: () {
                 final currentShopInfo = ref
                     .read(shopInfoNotifierProvider)
@@ -161,7 +165,7 @@ class ShopInformationScreen extends HookConsumerWidget {
                         ),
                         child: userProfile?.store?.brandImage == null
                             ? Icon(
-                                Icons.storefront,
+                                FontAwesomeIcons.store,
                                 size: 50,
                                 color: theme.colorScheme.secondary.withOpacity(
                                   0.5,
@@ -189,7 +193,7 @@ class ShopInformationScreen extends HookConsumerWidget {
                             radius: 20,
                             backgroundColor: theme.colorScheme.primary,
                             child: Icon(
-                              Icons.edit,
+                              FontAwesomeIcons.penToSquare,
                               size: 20,
                               color: theme.colorScheme.onPrimary,
                             ),
@@ -331,7 +335,7 @@ class ShopInformationScreen extends HookConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.error_outline,
+                            FontAwesomeIcons.circleExclamation,
                             color: theme.colorScheme.error,
                             size: 48,
                           ),

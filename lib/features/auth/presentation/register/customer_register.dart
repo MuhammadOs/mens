@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
 import 'package:mens/shared/widgets/app_back_button.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class RegisterCustomerScreen extends StatefulWidget {
+class RegisterCustomerScreen extends ConsumerStatefulWidget {
   const RegisterCustomerScreen({super.key});
 
   @override
-  State<RegisterCustomerScreen> createState() => _RegisterCustomerScreenState();
+  ConsumerState<RegisterCustomerScreen> createState() =>
+      _RegisterCustomerScreenState();
 }
 
-class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
+class _RegisterCustomerScreenState
+    extends ConsumerState<RegisterCustomerScreen> {
   // Controllers
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -26,6 +33,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   final _dateController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureRepeat = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -40,9 +48,11 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
 
   Future<void> _submit() async {
     final rootCtx = Navigator.of(context, rootNavigator: true).context;
+    final l10n = ref.read(l10nProvider);
 
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isLoading = true);
     // Show a simple loading dialog
     showDialog(
       context: rootCtx,
@@ -51,43 +61,101 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
     );
 
     try {
-      // Simulate network call
-      await Future.delayed(const Duration(seconds: 1));
+      // Build request body
+      final body = {
+        'firstName': _firstNameController.text.trim(),
+        'lastName': _lastNameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'password': _passwordController.text,
+        // API may expect date in ISO format
+        if (_birthDate != null)
+          'birthDate': DateFormat('yyyy-MM-dd').format(_birthDate!),
+        'role': 'Customer',
+      };
+
+      final uri = Uri.parse(
+        'https://mens-shop-api-fhgf2.ondigitalocean.app/api/user/register',
+      );
+      final response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (!mounted) return;
-      // Close loading
-      Navigator.of(rootCtx).pop();
+      Navigator.of(rootCtx).pop(); // close loading
+      setState(() => _isLoading = false);
 
-      // Show success
-      showDialog(
-        context: rootCtx,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Success'),
-          content: const Text('Account created successfully.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                // Navigate to unified user home (4-tab) after registration
-                context.go(AppRoutes.userHome);
-              },
-              child: const Text('Continue'),
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Success - show confirmation and route to sign-in or user home
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.registrationSuccess)));
+        // Navigate to sign-in so user can login
+        context.go(AppRoutes.signIn);
+      } else {
+        // Try to decode error message
+        String message = 'Registration failed';
+        try {
+          final data = jsonDecode(response.body);
+          if (data is Map && data['message'] != null)
+            message = data['message'].toString();
+          else if (data is Map && data['errors'] != null)
+            message = data['errors'].toString();
+          else
+            message = response.body;
+        } catch (_) {
+          message = response.body.isNotEmpty ? response.body : message;
+        }
+        showDialog(
+          context: rootCtx,
+          builder: (ctx) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(
+                  FontAwesomeIcons.circleExclamation,
+                  color: Theme.of(ctx).colorScheme.error,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(child: Text(l10n.errorRegistering)),
+              ],
             ),
-          ],
-        ),
-      );
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(l10n.ok),
+              ),
+            ],
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       Navigator.of(rootCtx).pop();
+      setState(() => _isLoading = false);
       showDialog(
         context: rootCtx,
-        builder: (_) => AlertDialog(
-          title: const Text('Error'),
+        builder: (ctx) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                FontAwesomeIcons.circleExclamation,
+                color: Theme.of(ctx).colorScheme.error,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Text(l10n.errorRegistering)),
+            ],
+          ),
           content: Text(e.toString()),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(rootCtx).pop(),
-              child: const Text('OK'),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(l10n.ok),
             ),
           ],
         ),
@@ -99,6 +167,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final surfaceColor = theme.colorScheme.surface;
+    final l10n = ref.watch(l10nProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -149,7 +218,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                     children: [
                       Center(
                         child: Text(
-                          'Register',
+                          l10n.registerPageTitle,
                           style: theme.textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.primary,
@@ -162,19 +231,23 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                         children: [
                           Expanded(
                             child: CustomTextField(
-                              labelText: 'First Name',
+                              labelText: l10n.firstNameLabel,
+                              hintText: l10n.firstNameHint,
                               controller: _firstNameController,
-                              validator: (v) =>
-                                  (v ?? '').trim().isEmpty ? 'Required' : null,
+                              validator: (v) => (v ?? '').trim().isEmpty
+                                  ? l10n.validationRequired
+                                  : null,
                             ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
                             child: CustomTextField(
-                              labelText: 'Last Name',
+                              labelText: l10n.lastNameLabel,
+                              hintText: l10n.lastNameHint,
                               controller: _lastNameController,
-                              validator: (v) =>
-                                  (v ?? '').trim().isEmpty ? 'Required' : null,
+                              validator: (v) => (v ?? '').trim().isEmpty
+                                  ? l10n.validationRequired
+                                  : null,
                             ),
                           ),
                         ],
@@ -182,15 +255,15 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                       const SizedBox(height: 15),
 
                       CustomTextField(
-                        labelText: 'Email or phone number',
+                        labelText: l10n.emailLabel,
                         controller: _emailController,
-                        hintText: 'user@example.com',
+                        hintText: l10n.emailHint,
                         keyboardType: TextInputType.emailAddress,
                         validator: (v) {
                           final val = (v ?? '').trim();
-                          if (val.isEmpty) return 'Required';
+                          if (val.isEmpty) return l10n.validationRequired;
                           if (!val.contains('@') && val.length < 9)
-                            return 'Enter a valid email or phone';
+                            return l10n.validationEmailInvalid;
                           return null;
                         },
                       ),
@@ -200,7 +273,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Birth Date',
+                            l10n.birthDateLabel,
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: theme.colorScheme.onSurface.withOpacity(
                                 0.9,
@@ -217,7 +290,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                             decoration: InputDecoration(
                               hintText: 'YYYY-MM-DD',
                               suffixIcon: Icon(
-                                Icons.calendar_today,
+                                FontAwesomeIcons.calendar,
                                 color: theme.colorScheme.onSurface.withOpacity(
                                   0.5,
                                 ),
@@ -251,26 +324,27 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                       const SizedBox(height: 15),
 
                       CustomTextField(
-                        labelText: 'Enter Your Password',
+                        labelText: l10n.passwordLabel,
                         controller: _passwordController,
                         isPassword: true,
                         isPasswordVisible: !_obscurePassword,
                         onVisibilityToggle: () => setState(
                           () => _obscurePassword = !_obscurePassword,
                         ),
-                        validator: (v) =>
-                            (v ?? '').length < 6 ? 'Min 6 characters' : null,
+                        validator: (v) => (v ?? '').length < 6
+                            ? l10n.validationPasswordShort
+                            : null,
                       ),
                       const SizedBox(height: 15),
                       CustomTextField(
-                        labelText: 'Repeat Password',
+                        labelText: l10n.repeatPasswordLabel,
                         controller: _repeatPasswordController,
                         isPassword: true,
                         isPasswordVisible: !_obscureRepeat,
                         onVisibilityToggle: () =>
                             setState(() => _obscureRepeat = !_obscureRepeat),
                         validator: (v) => v != _passwordController.text
-                            ? 'Passwords do not match'
+                            ? l10n.validationPasswordMismatch
                             : null,
                       ),
 
@@ -278,15 +352,25 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
 
                       SizedBox(
                         width: double.infinity,
+                        height: 50,
                         child: ElevatedButton(
-                          onPressed: _submit,
-                          child: const Text(
-                            'Submit',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          onPressed: _isLoading ? null : _submit,
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                    color: theme.colorScheme.onPrimary,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : Text(
+                                  l10n.registerButton,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ],
@@ -299,7 +383,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Already has an account? ',
+                    l10n.alreadyHaveAccount,
                     style: TextStyle(color: theme.colorScheme.onBackground),
                   ),
                   GestureDetector(
@@ -308,7 +392,7 @@ class _RegisterCustomerScreenState extends State<RegisterCustomerScreen> {
                       context.go(AppRoutes.signIn);
                     },
                     child: Text(
-                      'Sign In',
+                      l10n.signIn,
                       style: TextStyle(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.bold,

@@ -438,12 +438,6 @@ class _EnhancedProductCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      // Add Icon
-                      Icon(
-                        Icons.add_circle,
-                        color: theme.colorScheme.primary,
-                        size: 24,
-                      ),
                     ],
                   ),
                 ],

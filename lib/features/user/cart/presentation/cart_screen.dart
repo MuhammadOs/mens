@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-// Note: Ensure your AppLocalizations import is correct based on your project structure
-// usually: import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/user/cart/cart.dart';
-import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/user/cart/presentation/all_orders_screen.dart';
 import 'package:mens/features/user/cart/presentation/checkout_screen.dart';
 import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
+import 'package:mens/features/user/cart/presentation/widgets/cart_item_card.dart';
 
 class CartScreen extends ConsumerStatefulWidget {
   const CartScreen({super.key});
@@ -59,7 +57,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
               context,
               MaterialPageRoute(builder: (_) => const AllOrdersScreen()),
             ),
-            icon: Icon(Icons.receipt_long, color: Colors.white),
+            icon: Icon(FontAwesomeIcons.receipt, color: Colors.white),
             label: Text(
               l10n.cartOrders, // Localized
               style: TextStyle(color: Colors.white),
@@ -86,7 +84,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.remove_shopping_cart_outlined,
+            FontAwesomeIcons.cartShopping,
             size: 92,
             color: theme.colorScheme.onSurface.withOpacity(0.12),
           ),
@@ -100,7 +98,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           ),
           const SizedBox(height: 28),
           ElevatedButton.icon(
-            icon: const Icon(Icons.storefront_outlined),
+            icon: const Icon(FontAwesomeIcons.shop),
             label: Text(l10n.cartStartShopping), // Localized
             onPressed: () {
               ref.read(adminNavIndexProvider.notifier).state = 0;
@@ -123,142 +121,22 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       children: [
         Expanded(
           child: ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             itemCount: cartItems.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final item = cartItems[index];
-              return Dismissible(
+              return CartItemCard(
                 key: ValueKey(item.id),
-                direction: DismissDirection.endToStart,
-                background: Container(
-                  padding: const EdgeInsets.only(right: 20),
-                  alignment: Alignment.centerRight,
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.delete_outline,
-                    color: Colors.redAccent,
-                  ),
-                ),
-                onDismissed: (_) {
+                item: item,
+                onIncrement: () => _increment(index),
+                onDecrement: () => _decrement(index),
+                onRemove: () {
                   _removeItem(index);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    // Localized with parameter
                     SnackBar(content: Text(l10n.cartItemRemoved(item.title))),
                   );
                 },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: theme.cardColor,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: theme.dividerColor),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          item.image,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 80,
-                            height: 80,
-                            color: theme.colorScheme.onSurface.withOpacity(
-                              0.06,
-                            ),
-                            child: Icon(
-                              Icons.broken_image,
-                              color: theme.colorScheme.onSurface.withOpacity(
-                                0.3,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              '\$${item.price.toStringAsFixed(2)}',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(
-                                  0.7,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  // Localized with parameter
-                                  l10n.cartItemSubtotal(
-                                    item.subtotal.toStringAsFixed(2),
-                                  ),
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.onSurface
-                                        .withOpacity(0.6),
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => _decrement(index),
-                                      child: CircleAvatar(
-                                        radius: 14,
-                                        backgroundColor:
-                                            theme.colorScheme.surface,
-                                        child: Icon(
-                                          Icons.remove,
-                                          size: 16,
-                                          color: theme.colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      child: Text(
-                                        '${item.quantity}',
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () => _increment(index),
-                                      child: CircleAvatar(
-                                        radius: 14,
-                                        child: Icon(Icons.add, size: 16),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               );
             },
           ),
@@ -345,7 +223,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   }
                 },
                 icon: Icon(
-                  Icons.delete_outline,
+                  FontAwesomeIcons.trashCan,
                   color: theme.colorScheme.error,
                 ),
               ),

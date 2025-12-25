@@ -1208,6 +1208,24 @@ abstract class AppLocalizations {
   /// **'Login Successful!'**
   String get loginSuccess;
 
+  /// No description provided for @pageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get pageNotFound;
+
+  /// No description provided for @pageNotFoundDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The page you requested was not found.'**
+  String get pageNotFoundDescription;
+
+  /// No description provided for @backToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get backToSignIn;
+
   /// No description provided for @success.
   ///
   /// In en, this message translates to:

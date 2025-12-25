@@ -1,5 +1,6 @@
 import 'dart:io'; // Required for FileImage
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart'; // Required for context.pop()
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -135,7 +136,7 @@ class AddProductScreen extends HookConsumerWidget {
                             alignment: Alignment.center,
                             children: [
                               Icon(
-                                Icons.add_a_photo_outlined,
+                                FontAwesomeIcons.camera,
                                 size: 40,
                                 color: theme.hintColor,
                               ),
@@ -146,7 +147,7 @@ class AddProductScreen extends HookConsumerWidget {
                                   radius: 12,
                                   backgroundColor: colorScheme.primary,
                                   child: Icon(
-                                    Icons.add,
+                                    FontAwesomeIcons.plus,
                                     size: 16,
                                     color: colorScheme.onPrimary,
                                   ),
@@ -332,7 +333,7 @@ class AddProductScreen extends HookConsumerWidget {
                             ),
                           ),
                           child: Icon(
-                            Icons.add_photo_alternate_outlined,
+                            FontAwesomeIcons.images,
                             color: colorScheme.primary,
                           ),
                         ),
@@ -370,7 +371,7 @@ class AddProductScreen extends HookConsumerWidget {
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.close,
+                              FontAwesomeIcons.xmark,
                               color: Colors.white,
                               size: 14,
                             ),

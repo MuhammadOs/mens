@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 
@@ -25,7 +26,7 @@ class StatisticsScreen extends ConsumerWidget {
                     value: "\$12,450",
                     label: l10n.totalSales,
                     change: "+23%",
-                    icon: Icons.attach_money,
+                    icon: FontAwesomeIcons.dollarSign,
                     iconColor: Colors.green,
                   ),
                 ),
@@ -35,7 +36,7 @@ class StatisticsScreen extends ConsumerWidget {
                     value: "24",
                     label: l10n.products,
                     change: "+3",
-                    icon: Icons.widgets_outlined,
+                    icon: FontAwesomeIcons.cubes,
                     iconColor: Colors.blue,
                   ),
                 ),
@@ -46,7 +47,7 @@ class StatisticsScreen extends ConsumerWidget {
               value: "156",
               label: l10n.orders,
               change: "+12%",
-              icon: Icons.inventory_2_outlined,
+              icon: FontAwesomeIcons.boxesStacked,
               iconColor: Colors.purple,
               isFullWidth: true,
             ),

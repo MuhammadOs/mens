@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
@@ -227,18 +228,18 @@ class _OrderListItem extends ConsumerWidget {
     // Determine color and icon based on status
     final (IconData icon, Color color) = switch (order.status) {
       _ when order.status == l10n.orderStatusPending => (
-        Icons.watch_later_outlined,
+        FontAwesomeIcons.clock,
         Colors.orange,
       ),
       _ when order.status == l10n.orderStatusShipped => (
-        Icons.local_shipping_outlined,
+        FontAwesomeIcons.truck,
         Colors.blue,
       ),
       _ when order.status == l10n.ordersDelivered => (
-        Icons.check_circle_outline,
+        FontAwesomeIcons.circleCheck,
         Colors.green,
       ),
-      _ => (Icons.help_outline, Colors.grey),
+      _ => (FontAwesomeIcons.circleQuestion, Colors.grey),
     };
 
     return Container(

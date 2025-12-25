@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mens/features/user/brands/domain/brand.dart';
 import 'package:mens/features/user/brands/presentation/brand_details_screen.dart';
 
@@ -14,14 +15,12 @@ class BrandCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => BrandDetailsScreen(brand: brand),
-          ),
+          MaterialPageRoute(builder: (_) => BrandDetailsScreen(brand: brand)),
         );
       },
       child: Container(
         // Transparent color ensures clicks are registered even on empty space within the column
-        color: Colors.transparent, 
+        color: Colors.transparent,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -30,7 +29,8 @@ class BrandCard extends StatelessWidget {
             Flexible(
               flex: 3,
               child: Hero(
-                tag: 'brand_${brand.id}', // Matches the tag in BrandDetailsScreen
+                tag:
+                    'brand_${brand.id}', // Matches the tag in BrandDetailsScreen
                 child: CircleAvatar(
                   radius: 35,
                   backgroundColor: theme.colorScheme.primaryContainer,
@@ -42,14 +42,14 @@ class BrandCard extends StatelessWidget {
                             height: 70,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) => Icon(
-                              Icons.store,
+                              FontAwesomeIcons.store,
                               size: 32,
                               color: theme.colorScheme.onPrimaryContainer,
                             ),
                           ),
                         )
                       : Icon(
-                          Icons.store,
+                          FontAwesomeIcons.store,
                           size: 32,
                           color: theme.colorScheme.onPrimaryContainer,
                         ),

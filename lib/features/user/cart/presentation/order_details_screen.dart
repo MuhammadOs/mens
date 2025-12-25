@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:mens/features/user/orders/domain/order_models.dart';
+import 'package:mens/shared/widgets/app_back_button.dart';
 
 class OrderDetailsScreen extends ConsumerWidget {
-  const OrderDetailsScreen({super.key});
+  final OrderResponse order;
+  const OrderDetailsScreen({super.key, required this.order});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -11,100 +16,314 @@ class OrderDetailsScreen extends ConsumerWidget {
     final l10n = ref.watch(l10nProvider);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(title: Text(l10n.orderDetailsTitle)), // Localized
+      appBar: AppBar(
+        title: Text(l10n.orderDetailsTitle),
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AppBackButton(
+            outlined: true,
+            iconColor: theme.colorScheme.onSurface,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              // Localized count
-              l10n.orderItemsCount(4),
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-
-            // List of items in this specific order
-            Expanded(
-              child: ListView.builder(
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: theme.colorScheme.onSurface),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
+            // Header Status
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: theme.dividerColor),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _getStatusIcon(order.status),
+                    color: _getStatusColor(order.status),
+                    size: 28,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          color: Colors.grey,
-                        ), // Image
-                        const SizedBox(width: 15),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              // Localized Item format
-                              l10n.orderItemFormat(1, "Product title"),
-                            ),
-                            const Text("22.99 \$"),
-                          ],
+                        Text(
+                          "Order #${order.id}",
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "Placed on ${DateFormat('MMM d, yyyy').format(order.orderDate)}",
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
-
-            // Footer Summary
-            Container(
-              padding: const EdgeInsets.all(16),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(color: theme.colorScheme.onSurface),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    // Localized Total
-                    l10n.orderTotalLabel("120.99 \$"),
-                    style: const TextStyle(fontSize: 16),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    // Localized Payment Method
-                    l10n.paymentMethodLabel(l10n.paymentMethodCash),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    // Localized Address
-                    l10n.shippingAddressLabel("6th of October"),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    // Localized ID
-                    l10n.orderIdLabel("441654165"),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    // Localized Status
-                    l10n.statusLabel(l10n.statusDelivered),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(order.status).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      order.status,
+                      style: TextStyle(
+                        color: _getStatusColor(order.status),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 24),
+
+            Text(
+              "Items (${order.items.length})",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: order.items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final item = order.items[index];
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child:
+                            item.productImage != null &&
+                                item.productImage!.isNotEmpty
+                            ? Image.network(
+                                item.productImage!,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    _buildPlaceholder(theme),
+                              )
+                            : _buildPlaceholder(theme),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.productName,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}",
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        "\$${item.subtotal.toStringAsFixed(2)}",
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 24),
+            Text(
+              "Order Summary",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Footer Summary
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: theme.dividerColor),
+              ),
+              child: Column(
+                children: [
+                  _buildSummaryRow(
+                    theme,
+                    "Payment Method",
+                    order.paymentMethod,
+                    icon: FontAwesomeIcons.creditCard,
+                  ),
+                  const Divider(height: 24),
+                  _buildSummaryRow(
+                    theme,
+                    "Shipping Address",
+                    order.shippingAddress ?? "N/A",
+                    icon: FontAwesomeIcons.locationDot,
+                  ),
+                  if (order.notes != null && order.notes!.isNotEmpty) ...[
+                    const Divider(height: 24),
+                    _buildSummaryRow(
+                      theme,
+                      "Notes",
+                      order.notes!,
+                      icon: FontAwesomeIcons.noteSticky,
+                    ),
+                  ],
+                  const Divider(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total Amount",
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "\$${order.totalAmount.toStringAsFixed(2)}",
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildPlaceholder(ThemeData theme) {
+    return Container(
+      width: 50,
+      height: 50,
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Icon(
+        FontAwesomeIcons.image,
+        size: 20,
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(
+    ThemeData theme,
+    String label,
+    String value, {
+    IconData? icon,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (icon != null) ...[
+          Icon(
+            icon,
+            size: 16,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+          const SizedBox(width: 12),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'processing':
+        return Colors.blue;
+      case 'shipped':
+        return Colors.indigo;
+      case 'delivered':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return FontAwesomeIcons.clock;
+      case 'processing':
+        return FontAwesomeIcons.gears;
+      case 'shipped':
+        return FontAwesomeIcons.truckFast;
+      case 'delivered':
+        return FontAwesomeIcons.circleCheck;
+      case 'cancelled':
+        return FontAwesomeIcons.circleXmark;
+      default:
+        return FontAwesomeIcons.circleQuestion;
+    }
   }
 }

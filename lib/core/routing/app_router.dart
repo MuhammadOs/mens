@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
+import 'package:mens/features/seller/profile/presentation/seller_profile_screen.dart' show SellerProfileScreen;
 import 'package:mens/features/user/conversations/presentation/conversations_view.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
@@ -17,10 +18,11 @@ import 'package:mens/features/seller/Products/presentation/paginated_products_sc
 import 'package:mens/features/seller/Statistics/presentation/stat_screen.dart';
 import 'package:mens/features/seller/contact_us/presentation/contact_us_screen.dart';
 import 'package:mens/features/user/user_home/presentation/user_home_screen.dart';
+import 'package:mens/features/seller/Home/presentation/home_screen.dart';
 import 'package:mens/features/user/profile/presentation/edit_profile_screen.dart';
 import 'package:mens/features/user/profile/presentation/help_support_screen.dart';
 import 'package:mens/features/user/profile/presentation/notification_screen.dart';
-import 'package:mens/features/user/profile/presentation/profile_screen.dart';
+import 'package:mens/features/user/profile/presentation/user_profile_screen.dart';
 import 'package:mens/features/user/profile/presentation/shop_info_screen.dart';
 
 class AppRoutes {
@@ -38,7 +40,8 @@ class AppRoutes {
   static const paginatedProducts = '/paginated-products';
   static const addProduct = '/addProduct';
   static const orders = '/orders';
-  static const profile = '/profile';
+  static const userProfile = '/user/profile';
+  static const sellerProfile = '/seller/profile';
   static const statistics = '/statistics';
   static const editProfile = '/profile/edit';
   static const helpSupport = '/help';
@@ -47,7 +50,7 @@ class AppRoutes {
   static const editProduct = '/products/:id/edit';
   static const productDetails = '/product-details';
   static const contactUs = '/contact-us';
-  static const customersHome = 'customers-home';
+  static const customersHome = '/customers-home';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -56,6 +59,29 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     refreshListenable: GoRouterRefreshNotifier(ref),
     initialLocation: AppRoutes.signIn,
+    // Friendly error page for unknown routes (helps surface 404s in-app)
+    errorBuilder: (context, state) {
+      final l10n = AppLocalizations.of(context);
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n?.pageNotFound ?? 'Page not found')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n?.pageNotFoundDescription ??
+                    'The page you requested was not found.',
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go(AppRoutes.signIn),
+                child: Text(l10n?.backToSignIn ?? 'Back to sign in'),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
     routes: [
       GoRoute(
         path: AppRoutes.signIn,
@@ -73,10 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.registerCustomer,
         builder: (context, state) => const RegisterCustomerScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.userHome,
-        redirect: (context, state) => AppRoutes.userProducts,
-      ),
+
       GoRoute(
         path: AppRoutes.userProducts,
         builder: (context, state) => const UserHomeScreen(initialIndex: 0),
@@ -110,8 +133,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const OrdersScreen(),
       ),
       GoRoute(
-        path: AppRoutes.profile,
-        builder: (context, state) => const ProfileScreen(),
+        path: AppRoutes.userProfile,
+        builder: (context, state) => const UserProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.sellerProfile,
+        builder: (context, state) => const SellerProfileScreen(),
       ),
       GoRoute(
         path: AppRoutes.statistics,
@@ -153,6 +180,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ContactUsScreen(),
       ),
       GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.userHome,
         builder: (context, state) => const UserHomeScreen(),
       ),
@@ -189,23 +220,33 @@ final routerProvider = Provider<GoRouter>((ref) {
       // 4. If IS logged in, check role-based routing
       if (isLoggedIn) {
         final userRole = authState.asData?.value?.role;
+        final roleNorm = (userRole ?? '').toString().toLowerCase();
 
         // --- ROLE-BASED REDIRECT LOGIC ---
-        if (userRole == 'Admin') {
-          // If admin is logged in and tries to go to a seller route, redirect to admin products
-          if (location == AppRoutes.home || isGoingToAuthRoute) {
+        // Customers and Admins should go to the unified User Home
+        if (roleNorm == 'admin' || roleNorm == 'customer') {
+          // If trying to access auth routes or seller/admin-only routes, redirect to user home
+          if (isGoingToAuthRoute ||
+              location.startsWith('/admin') ||
+              location == AppRoutes.home) {
             return AppRoutes.userHome;
           }
-        } else if (userRole == 'StoreOwner') {
-          // If seller is logged in and tries to go to an admin route, redirect to seller home
-          if (location.startsWith('/admin') || isGoingToAuthRoute) {
+        }
+
+        // Sellers / Store owners should go to the seller Home
+        if (roleNorm == 'StoreOwner') {
+          if (isGoingToAuthRoute ||
+              location.startsWith('/user') ||
+              location == AppRoutes.userHome) {
             return AppRoutes.home;
           }
         }
 
-        // If logged in and trying to access auth routes, redirect based on role
+        // Default: if logged in and trying to access auth routes, redirect based on detected role
         if (isGoingToAuthRoute) {
-          return userRole == 'Admin' ? AppRoutes.userProducts : AppRoutes.home;
+          return (roleNorm == 'admin' || roleNorm == 'customer')
+              ? AppRoutes.userHome
+              : AppRoutes.home;
         }
       }
 

@@ -40,7 +40,7 @@ class HelpSupportScreen extends HookConsumerWidget {
         // ✅ MODIFIED: Using ExpansionPanelList.radio
         child: ExpansionPanelList.radio(
           elevation: 1,
-          dividerColor: theme.dividerColor.withOpacity(0.5),
+          dividerColor: theme.dividerColor.withValues(alpha: 0.5),
           expandedHeaderPadding: const EdgeInsets.symmetric(vertical: 8),
 
           // ✅ MODIFIED: Simplified callback logic
@@ -74,7 +74,7 @@ class HelpSupportScreen extends HookConsumerWidget {
                 title: Text(
                   item.answer,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               ),

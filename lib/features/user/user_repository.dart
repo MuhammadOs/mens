@@ -186,7 +186,7 @@ class AdminRepositoryImpl implements UserRepository {
     String storeId,
     Map<String, dynamic> queryParams,
   ) async {
-    print('AdminRepository: Attempting fallback /stores/$storeId/products');
+    // print('AdminRepository: Attempting fallback /stores/$storeId/products');
     final fallback = await _dio.get(
       '/stores/$storeId/products',
       queryParameters: queryParams,

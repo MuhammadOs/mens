@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
@@ -64,7 +65,7 @@ class CustomTextField extends StatelessWidget {
         hintText: hintText,
         // Inherit styles from the global theme for better consistency
         labelStyle: inputDecorationTheme.labelStyle?.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.7),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
         ),
         hintStyle: inputDecorationTheme.hintStyle,
         floatingLabelStyle: inputDecorationTheme.floatingLabelStyle?.copyWith(
@@ -108,16 +109,18 @@ class CustomTextField extends StatelessWidget {
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
-                  isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  isPasswordVisible
+                      ? FontAwesomeIcons.eyeSlash
+                      : FontAwesomeIcons.eye,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
                 onPressed: onVisibilityToggle,
               )
             : (showClearButton
                   ? IconButton(
                       icon: Icon(
-                        Icons.clear,
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        FontAwesomeIcons.xmark,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                       onPressed: () => controller?.clear(),
                     )

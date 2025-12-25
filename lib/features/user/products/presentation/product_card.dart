@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
@@ -40,7 +41,7 @@ class ProductCard extends StatelessWidget {
             ),
             child: Image.asset(imagePlaceholder, fit: BoxFit.contain),
             // Note: Ensure you have an asset or use Icon for testing:
-            // child: const Icon(Icons.checkroom, size: 50, color: Colors.orange),
+            // child: const Icon(FontAwesomeIcons.shirt, size: 50, color: Colors.orange),
           ),
         ),
         const SizedBox(height: 8),
@@ -90,7 +91,7 @@ class ProductCard extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.add,
+                  FontAwesomeIcons.plus,
                   size: 18,
                   color: theme.colorScheme.onPrimary,
                 ),
@@ -230,7 +231,7 @@ class BuyerProductCard extends HookConsumerWidget {
                       errorBuilder: (_, __, ___) => Container(
                         color: theme.colorScheme.surfaceContainerHighest,
                         child: Icon(
-                          Icons.broken_image,
+                          FontAwesomeIcons.image,
                           color: theme.colorScheme.outline,
                         ),
                       ),
@@ -239,7 +240,7 @@ class BuyerProductCard extends HookConsumerWidget {
                     Container(
                       color: theme.colorScheme.surfaceContainerHighest,
                       child: Icon(
-                        Icons.image_not_supported,
+                        FontAwesomeIcons.image,
                         color: theme.colorScheme.outline,
                       ),
                     ),
@@ -289,24 +290,23 @@ class BuyerProductCard extends HookConsumerWidget {
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
-
-                      if (role == 'User')
-                        Material(
-                          color: theme.colorScheme.primary,
+                      if (role != "Admin")
+                      Material(
+                        color: theme.colorScheme.primary,
+                        borderRadius: BorderRadius.circular(8),
+                        child: InkWell(
+                          onTap: () => _addToCart(context, ref),
                           borderRadius: BorderRadius.circular(8),
-                          child: InkWell(
-                            onTap: () => _addToCart(context, ref),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(
-                                Icons.add_shopping_cart,
-                                size: 12,
-                                color: theme.colorScheme.onPrimary,
-                              ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: Icon(
+                              FontAwesomeIcons.cartPlus,
+                              size: 12,
+                              color: theme.colorScheme.onPrimary,
                             ),
                           ),
                         ),
+                      ),
                     ],
                   ),
                 ],

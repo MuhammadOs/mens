@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart'; // Import flutter_hooks
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -89,7 +90,6 @@ class ProductsScreen extends HookConsumerWidget {
                 child: SizedBox.shrink(),
               );
             }
-
             return TabBar(
               controller: tabController,
               isScrollable: true,
@@ -162,7 +162,7 @@ class ProductsScreen extends HookConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(AppRoutes.addProduct),
-        child: const Icon(Icons.add),
+        child: const Icon(FontAwesomeIcons.plus),
       ),
     );
   }
@@ -243,7 +243,7 @@ class _ErrorStateWithRefresh extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.error_outline,
+                      FontAwesomeIcons.circleExclamation,
                       color: theme.colorScheme.error,
                       size: 48,
                     ),

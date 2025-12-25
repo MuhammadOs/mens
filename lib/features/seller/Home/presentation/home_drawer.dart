@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-// ✅ 1. Import new packages
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
@@ -93,7 +93,7 @@ class HomeDrawer extends ConsumerWidget {
                   ),
                   ListTile(
                     leading: Icon(
-                      Icons.help_outline,
+                      FontAwesomeIcons.circleQuestion,
                       color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                     title: Text(
@@ -101,7 +101,7 @@ class HomeDrawer extends ConsumerWidget {
                       style: TextStyle(color: colorScheme.onSurface),
                     ),
                     trailing: Icon(
-                      Icons.arrow_forward_ios,
+                      FontAwesomeIcons.chevronRight,
                       size: 16,
                       color: colorScheme.onSurface.withOpacity(0.7),
                     ),
@@ -112,7 +112,7 @@ class HomeDrawer extends ConsumerWidget {
                   ),
                   ListTile(
                     leading: Icon(
-                      Icons.contact_mail_outlined,
+                      FontAwesomeIcons.addressBook,
                       color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                     title: Text(
@@ -120,7 +120,7 @@ class HomeDrawer extends ConsumerWidget {
                       style: TextStyle(color: colorScheme.onSurface),
                     ),
                     trailing: Icon(
-                      Icons.arrow_forward_ios,
+                      FontAwesomeIcons.chevronRight,
                       size: 16,
                       color: colorScheme.onSurface.withOpacity(0.7),
                     ),
@@ -167,7 +167,10 @@ class HomeDrawer extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.logout, color: theme.colorScheme.error),
+                    Icon(
+                      FontAwesomeIcons.arrowRightFromBracket,
+                      color: theme.colorScheme.error,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       l10n.drawerLogOut,
@@ -203,8 +206,7 @@ class HomeDrawer extends ConsumerWidget {
       ),
       arrowColor: theme.colorScheme.onPrimary,
       onDetailsPressed: () {
-        // ✅ 3. Use AppRoutes constant for consistency
-        context.push(AppRoutes.profile);
+        context.push(AppRoutes.sellerProfile);
       },
       accountEmail: Text(
         userProfile?.fullName ?? "Partner name",
@@ -271,22 +273,22 @@ class HomeDrawer extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         IconButton(
-          icon: const Icon(Icons.facebook),
+          icon: const Icon(FontAwesomeIcons.facebook),
           color: theme.colorScheme.primary,
           onPressed: () => _launchURL(ref, facebookUrl),
         ),
         IconButton(
-          icon: const Icon(Icons.camera_alt_outlined), // Instagram
+          icon: const Icon(FontAwesomeIcons.instagram), // Instagram
           color: theme.colorScheme.primary,
           onPressed: () => _launchURL(ref, instagramUrl),
         ),
         IconButton(
-          icon: const Icon(Icons.chat_bubble_outline), // WhatsApp
+          icon: const Icon(FontAwesomeIcons.whatsapp), // WhatsApp
           color: theme.colorScheme.primary,
           onPressed: () => _launchURL(ref, whatsappUrl),
         ),
         IconButton(
-          icon: const Icon(Icons.close), // X (Twitter)
+          icon: const Icon(FontAwesomeIcons.xTwitter), // X (Twitter)
           color: theme.colorScheme.primary,
           onPressed: () => _launchURL(ref, xUrl),
         ),

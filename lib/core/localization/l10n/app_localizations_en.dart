@@ -576,6 +576,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginSuccess => 'Login Successful!';
 
   @override
+  String get pageNotFound => 'Page not found';
+
+  @override
+  String get pageNotFoundDescription => 'The page you requested was not found.';
+
+  @override
+  String get backToSignIn => 'Back to sign in';
+
+  @override
   String get success => 'Success';
 
   @override

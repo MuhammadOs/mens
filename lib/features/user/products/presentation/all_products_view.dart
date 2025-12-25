@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
@@ -65,7 +66,7 @@ class AllProductsView extends HookConsumerWidget {
               controller: searchController,
               hintText: l10n.searchHint,
               elevation: WidgetStateProperty.all(0),
-              leading: const Icon(Icons.search),
+              leading: const Icon(FontAwesomeIcons.magnifyingGlass),
               padding: WidgetStateProperty.all(
                 const EdgeInsets.symmetric(horizontal: 16),
               ),
@@ -267,7 +268,11 @@ class AllProductsView extends HookConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.cloud_off, size: 48, color: theme.colorScheme.error),
+              Icon(
+                FontAwesomeIcons.cloud,
+                size: 48,
+                color: theme.colorScheme.error,
+              ),
               const SizedBox(height: 16),
               Text(l10n.somethingWentWrong),
               TextButton(
@@ -290,7 +295,7 @@ class AllProductsView extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.search_off,
+                FontAwesomeIcons.magnifyingGlass,
                 size: 64,
                 color: theme.colorScheme.outline,
               ),

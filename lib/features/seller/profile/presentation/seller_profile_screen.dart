@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
@@ -6,8 +7,8 @@ import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 
-class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+class SellerProfileScreen extends ConsumerWidget {
+  const SellerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,15 +69,15 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           children: [
             _InfoTile(
-              icon: Icons.email_outlined,
+              icon: FontAwesomeIcons.envelope,
               text: userProfile?.email ?? "Partner Mail",
             ),
             _InfoTile(
-              icon: Icons.phone_outlined,
+              icon: FontAwesomeIcons.phone,
               text: userProfile?.phoneNumber ?? "Partner phone number",
             ),
             _InfoTile(
-              icon: Icons.location_on_outlined,
+              icon: FontAwesomeIcons.locationDot,
               text: userProfile?.store?.location ?? "Patner Location",
             ),
           ],
@@ -96,27 +97,27 @@ class ProfileScreen extends ConsumerWidget {
         child: Column(
           children: [
             _ActionTile(
-              icon: Icons.person_outline,
+              icon: FontAwesomeIcons.user,
               text: l10n.editProfile,
               onTap: () => context.push(AppRoutes.editProfile),
             ),
             _ActionTile(
-              icon: Icons.store_outlined,
+              icon: FontAwesomeIcons.store,
               text: l10n.shopInformation,
               onTap: () => context.push(AppRoutes.shopInformation),
             ),
             _ActionTile(
-              icon: Icons.notifications_outlined,
+              icon: FontAwesomeIcons.bell,
               text: l10n.notifications,
               onTap: () => context.push(AppRoutes.notifications),
             ),
             _ActionTile(
-              icon: Icons.help_outline_rounded,
+              icon: FontAwesomeIcons.circleQuestion,
               text: l10n.drawerHelpSupport,
               onTap: () => context.push(AppRoutes.helpSupport),
             ),
             _ActionTile(
-              icon: Icons.contact_mail,
+              icon: FontAwesomeIcons.addressBook,
               text: l10n.contactUsTitle,
               onTap: () {
                 final authState = ref.read(authNotifierProvider);
@@ -179,7 +180,7 @@ class _ActionTile extends StatelessWidget {
         ),
       ),
       trailing: Icon(
-        Icons.arrow_forward_ios,
+        FontAwesomeIcons.chevronRight,
         size: 16,
         color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
       ),

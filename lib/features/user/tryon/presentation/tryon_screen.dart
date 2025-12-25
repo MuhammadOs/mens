@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 
@@ -19,7 +20,7 @@ class TryOnScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.construction,
+              FontAwesomeIcons.hammer,
               size: 72,
               color: theme.colorScheme.primary,
             ),

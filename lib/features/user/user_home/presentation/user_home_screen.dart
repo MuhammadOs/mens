@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
 import 'package:mens/features/user/brands/presentation/all_brands_view.dart';
+import 'package:mens/features/user/conversations/presentation/conversations_view.dart';
 import 'package:mens/features/user/products/presentation/all_products_view.dart';
 import 'package:mens/features/user/tryon/presentation/tryon_screen.dart';
 import 'package:mens/features/user/cart/presentation/cart_screen.dart';
-import 'package:mens/features/user/profile/presentation/profile_screen.dart';
+import 'package:mens/features/user/profile/presentation/user_profile_screen.dart';
 
 // This controls the active tab index for the Admin Home Screen
 
@@ -34,10 +36,11 @@ class UserHomeScreen extends HookConsumerWidget {
     }, [initialIndex]);
     final screens = [
       const AllProductsView(),
-      if (userProfile?.role == "Admin") const CartScreen(),
+      if (userProfile?.role != "Admin") const CartScreen(),
       const AllBrandsView(),
-      const TryOnScreen(),
-      const ProfileScreen(),
+      if (userProfile?.role != "Admin") const TryOnScreen(),
+      if (userProfile?.role == "Admin") const ConversationsView(),
+      const UserProfileScreen(),
       const SizedBox.shrink(),
     ];
 
@@ -49,31 +52,37 @@ class UserHomeScreen extends HookConsumerWidget {
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(
           context,
-        ).colorScheme.onSurface.withOpacity(0.6),
+        ).colorScheme.onSurface.withValues(alpha: 0.6),
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
           ref.read(adminNavIndexProvider.notifier).state = index;
         },
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined),
+            icon: const Icon(FontAwesomeIcons.house),
             label: l10n.homeProducts,
           ),
-          if (userProfile?.role == "Admin")
+          if (userProfile?.role != "Admin")
             BottomNavigationBarItem(
-              icon: const Icon(Icons.shopping_cart_outlined),
+              icon: const Icon(FontAwesomeIcons.cartShopping),
               label: l10n.cart,
             ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.store_outlined),
+            icon: const Icon(FontAwesomeIcons.store),
             label: l10n.allBrandsTitle,
           ),
+          if (userProfile?.role != "Admin")
+            BottomNavigationBarItem(
+              icon: const Icon(FontAwesomeIcons.shirt),
+              label: l10n.tryOn,
+            ),
+          if (userProfile?.role == "Admin")
+            BottomNavigationBarItem(
+              icon: const Icon(FontAwesomeIcons.comments),
+              label: l10n.conversations,
+            ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.checkroom),
-            label: l10n.tryOn,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person_outline),
+            icon: const Icon(FontAwesomeIcons.user),
             label: l10n.profile,
           ),
         ],

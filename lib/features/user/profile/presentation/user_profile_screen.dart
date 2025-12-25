@@ -6,10 +6,10 @@ import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/shared/theme/theme_provider.dart';
-import 'package:mens/features/user/cart/presentation/cart_screen.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+class UserProfileScreen extends ConsumerWidget {
+  const UserProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +37,7 @@ class ProfileScreen extends ConsumerWidget {
                     : null,
                 child: user?.store?.brandImage == null
                     ? Icon(
-                        Icons.person_outline,
+                        FontAwesomeIcons.user,
                         size: 40,
                         color: theme.colorScheme.onSurface,
                       )
@@ -57,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
               Text(
                 user?.email ?? l10n.emailLabel,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 20),
@@ -88,9 +88,9 @@ class ProfileScreen extends ConsumerWidget {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.edit,
-                                color: theme.colorScheme.onSurface.withOpacity(
-                                  0.7,
+                                FontAwesomeIcons.penToSquare,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
                                 ),
                                 size: 16,
                               ),
@@ -99,7 +99,7 @@ class ProfileScreen extends ConsumerWidget {
                                 l10n.editProfile,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurface
-                                      .withOpacity(0.7),
+                                      .withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -147,7 +147,7 @@ class ProfileScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.settings,
+                          FontAwesomeIcons.gear,
                           color: theme.colorScheme.onSurface,
                         ),
                         const SizedBox(width: 10),
@@ -166,8 +166,8 @@ class ProfileScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.wb_sunny_outlined,
-                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          FontAwesomeIcons.sun,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -188,7 +188,7 @@ class ProfileScreen extends ConsumerWidget {
                                           : l10n.systemTheme),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurface
-                                      .withOpacity(0.7),
+                                      .withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -196,7 +196,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         Switch(
                           value: themeMode == ThemeMode.dark,
-                          activeColor: theme.colorScheme.primary,
+                          activeTrackColor: theme.colorScheme.primary,
                           onChanged: (val) => ref
                               .read(themeProvider.notifier)
                               .setTheme(val ? ThemeMode.dark : ThemeMode.light),
@@ -209,8 +209,8 @@ class ProfileScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.language,
-                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          FontAwesomeIcons.globe,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -229,7 +229,7 @@ class ProfileScreen extends ConsumerWidget {
                                     : l10n.english,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurface
-                                      .withOpacity(0.7),
+                                      .withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -275,83 +275,84 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 18),
 
               // Support card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.email_outlined,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                           l10n.contactUsTitle,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+              if (user?.role != "Admin")
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.envelope,
                             color: theme.colorScheme.onSurface,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                          const SizedBox(width: 10),
+                          Text(
+                            l10n.contactUsTitle,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
-                        ),
-                        onPressed: () {
-                          final authState = ref.read(authNotifierProvider);
-                          final user = authState.asData?.value;
-                          final role = (user?.role ?? '')
-                              .toString()
-                              .toLowerCase();
-                          if (role == 'admin') {
-                            context.push(AppRoutes.adminConversations);
-                          } else {
-                            context.push(AppRoutes.contactUs);
-                          }
-                        },
-                        child: Text(
-                          l10n.contactUsTitle,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onPrimary,
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            final authState = ref.read(authNotifierProvider);
+                            final user = authState.asData?.value;
+                            final role = (user?.role ?? '')
+                                .toString()
+                                .toLowerCase();
+                            if (role == 'admin') {
+                              context.push(AppRoutes.adminConversations);
+                            } else {
+                              context.push(AppRoutes.contactUs);
+                            }
+                          },
+                          child: Text(
+                            l10n.contactUsTitle,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Social icons and sign out
-              Text(
-                l10n.profile,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
+              if (user?.role != "Admin") const SizedBox(height: 20),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _socialIcon(Icons.facebook, Colors.blue),
-                  _socialIcon(Icons.camera_alt, Colors.pink),
-                  _socialIcon(Icons.call, Colors.green),
+                  _socialIcon(
+                    FontAwesomeIcons.facebook,
+                    const Color(0xFF1877F2),
+                  ),
+                  _socialIcon(
+                    FontAwesomeIcons.instagram,
+                    const Color(0xFFE4405F),
+                  ),
+                  _socialIcon(
+                    FontAwesomeIcons.whatsapp,
+                    const Color(0xFF25D366),
+                  ),
                 ],
               ),
 
@@ -370,14 +371,13 @@ class ProfileScreen extends ConsumerWidget {
                 onPressed: () async {
                   // Logout
                   await ref.read(authNotifierProvider.notifier).logout();
-                  context.go(AppRoutes.signIn);
+                  if (context.mounted) context.go(AppRoutes.signIn);
                 },
                 child: Text(
                   l10n.drawerLogOut,
                   style: TextStyle(color: theme.colorScheme.error),
                 ),
               ),
-              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -394,7 +394,7 @@ class ProfileScreen extends ConsumerWidget {
         Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             fontSize: 12,
           ),
         ),
@@ -423,5 +423,5 @@ class ProfileScreen extends ConsumerWidget {
 
 // Small extension helper
 extension _StringHelpers on String {
-  String ifEmpty(String other) => this.trim().isEmpty ? other : this;
+  String ifEmpty(String other) => trim().isEmpty ? other : this;
 }

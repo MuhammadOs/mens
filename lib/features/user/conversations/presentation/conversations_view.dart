@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -62,8 +63,8 @@ class ConversationsView extends HookConsumerWidget {
                 children: [
                   Icon(
                     searchQuery.value.isEmpty
-                        ? Icons.chat_bubble_outline
-                        : Icons.search_off,
+                        ? FontAwesomeIcons.comments
+                        : FontAwesomeIcons.magnifyingGlass,
                     size: 64,
                     color: theme.colorScheme.onSurface.withOpacity(0.3),
                   ),
@@ -96,7 +97,7 @@ class ConversationsView extends HookConsumerWidget {
                         decoration: InputDecoration(
                           hintText: l10n.searchConversations,
                           prefixIcon: Icon(
-                            Icons.search,
+                            FontAwesomeIcons.magnifyingGlass,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
                           filled: true,
@@ -158,7 +159,7 @@ class ConversationsView extends HookConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.chat,
+                              FontAwesomeIcons.comments,
                               size: 64,
                               color: theme.colorScheme.onSurface.withOpacity(
                                 0.3,
@@ -191,7 +192,7 @@ class ConversationsView extends HookConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.error_outline,
+                FontAwesomeIcons.circleExclamation,
                 size: 64,
                 color: theme.colorScheme.error,
               ),
@@ -213,7 +214,7 @@ class ConversationsView extends HookConsumerWidget {
                 onPressed: () {
                   ref.invalidate(conversationsProvider);
                 },
-                icon: const Icon(Icons.refresh),
+                icon: const Icon(FontAwesomeIcons.rotateRight),
                 label: const Text('Retry'),
               ),
             ],
@@ -546,7 +547,7 @@ class ConversationDetailView extends HookConsumerWidget {
                       },
                 icon: replyState.isLoading
                     ? SizedBox.shrink()
-                    : const Icon(Icons.send),
+                    : const Icon(FontAwesomeIcons.paperPlane),
                 tooltip: 'Send Reply',
               ),
             ],

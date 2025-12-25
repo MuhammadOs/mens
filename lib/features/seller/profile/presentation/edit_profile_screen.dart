@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 // ✅ 1. Import AwesomeDialog
-import 'package:awesome_dialog/awesome_dialog.dart'; 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/features/seller/profile/notifiers/edit_profile_notifier.dart';
@@ -57,7 +58,6 @@ class EditProfileScreen extends HookConsumerWidget {
           ).show();
         }
       }
-      
       // --- Handle Save Error ---
       else if (previous is AsyncLoading && next is AsyncError) {
         if (context.mounted) {
@@ -73,7 +73,7 @@ class EditProfileScreen extends HookConsumerWidget {
         }
       }
     });
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.editProfile),
@@ -82,16 +82,19 @@ class EditProfileScreen extends HookConsumerWidget {
           // initial load AND during the save operation.
           profileState.isLoading
               ? const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
                   // Use a smaller indicator for the app bar
                   child: SizedBox(
-                    width: 24, 
+                    width: 24,
                     height: 24,
                     child: CircularProgressIndicator(strokeWidth: 3),
                   ),
                 )
               : IconButton(
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(FontAwesomeIcons.check),
                   onPressed: () {
                     final updatedProfile = UserProfileData(
                       firstName: firstNameController.text,
@@ -115,20 +118,17 @@ class EditProfileScreen extends HookConsumerWidget {
       body: profileState.when(
         data: (profile) {
           // Pre-fill controllers using useEffect
-          useEffect(
-            () {
-              firstNameController.text = profile.firstName;
-              lastNameController.text = profile.lastName;
-              emailController.text = profile.email;
-              phoneController.text = profile.phone;
-              nationalIdController.text = profile.nationalId ?? '';
-              birthDateController.text = profile.birthDate != null
-                  ? DateFormat('dd-MM-yyyy').format(profile.birthDate!)
-                  : '';
-              return null; // No cleanup needed
-            },
-            [profile],
-          ); // Dependency array
+          useEffect(() {
+            firstNameController.text = profile.firstName;
+            lastNameController.text = profile.lastName;
+            emailController.text = profile.email;
+            phoneController.text = profile.phone;
+            nationalIdController.text = profile.nationalId ?? '';
+            birthDateController.text = profile.birthDate != null
+                ? DateFormat('dd-MM-yyyy').format(profile.birthDate!)
+                : '';
+            return null; // No cleanup needed
+          }, [profile]); // Dependency array
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -182,7 +182,7 @@ class EditProfileScreen extends HookConsumerWidget {
                         decoration: InputDecoration(
                           hintText: 'dd-MM-yyyy',
                           suffixIcon: Icon(
-                            Icons.calendar_today,
+                            FontAwesomeIcons.calendar,
                             color: theme.colorScheme.onSurface.withOpacity(0.5),
                           ),
                         ),
@@ -207,8 +207,7 @@ class EditProfileScreen extends HookConsumerWidget {
                             locale: currentLocale, // Use current app locale
                             initialDate: initialDate,
                             firstDate: DateTime(1950),
-                            lastDate:
-                                DateTime.now(), 
+                            lastDate: DateTime.now(),
                             builder: (context, child) {
                               return Theme(data: theme, child: child!);
                             },
@@ -253,19 +252,19 @@ class EditProfileScreen extends HookConsumerWidget {
                   width: double.infinity,
                   borderRadius: const BorderRadius.all(Radius.circular(12)),
                 ),
-                 const SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Bone(
                   height: 50,
                   width: double.infinity,
                   borderRadius: const BorderRadius.all(Radius.circular(12)),
                 ),
-                 const SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Bone(
                   height: 50,
                   width: double.infinity,
                   borderRadius: const BorderRadius.all(Radius.circular(12)),
                 ),
-                 const SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Bone(
                   height: 50,
                   width: double.infinity,
@@ -295,11 +294,7 @@ class EditProfileScreen extends HookConsumerWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: theme.colorScheme.error,
-                            size: 48,
-                          ),
+                          Icon(FontAwesomeIcons.circleExclamation),
                           const SizedBox(height: 16),
                           Text(
                             "Error loading profile: $e", // TODO: Localize

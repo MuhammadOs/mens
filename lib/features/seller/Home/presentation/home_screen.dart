@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
@@ -35,7 +36,10 @@ class HomeScreen extends ConsumerWidget {
                   Builder(
                     builder: (context) {
                       return IconButton(
-                        icon: Icon(Icons.menu, color: colorScheme.onSurface),
+                        icon: Icon(
+                          FontAwesomeIcons.bars,
+                          color: colorScheme.onSurface,
+                        ),
                         onPressed: () => Scaffold.of(context).openDrawer(),
                       );
                     },
@@ -50,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
               actions: [
                 IconButton(
                   icon: Icon(
-                    Icons.notifications_outlined,
+                    FontAwesomeIcons.bell,
                     color: colorScheme.onSurface,
                   ),
                   onPressed: () {
@@ -110,7 +114,7 @@ class HomeScreen extends ConsumerWidget {
             Expanded(
               child: _DashboardCard(
                 title: l10n.homeStats,
-                icon: Icons.pie_chart_outline,
+                icon: FontAwesomeIcons.chartPie,
                 color: Colors.green.shade100,
                 iconColor: Colors.green,
                 onTap: () {
@@ -126,7 +130,7 @@ class HomeScreen extends ConsumerWidget {
             Expanded(
               child: _DashboardCard(
                 title: l10n.homeOrders,
-                icon: Icons.inventory_2_outlined,
+                icon: FontAwesomeIcons.boxesStacked,
                 color: Colors.purple.shade100,
                 iconColor: Colors.purple,
                 onTap: () {
@@ -138,7 +142,7 @@ class HomeScreen extends ConsumerWidget {
             Expanded(
               child: _DashboardCard(
                 title: l10n.homeProducts,
-                icon: Icons.widgets_outlined,
+                icon: FontAwesomeIcons.cubes,
                 color: Colors.blue.shade100,
                 iconColor: Colors.blue,
                 onTap: () {
@@ -191,7 +195,7 @@ class _OrderCard extends ConsumerWidget {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.watch_later_outlined,
+                      FontAwesomeIcons.clock,
                       size: 14,
                       color: Colors.orange.shade800,
                     ),

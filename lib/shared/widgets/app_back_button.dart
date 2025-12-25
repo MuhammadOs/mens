@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AppBackButton extends StatelessWidget {
   const AppBackButton({
@@ -30,16 +31,14 @@ class AppBackButton extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     // 1. Determine Colors dynamically based on Theme if not provided
-    // Using strict logic to handle the specific "Dark Blue" default you had, 
+    // Using strict logic to handle the specific "Dark Blue" default you had,
     // or falling back to theme colors.
-    final defaultFilledColor = backgroundColor ?? const Color(0xFF0F3B5C); 
-    
-    final effectiveBgColor = outlined 
-        ? Colors.transparent 
-        : defaultFilledColor;
+    final defaultFilledColor = backgroundColor ?? const Color(0xFF0F3B5C);
 
-    final effectiveIconColor = iconColor ?? 
-        (outlined ? colorScheme.primary : Colors.white);
+    final effectiveBgColor = outlined ? Colors.transparent : defaultFilledColor;
+
+    final effectiveIconColor =
+        iconColor ?? (outlined ? colorScheme.primary : Colors.white);
 
     // 2. Define Border
     final borderSide = outlined
@@ -56,19 +55,24 @@ class AppBackButton extends StatelessWidget {
         color: effectiveBgColor,
         elevation: elevation,
         type: MaterialType.button,
-        // Allows changing to RoundedRectangleBorder if needed in the future
-        shape: CircleBorder(side: borderSide), 
-        clipBehavior: Clip.antiAlias, // Ensures splash doesn't overflow
+        // Changed to Squircle (Rounded Rect) for a more premium look matching the cards
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: borderSide,
+        ),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
-          // InkWell allows for better custom splash handling than IconButton sometimes
-          customBorder: CircleBorder(side: borderSide),
+          customBorder: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: borderSide,
+          ),
           onTap: onPressed ?? () => Navigator.of(context).maybePop(),
           child: Center(
             child: Tooltip(
               message: tooltip,
               child: Icon(
                 // 4. Adaptive Icon (Android vs iOS style)
-                icon ?? Icons.adaptive.arrow_back,
+                icon ?? FontAwesomeIcons.arrowLeft,
                 color: effectiveIconColor,
                 size: effectiveIconSize,
               ),

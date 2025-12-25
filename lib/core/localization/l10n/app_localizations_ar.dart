@@ -577,6 +577,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginSuccess => 'تم تسجيل الدخول بنجاح!';
 
   @override
+  String get pageNotFound => 'الصفحة غير موجودة';
+
+  @override
+  String get pageNotFoundDescription => 'الصفحة المطلوبة غير موجودة.';
+
+  @override
+  String get backToSignIn => 'العودة لتسجيل الدخول';
+
+  @override
   String get success => 'نجاح';
 
   @override

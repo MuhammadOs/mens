@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -40,7 +41,7 @@ class ProductListItem extends HookConsumerWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               ),
@@ -89,8 +90,7 @@ class ProductListItem extends HookConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ProductDetailsScreen(product: product),
+            builder: (context) => ProductDetailsScreen(product: product),
           ),
         );
       },
@@ -102,7 +102,7 @@ class ProductListItem extends HookConsumerWidget {
           boxShadow: [
             // Optional: Add a subtle shadow
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
@@ -125,7 +125,7 @@ class ProductListItem extends HookConsumerWidget {
                         width: 80,
                         color: Colors.grey[300],
                         child: const Icon(
-                          Icons.broken_image_outlined,
+                          FontAwesomeIcons.image,
                           color: Colors.grey,
                         ),
                       ),
@@ -136,7 +136,7 @@ class ProductListItem extends HookConsumerWidget {
                       width: 80,
                       color: Colors.grey[300],
                       child: const Icon(
-                        Icons.image_not_supported_outlined,
+                        FontAwesomeIcons.image,
                         color: Colors.grey,
                       ),
                     ),
@@ -194,7 +194,7 @@ class ProductListItem extends HookConsumerWidget {
                     context.push('/products/${product.id}/edit');
                   },
                   icon: Icon(
-                    Icons.edit_outlined,
+                    FontAwesomeIcons.penToSquare,
                     color: theme.colorScheme.primary,
                     size: 20,
                   ),
@@ -205,7 +205,7 @@ class ProductListItem extends HookConsumerWidget {
                     ? const SizedBox(width: 20, height: 20)
                     : IconButton(
                         icon: Icon(
-                          Icons.delete_outline,
+                          FontAwesomeIcons.trashCan,
                           color: theme.colorScheme.error,
                           size: 20,
                         ),

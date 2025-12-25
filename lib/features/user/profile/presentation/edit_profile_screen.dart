@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +94,7 @@ class EditProfileScreen extends HookConsumerWidget {
                   ),
                 )
               : IconButton(
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(FontAwesomeIcons.check),
                   onPressed: () {
                     final updatedProfile = UserProfileData(
                       firstName: firstNameController.text,
@@ -170,7 +171,7 @@ class EditProfileScreen extends HookConsumerWidget {
                       Text(
                         l10n.birthDateLabel,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.9),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -181,8 +182,8 @@ class EditProfileScreen extends HookConsumerWidget {
                         decoration: InputDecoration(
                           hintText: 'dd-MM-yyyy',
                           suffixIcon: Icon(
-                            Icons.calendar_today,
-                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                            FontAwesomeIcons.calendar,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         onTap: () async {
@@ -294,7 +295,7 @@ class EditProfileScreen extends HookConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.error_outline,
+                            FontAwesomeIcons.circleExclamation,
                             color: theme.colorScheme.error,
                             size: 48,
                           ),

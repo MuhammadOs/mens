@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
@@ -37,7 +38,7 @@ class RegisterScreen extends HookConsumerWidget {
                 title: Row(
                   children: [
                     Icon(
-                      Icons.error,
+                      FontAwesomeIcons.circleExclamation,
                       color: Theme.of(ctx).colorScheme.error,
                       size: 30,
                     ),
@@ -71,7 +72,7 @@ class RegisterScreen extends HookConsumerWidget {
                   title: Row(
                     children: [
                       const Icon(
-                        Icons.check_circle,
+                        FontAwesomeIcons.circleCheck,
                         color: Colors.green,
                         size: 30,
                       ),

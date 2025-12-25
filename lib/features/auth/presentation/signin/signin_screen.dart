@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // ✅ 1. Import fluttertoast
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -87,7 +88,7 @@ class SignInScreen extends HookConsumerWidget {
                   children: [
                     PopupMenuButton<String>(
                       icon: Icon(
-                        Icons.settings,
+                        FontAwesomeIcons.gear,
                         color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                       onSelected: (value) {
@@ -116,8 +117,8 @@ class SignInScreen extends HookConsumerWidget {
                             children: [
                               Icon(
                                 currentTheme == ThemeMode.dark
-                                    ? Icons.light_mode
-                                    : Icons.dark_mode,
+                                    ? FontAwesomeIcons.sun
+                                    : FontAwesomeIcons.moon,
                                 color: colorScheme.onSurface,
                               ),
                               const SizedBox(width: 8),
@@ -134,7 +135,7 @@ class SignInScreen extends HookConsumerWidget {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.language,
+                                FontAwesomeIcons.globe,
                                 color: colorScheme.onSurface,
                               ),
                               const SizedBox(width: 8),

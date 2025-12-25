@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -121,7 +122,7 @@ class OwnerInfoStep extends HookConsumerWidget {
                   decoration: InputDecoration(
                     hintText: 'YYYY-MM-DD',
                     suffixIcon: Icon(
-                      Icons.calendar_today,
+                      FontAwesomeIcons.calendar,
                       color: theme.colorScheme.onSurface.withOpacity(0.5),
                     ),
                   ),

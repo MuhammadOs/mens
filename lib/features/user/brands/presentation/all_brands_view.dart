@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
@@ -51,7 +52,7 @@ class AllBrandsView extends HookConsumerWidget {
               hintText: l10n.searchHint,
               elevation: WidgetStateProperty.all(0),
               leading: Icon(
-                Icons.search,
+                FontAwesomeIcons.magnifyingGlass,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               padding: WidgetStateProperty.all(
@@ -199,7 +200,7 @@ class AllBrandsView extends HookConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.error_outline,
+                FontAwesomeIcons.circleExclamation,
                 size: 48,
                 color: theme.colorScheme.error,
               ),
@@ -224,7 +225,11 @@ class AllBrandsView extends HookConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.store, size: 64, color: theme.colorScheme.outline),
+              Icon(
+                FontAwesomeIcons.store,
+                size: 64,
+                color: theme.colorScheme.outline,
+              ),
               const SizedBox(height: 16),
               Text(
                 l10n.noBrandsFound,
@@ -353,7 +358,10 @@ class _EnhancedBrandCard extends StatelessWidget {
                       ? NetworkImage(brand.brandImage!)
                       : null,
                   child: brand.brandImage == null
-                      ? Icon(Icons.store, color: theme.colorScheme.primary)
+                      ? Icon(
+                          FontAwesomeIcons.store,
+                          color: theme.colorScheme.primary,
+                        )
                       : null,
                 ),
               ),
