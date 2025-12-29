@@ -11,6 +11,7 @@ import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/features/user/products/presentation/product_card.dart';
 import 'package:mens/shared/providers/paginated_notifier.dart';
 import 'package:mens/shared/widgets/pagination_widget.dart';
+import 'package:mens/shared/widgets/staggered_slide_fade.dart';
 
 class AllProductsView extends HookConsumerWidget {
   const AllProductsView({super.key});
@@ -59,38 +60,51 @@ class AllProductsView extends HookConsumerWidget {
       ),
       body: Column(
         children: [
-          // 1. Fixed Search Bar
+          // 1. Search Bar
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: SearchBar(
-              controller: searchController,
-              hintText: l10n.searchHint,
-              elevation: WidgetStateProperty.all(0),
-              leading: const Icon(FontAwesomeIcons.magnifyingGlass),
-              padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                   BoxShadow(
+                     color: Colors.black.withOpacity(0.05),
+                     blurRadius: 10,
+                     offset: const Offset(0, 4),
+                   )
+                ],
               ),
-              hintStyle: WidgetStateProperty.all(
-                theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+              child: SearchBar(
+                controller: searchController,
+                hintText: l10n.searchHint,
+                elevation: WidgetStateProperty.all(0),
+                leading: Icon(
+                  FontAwesomeIcons.magnifyingGlass,
+                  color: theme.colorScheme.primary,
+                  size: 20,
                 ),
-              ),
-              backgroundColor: WidgetStateProperty.all(
-                theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-              ),
-              shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: theme.colorScheme.outline.withAlpha(50),
+                padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                hintStyle: WidgetStateProperty.all(
+                  theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
+                backgroundColor: WidgetStateProperty.all(
+                  theme.colorScheme.surfaceContainerLow,
+                ),
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.3)),
+                  ),
+                ),
+                onChanged: onSearchChanged,
               ),
-              onChanged: onSearchChanged,
             ),
           ),
 
-          // 2. Fixed Category Filters
+          // 2. Category Filters
           categoriesAsync.when(
             data: (categories) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +112,7 @@ class AllProductsView extends HookConsumerWidget {
               children: [
                 // Main Categories
                 SizedBox(
-                  height: 50,
+                  height: 40,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -142,56 +156,58 @@ class AllProductsView extends HookConsumerWidget {
                   ),
                 ),
 
-                // Sub Categories (Animated visibility could be added here)
-                if (selectedCategoryId.value != null) ...[
-                  const SizedBox(height: 8),
-                  Builder(
-                    builder: (context) {
-                      final selectedCategory = categories.firstWhere(
-                        (cat) => cat.id == selectedCategoryId.value,
-                      );
-                      if (selectedCategory.subCategories.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
+                // Sub Categories (Animated visibility)
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  child: selectedCategoryId.value != null
+                      ? Builder(
+                          builder: (context) {
+                            final selectedCategory = categories.firstWhere(
+                              (cat) => cat.id == selectedCategoryId.value,
+                              orElse: () => categories.first,
+                            );
 
-                      return SizedBox(
-                        height: 40,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          separatorBuilder: (_, __) => const SizedBox(width: 8),
-                          itemCount: selectedCategory.subCategories.length,
-                          itemBuilder: (context, index) {
-                            final sub = selectedCategory.subCategories[index];
-                            return _FilterChip(
-                              label: sub.name,
-                              isSmall: true,
-                              isSelected: selectedSubCategoryId.value == sub.id,
-                              onSelected: (selected) {
-                                selectedSubCategoryId.value = selected
-                                    ? sub.id
-                                    : null;
-                                ref
-                                    .read(
-                                      paginatedUserProductsProvider.notifier,
-                                    )
-                                    .setFilters(
-                                      categoryId: selectedCategoryId.value,
-                                      subCategoryId:
-                                          selectedSubCategoryId.value,
+                             if (selectedCategory.subCategories.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 12.0),
+                              child: SizedBox(
+                                height: 32,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                                  itemCount: selectedCategory.subCategories.length,
+                                  itemBuilder: (context, index) {
+                                    final sub = selectedCategory.subCategories[index];
+                                    return _FilterChip(
+                                      label: sub.name,
+                                      isSmall: true,
+                                      isSelected: selectedSubCategoryId.value == sub.id,
+                                      onSelected: (selected) {
+                                        selectedSubCategoryId.value = selected ? sub.id : null;
+                                        ref
+                                            .read(paginatedUserProductsProvider.notifier)
+                                            .setFilters(
+                                              categoryId: selectedCategoryId.value,
+                                              subCategoryId: selectedSubCategoryId.value,
+                                            );
+                                      },
                                     );
-                              },
+                                  },
+                                ),
+                              ),
                             );
                           },
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
                 const SizedBox(height: 16),
               ],
             ),
-            loading: () => const SizedBox(height: 50),
+            loading: () => const SizedBox(height: 60),
             error: (_, __) => const SizedBox.shrink(),
           ),
 
@@ -237,7 +253,7 @@ class AllProductsView extends HookConsumerWidget {
 
   Widget _buildProductGrid(
     ThemeData theme,
-    dynamic l10n, // Type depends on your gen_l10n
+    dynamic l10n,
     PaginatedState<Product> state,
     WidgetRef ref,
   ) {
@@ -251,8 +267,8 @@ class AllProductsView extends HookConsumerWidget {
             childCount: 6,
           ),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // Changed from 2 to 3
-            childAspectRatio: 0.6, // Adjusted ratio for 3 columns
+            crossAxisCount: 3, // Reverted to 3
+            childAspectRatio: 0.6, // Reverted to 0.6
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
@@ -313,11 +329,14 @@ class AllProductsView extends HookConsumerWidget {
       sliver: SliverGrid(
         delegate: SliverChildBuilderDelegate((context, index) {
           final product = state.allItems[index];
-          return BuyerProductCard(product: product);
+          return StaggeredSlideFade(
+             index: index,
+             child: BuyerProductCard(product: product),
+          );
         }, childCount: state.allItems.length),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // Changed from 2 to 3
-          childAspectRatio: 0.6, // Adjusted ratio for 3 columns
+          crossAxisCount: 3, // Reverted to 3
+          childAspectRatio: 0.6, // Reverted to 0.6
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
@@ -344,24 +363,30 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: onSelected,
-      showCheckmark: false,
-      labelStyle: TextStyle(
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        color: isSelected
-            ? theme.colorScheme.onPrimary
-            : theme.colorScheme.onSurface,
-        fontSize: isSmall ? 12 : 14,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      child: FilterChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: onSelected,
+        showCheckmark: false,
+        labelStyle: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected
+              ? theme.colorScheme.onPrimary
+              : theme.colorScheme.onSurface,
+          fontSize: isSmall ? 12 : 14,
+        ),
+        backgroundColor: theme.colorScheme.surface,
+        selectedColor: theme.colorScheme.primary,
+        checkmarkColor: theme.colorScheme.onPrimary,
+        side: isSelected ? BorderSide.none : BorderSide(color: theme.colorScheme.outlineVariant),
+        elevation: isSelected ? 2 : 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        padding: isSmall
+            ? const EdgeInsets.symmetric(horizontal: 8)
+            : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-      backgroundColor: theme.colorScheme.surfaceContainerHighest,
-      selectedColor: theme.colorScheme.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      padding: isSmall
-          ? const EdgeInsets.symmetric(horizontal: 8)
-          : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }

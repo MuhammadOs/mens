@@ -10,6 +10,7 @@ import 'package:mens/features/user/brands/presentation/notifiers/paginated_brand
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/shared/providers/paginated_notifier.dart';
 import 'package:mens/shared/widgets/pagination_widget.dart';
+import 'package:mens/shared/widgets/staggered_slide_fade.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class AllBrandsView extends HookConsumerWidget {
@@ -25,9 +26,7 @@ class AllBrandsView extends HookConsumerWidget {
     // State
     final selectedCategoryId = useState<int?>(null);
     final searchController = useTextEditingController();
-    // Optional: Add debounce if your API supports search text for brands
-    // final searchDebounce = useRef<Timer?>(null);
-
+    
     // Initial Load
     useEffect(() {
       Future.microtask(
@@ -44,53 +43,63 @@ class AllBrandsView extends HookConsumerWidget {
       ),
       body: Column(
         children: [
-          // 1. Fixed Search Bar
+          // 1. Search Bar
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: SearchBar(
-              controller: searchController,
-              hintText: l10n.searchHint,
-              elevation: WidgetStateProperty.all(0),
-              leading: Icon(
-                FontAwesomeIcons.magnifyingGlass,
-                color: theme.colorScheme.onSurfaceVariant,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
               ),
-              padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              hintStyle: WidgetStateProperty.all(
-                theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+              child: SearchBar(
+                controller: searchController,
+                hintText: l10n.searchHint,
+                elevation: WidgetStateProperty.all(0),
+                leading: Icon(
+                  FontAwesomeIcons.magnifyingGlass,
+                  color: theme.colorScheme.primary,
+                  size: 20,
                 ),
-              ),
-              backgroundColor: WidgetStateProperty.all(
-                theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-              ),
-              shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: theme.colorScheme.outline.withAlpha(50),
+                padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                hintStyle: WidgetStateProperty.all(
+                  theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.5),
                   ),
                 ),
+                backgroundColor: WidgetStateProperty.all(
+                  theme.colorScheme.surfaceContainerLow,
+                ),
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.3)),
+                  ),
+                ),
+                onChanged: (query) {
+                  // Implement search logic here if needed
+                },
               ),
-              onChanged: (query) {
-                // Implement search logic here if needed
-              },
             ),
           ),
 
-          // 2. Fixed Category Filters
+          // 2. Category Filters
           categoriesAsync.when(
             data: (categories) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  height: 50,
+                  height: 48,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
                     itemCount: categories.length + 1,
                     itemBuilder: (context, index) {
                       if (index == 0) {
@@ -124,7 +133,7 @@ class AllBrandsView extends HookConsumerWidget {
                 const SizedBox(height: 16),
               ],
             ),
-            loading: () => const SizedBox(height: 50),
+            loading: () => const SizedBox(height: 64),
             error: (_, __) => const SizedBox.shrink(),
           ),
 
@@ -183,7 +192,7 @@ class AllBrandsView extends HookConsumerWidget {
           ),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            childAspectRatio: 0.8,
+            childAspectRatio: 0.75,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
@@ -249,11 +258,14 @@ class AllBrandsView extends HookConsumerWidget {
       sliver: SliverGrid(
         delegate: SliverChildBuilderDelegate((context, index) {
           final brand = brandState.allItems[index];
-          return _EnhancedBrandCard(brand: brand);
+          return StaggeredSlideFade(
+            index: index,
+            child: _EnhancedBrandCard(brand: brand),
+          );
         }, childCount: brandState.allItems.length),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          childAspectRatio: 0.8,
+          childAspectRatio: 0.75,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
@@ -278,22 +290,27 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: onSelected,
-      showCheckmark: false,
-      labelStyle: TextStyle(
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        color: isSelected
-            ? theme.colorScheme.onPrimary
-            : theme.colorScheme.onSurface,
-        fontSize: 13,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      child: FilterChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: onSelected,
+        showCheckmark: false,
+        labelStyle: TextStyle(
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          color: isSelected
+              ? theme.colorScheme.onPrimary
+              : theme.colorScheme.onSurface,
+          fontSize: 13,
+        ),
+        backgroundColor: theme.colorScheme.surface,
+        selectedColor: theme.colorScheme.primary,
+        side: isSelected ? BorderSide.none : BorderSide(color: theme.colorScheme.outlineVariant),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+        elevation: isSelected ? 2 : 0,
       ),
-      backgroundColor: theme.colorScheme.surfaceContainerHighest,
-      selectedColor: theme.colorScheme.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }
@@ -315,22 +332,17 @@ class _EnhancedBrandCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface, // Matches Product Card Surface
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: theme.colorScheme.onSurface.withOpacity(
-              0.1,
-            ), // Subtle border like products
-          ),
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -338,35 +350,35 @@ class _EnhancedBrandCard extends StatelessWidget {
             Hero(
               tag: 'brand_${brand.id}',
               child: Container(
+                padding: const EdgeInsets.all(2), // White border effect
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: theme.colorScheme.surface,
-                    width: 2,
-                  ),
+                  color: theme.colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 4,
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: CircleAvatar(
-                  radius: 28,
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  radius: 30,
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
                   backgroundImage: brand.brandImage != null
                       ? NetworkImage(brand.brandImage!)
                       : null,
                   child: brand.brandImage == null
                       ? Icon(
                           FontAwesomeIcons.store,
-                          color: theme.colorScheme.primary,
+                          color: theme.colorScheme.primary.withOpacity(0.7),
+                          size: 24,
                         )
                       : null,
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
             // Brand Name
             Text(
@@ -374,24 +386,32 @@ class _EnhancedBrandCard extends StatelessWidget {
               style: theme.textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurface,
+                fontSize: 13,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
 
             // Category Name
-            Text(
-              brand.categoryName,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.primary,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.secondaryContainer.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(8),
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              child: Text(
+                brand.categoryName,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.secondary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -410,18 +430,20 @@ class _BrandCardSkeleton extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: theme.colorScheme.onSurface.withOpacity(0.1),
+             color: theme.colorScheme.outlineVariant.withOpacity(0.5),
           ),
         ),
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Bone.circle(size: 56),
-            const SizedBox(height: 10),
-            const SizedBox(height: 4),
+            const Bone.circle(size: 60),
+            const SizedBox(height: 12),
+            const Bone.text(width: 80),
+            const SizedBox(height: 6),
+            const Bone.text(width: 50, fontSize: 10),
           ],
         ),
       ),

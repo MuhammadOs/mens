@@ -349,14 +349,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           )
           .toList();
 
+      // Get storeId from the first item (assuming all items are from same store or single store logic)
+      final storeId = widget.items.isNotEmpty ? widget.items.first.storeId : 0;
+
       final request = OrderRequest(
-        storeId: 0, // Default as per user request
+        storeId: storeId, 
         items: orderItems,
         paymentMethod: _paymentMethod == 0 ? "Cash" : "CreditCard",
-        addressId: 0, // Default as per user request
         shippingAddress: shippingAddress,
         notes: _notesController.text,
       );
+
+      print("Attempting to create order with payload: ${request.toJson()}");
 
       final response = await repository.createOrder(request);
 

@@ -35,6 +35,7 @@ class ProductsScreen extends HookConsumerWidget {
     }, const []);
 
     final l10n = ref.watch(l10nProvider);
+    final theme = Theme.of(context);
 
     // 1. Get Logged-in User's Category ID
     final userProfile = ref.watch(authNotifierProvider).asData?.value;
@@ -93,6 +94,9 @@ class ProductsScreen extends HookConsumerWidget {
             return TabBar(
               controller: tabController,
               isScrollable: true,
+              labelColor: theme.colorScheme.primary,
+              unselectedLabelColor: theme.colorScheme.primary,
+              indicatorColor: theme.colorScheme.primary,
               tabs: [...subCategories.map((subCat) => Tab(text: subCat.name))],
             );
           },

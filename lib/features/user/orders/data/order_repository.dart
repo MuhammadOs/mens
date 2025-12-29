@@ -5,7 +5,8 @@ import 'package:mens/features/user/orders/domain/order_models.dart';
 
 abstract class OrderRepository {
   Future<OrderResponse> createOrder(OrderRequest request);
-  Future<List<OrderResponse>> getOrders();
+  Future<List<OrderSummary>> getOrders();
+  Future<OrderResponse> getOrder(int id);
 }
 
 final orderRepositoryProvider = Provider<OrderRepository>((ref) {
@@ -37,25 +38,40 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<List<OrderResponse>> getOrders() async {
+  Future<List<OrderSummary>> getOrders() async {
     try {
       final response = await _dio.get('/orders');
 
       if (response.statusCode == 200) {
         if (response.data is List) {
           return (response.data as List)
-              .map((e) => OrderResponse.fromJson(e))
+              .map((e) => OrderSummary.fromJson(e))
               .toList();
-        } else if (response.data is Map<String, dynamic> &&
-            response.data['items'] is List) {
-          return (response.data['items'] as List)
-              .map((e) => OrderResponse.fromJson(e))
+        } else if (response.data is Map<String, dynamic>) {
+            final data = response.data;
+             if(data['items'] is List) {
+                 return (data['items'] as List)
+              .map((e) => OrderSummary.fromJson(e))
               .toList();
+             }
         }
       }
       throw Exception('Failed to fetch orders');
     } on DioException catch (e) {
       throw Exception('Network error fetching orders: ${e.message}');
+    }
+  }
+
+  Future<OrderResponse> getOrder(int id) async {
+    try {
+      final response = await _dio.get('/orders/$id');
+
+      if (response.statusCode == 200) {
+        return OrderResponse.fromJson(response.data);
+      }
+      throw Exception('Failed to fetch order details');
+    } on DioException catch (e) {
+      throw Exception('Network error fetching order details: ${e.message}');
     }
   }
 }

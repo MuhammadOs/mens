@@ -19,6 +19,7 @@ class PaginatedProductsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = ref.watch(l10nProvider);
+    final theme = Theme.of(context); // Define theme
     final notifier = ref.read(paginatedProductsProvider.notifier);
     final paginatedState = ref.watch(paginatedProductsProvider);
 
@@ -114,6 +115,9 @@ class PaginatedProductsScreen extends HookConsumerWidget {
               Tab(text: l10n.productsAll),
               ...subCategories.map((s) => Tab(text: s.name)),
             ],
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white,
+            indicatorColor: Colors.white,
           ),
           orElse: () => PreferredSize(
             preferredSize: const Size.fromHeight(kTextTabBarHeight),

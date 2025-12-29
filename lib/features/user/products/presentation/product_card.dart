@@ -105,7 +105,7 @@ class ProductCard extends StatelessWidget {
 
   static _toCartItem(String title, double price, String image) =>
       // return a minimal cart model-like map; will be converted in repository helper
-      CartItemShim(title: title, price: price, image: image);
+      CartItemShim(title: title, price: price, image: image, storeId: 1); // Default storeId for demo
 
   void _addToCartAndNotify(BuildContext context, CartItemShim shim) {
     final repo = CartRepository.instance;
@@ -114,6 +114,7 @@ class ProductCard extends StatelessWidget {
       title: shim.title,
       price: shim.price,
       image: shim.image,
+      storeId: shim.storeId,
     );
     repo.addItem(cartItem);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -128,7 +129,8 @@ class CartItemShim {
   final String title;
   final double price;
   final String image;
-  CartItemShim({required this.title, required this.price, required this.image});
+  final int storeId;
+  CartItemShim({required this.title, required this.price, required this.image, required this.storeId});
 
   String get id => title; // demo id
 }

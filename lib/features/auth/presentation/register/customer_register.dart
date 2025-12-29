@@ -6,7 +6,6 @@ import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
 import 'package:mens/shared/widgets/app_back_button.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -29,8 +28,6 @@ class _RegisterCustomerScreenState
 
   final _formKey = GlobalKey<FormState>();
 
-  DateTime? _birthDate;
-  final _dateController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureRepeat = true;
   bool _isLoading = false;
@@ -42,7 +39,6 @@ class _RegisterCustomerScreenState
     _emailController.dispose();
     _passwordController.dispose();
     _repeatPasswordController.dispose();
-    _dateController.dispose();
     super.dispose();
   }
 
@@ -63,18 +59,14 @@ class _RegisterCustomerScreenState
     try {
       // Build request body
       final body = {
-        'firstName': _firstNameController.text.trim(),
-        'lastName': _lastNameController.text.trim(),
         'email': _emailController.text.trim(),
         'password': _passwordController.text,
-        // API may expect date in ISO format
-        if (_birthDate != null)
-          'birthDate': DateFormat('yyyy-MM-dd').format(_birthDate!),
-        'role': 'Customer',
+        'firstName': _firstNameController.text.trim(),
+        'lastName': _lastNameController.text.trim(),
       };
 
       final uri = Uri.parse(
-        'https://mens-shop-api-fhgf2.ondigitalocean.app/api/user/register',
+        'https://mens-shop-api-fhgf2.ondigitalocean.app/api/auth/register',
       );
       final response = await http
           .post(
@@ -174,7 +166,6 @@ class _RegisterCustomerScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: AppBackButton(
-          size: 36,
           backgroundColor: const Color(0xFF0F3B5C),
           iconColor: Colors.white,
           onPressed: () => context.go(AppRoutes.roleSelection),
@@ -266,60 +257,6 @@ class _RegisterCustomerScreenState
                             return l10n.validationEmailInvalid;
                           return null;
                         },
-                      ),
-                      const SizedBox(height: 15),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.birthDateLabel,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(
-                                0.9,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _dateController,
-                            readOnly: true,
-                            style: TextStyle(
-                              color: theme.colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'YYYY-MM-DD',
-                              suffixIcon: Icon(
-                                FontAwesomeIcons.calendar,
-                                color: theme.colorScheme.onSurface.withOpacity(
-                                  0.5,
-                                ),
-                              ),
-                            ),
-                            onTap: () async {
-                              final now = DateTime.now();
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate:
-                                    _birthDate ?? DateTime(now.year - 20),
-                                firstDate: DateTime(1900),
-                                lastDate: now,
-                                builder: (context, child) {
-                                  return Theme(data: theme, child: child!);
-                                },
-                              );
-                              if (picked != null) {
-                                final formatted = DateFormat(
-                                  'dd-MM-yyyy',
-                                ).format(picked);
-                                setState(() {
-                                  _birthDate = picked;
-                                  _dateController.text = formatted;
-                                });
-                              }
-                            },
-                          ),
-                        ],
                       ),
                       const SizedBox(height: 15),
 

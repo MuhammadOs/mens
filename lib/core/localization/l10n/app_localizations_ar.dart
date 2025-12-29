@@ -715,4 +715,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get brandProducts => 'المنتجات';
+
+  @override
+  String get ordersEmpty => 'لا يوجد طلبات بعد !';
 }

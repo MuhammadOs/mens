@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
-import 'package:mens/features/seller/profile/presentation/seller_profile_screen.dart' show SellerProfileScreen;
+import 'package:mens/features/seller/profile/presentation/seller_profile_screen.dart'
+    show SellerProfileScreen;
 import 'package:mens/features/user/conversations/presentation/conversations_view.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
@@ -11,6 +12,7 @@ import 'package:mens/features/auth/presentation/register/roles_selection.dart';
 import 'package:mens/features/auth/presentation/register/customer_register.dart';
 // seller home screen import removed (unused in router)
 import 'package:mens/features/seller/Orders/presentation/orders_screen.dart';
+import 'package:mens/features/seller/Orders/presentation/order_details_screen.dart';
 import 'package:mens/features/seller/Products/presentation/add_product_screen.dart';
 import 'package:mens/features/seller/Products/presentation/edit_products_screen.dart';
 import 'package:mens/features/seller/Products/presentation/products_screen.dart';
@@ -51,6 +53,7 @@ class AppRoutes {
   static const productDetails = '/product-details';
   static const contactUs = '/contact-us';
   static const customersHome = '/customers-home';
+  static const orderDetails = '/orders/:id';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -131,6 +134,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.orders,
         builder: (context, state) => const OrdersScreen(),
+      ),
+      GoRoute(
+        path: '/orders/:id',
+        builder: (context, state) {
+          final orderId = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return OrderDetailsScreen(orderId: orderId);
+        },
       ),
       GoRoute(
         path: AppRoutes.userProfile,
@@ -223,8 +233,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         final roleNorm = (userRole ?? '').toString().toLowerCase();
 
         // --- ROLE-BASED REDIRECT LOGIC ---
-        // Customers and Admins should go to the unified User Home
-        if (roleNorm == 'admin' || roleNorm == 'customer') {
+        // Customers, Users and Admins should go to the unified User Home
+        if (roleNorm == 'admin' ||
+            roleNorm == 'customer' ||
+            roleNorm == 'user') {
           // If trying to access auth routes or seller/admin-only routes, redirect to user home
           if (isGoingToAuthRoute ||
               location.startsWith('/admin') ||
@@ -244,7 +256,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 
         // Default: if logged in and trying to access auth routes, redirect based on detected role
         if (isGoingToAuthRoute) {
-          return (roleNorm == 'admin' || roleNorm == 'customer')
+          return (roleNorm == 'admin' ||
+                  roleNorm == 'customer' ||
+                  roleNorm == 'user')
               ? AppRoutes.userHome
               : AppRoutes.home;
         }

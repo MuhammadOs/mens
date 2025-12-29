@@ -11,6 +11,7 @@ extension ProductCartExtensions on Product {
       title: name,
       price: price, // Assumes price is already a double in Product
       image: primaryImageUrl ?? '', 
+      storeId: storeId,
       quantity: 1,
       // Add other fields if your CartItem supports them (e.g., brand, size)
     );

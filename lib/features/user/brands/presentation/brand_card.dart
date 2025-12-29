@@ -79,7 +79,7 @@ class BrandCard extends StatelessWidget {
 
             // Owner Name
             Text(
-              brand.ownerName,
+              brand.brandName,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.6),
                 fontSize: 9,

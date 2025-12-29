@@ -228,5 +228,6 @@
   "comingSoonMessage": "هذه الميزة ستتوفر قريباً.",
   "brandOwner": "المالك",
   "brandProducts": "المنتجات",
-  "noProductsFound": "لا توجد منتجات لهذه العلامة التجارية"
+  "noProductsFound": "لا توجد منتجات لهذه العلامة التجارية",
+  "ordersEmpty": "لا يوجد طلبات بعد !"
 }

@@ -2,26 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-
-// Simple data class for order information
-class _OrderData {
-  final String id;
-  final String customerName;
-  final String items;
-  final String price;
-  final String date;
-  final String status;
-
-  _OrderData({
-    required this.id,
-    required this.customerName,
-    required this.items,
-    required this.price,
-    required this.date,
-    required this.status,
-  });
-}
+import 'package:mens/features/seller/Orders/notifiers/orders_notifier.dart';
+import 'package:mens/features/seller/Orders/presentation/order_details_screen.dart';
+import 'package:mens/features/seller/Orders/data/order_model.dart';
 
 class OrdersScreen extends HookConsumerWidget {
   const OrdersScreen({super.key});
@@ -30,311 +15,378 @@ class OrdersScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = ref.watch(l10nProvider);
     final theme = Theme.of(context);
+    
+    // Status filter state
+    final selectedStatus = useState<String>('All');
+    final scrollController = useScrollController();
 
-    // Placeholder data
-    final List<_OrderData> allOrders = [
-      _OrderData(
-        id: "#12345",
-        customerName: "Sarah Johnson",
-        items: "Ceramic Bowl Set x2",
-        price: "\$68.00",
-        date: "Sep 28, 2025",
-        status: l10n.orderStatusPending,
-      ),
-      _OrderData(
-        id: "#12344",
-        customerName: "Mike Brown",
-        items: "Woven Scarf x1",
-        price: "\$45.00",
-        date: "Sep 27, 2025",
-        status: l10n.orderStatusShipped,
-      ),
-      _OrderData(
-        id: "#12343",
-        customerName: "Emma Davis",
-        items: "Table Runner x1",
-        price: "\$85.00",
-        date: "Sep 25, 2025",
-        status: l10n.ordersDelivered,
-      ),
-      _OrderData(
-        id: "#12342",
-        customerName: "Chris Lee",
-        items: "Leather Wallet",
-        price: "\$35.00",
-        date: "Sep 24, 2025",
-        status: l10n.ordersDelivered,
-      ),
-    ];
+    // Watch the paginated provider
+    final state = ref.watch(paginatedOrdersProvider);
+    final notifier = ref.read(paginatedOrdersProvider.notifier);
 
-    // State for the filter
-    final selectedFilter = useState(l10n.ordersTotal);
+    // Initial load and filter change handling
+    useEffect(() {
+      // Trigger load with current filter directly
+      // This handles initial load AND updates when selectedStatus.value changes
+      Future.microtask(() => notifier.setStatusFilter(selectedStatus.value));
+      return null;
+    }, [selectedStatus.value]);
 
-    // Logic to filter the list
-    final filteredOrders = selectedFilter.value == l10n.ordersTotal
-        ? allOrders
-        : allOrders
-              .where((order) => order.status == selectedFilter.value)
-              .toList();
+    // Infinite scroll listener
+    useEffect(() {
+      void onScroll() {
+        if (scrollController.hasClients && 
+            scrollController.position.pixels >= scrollController.position.maxScrollExtent - 200) {
+          notifier.loadNextPage();
+        }
+      }
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController, notifier]);
 
-    // Data for the summary cards
-    final summaryCards = [
-      {
-        'label': l10n.ordersTotal,
-        'value': allOrders.length.toString(),
-        'color': theme.colorScheme.primary,
-      },
-      {
-        'label': l10n.ordersPending,
-        'value': allOrders
-            .where((o) => o.status == l10n.orderStatusPending)
-            .length
-            .toString(),
-        'color': Colors.orange,
-      },
-      {
-        'label': l10n.ordersDelivered,
-        'value': allOrders
-            .where((o) => o.status == l10n.ordersDelivered)
-            .length
-            .toString(),
-        'color': Colors.green,
-      },
-      {
-        'label': l10n.orderStatusShipped,
-        'value': allOrders
-            .where((o) => o.status == l10n.orderStatusShipped)
-            .length
-            .toString(),
-        'color': Colors.blue,
-      },
+    // Summary cards data/Tabs
+    final summaryTabs = [
+      'All', 'Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.ordersTitle)),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: Text(l10n.ordersTitle),
+      ),
+      body: Column(
         children: [
+          // Filter Tabs
           SizedBox(
-            height: 100,
+            height: 60,
             child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: summaryCards.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              itemCount: summaryTabs.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
-                final cardData = summaryCards[index];
-                final label = cardData['label'] as String;
+                final status = summaryTabs[index];
+                final isSelected = selectedStatus.value == status;
+                return _FilterChip(
+                  label: status,
+                  isSelected: isSelected,
+                  onTap: () {
+                    selectedStatus.value = status;
+                    if (scrollController.hasClients) {
+                      scrollController.jumpTo(0);
+                    }
+                  },
+                );
+              },
+            ),
+          ),
 
-                return SizedBox(
-                  width: 120, // Give each card a fixed width
-                  child: _SummaryCard(
-                    label: label,
-                    value: cardData['value'] as String,
-                    onTap: () => selectedFilter.value = label,
-                    isActive: selectedFilter.value == label,
-                    activeColor: cardData['color'] as Color,
+          // Content
+          Expanded(
+            child: Builder(
+              builder: (context) {
+                // Formatting Error
+                if (state.error != null && state.allItems.isEmpty) {
+                   return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(FontAwesomeIcons.circleExclamation, size: 48, color: theme.colorScheme.error),
+                        const SizedBox(height: 16),
+                        Text('Failed to load orders', style: theme.textTheme.titleMedium),
+                         TextButton(
+                          onPressed: () => notifier.refresh(),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // Loading State (Initial)
+                if (state.isLoading && state.allItems.isEmpty) {
+                  return _buildSkeletonList(theme);
+                }
+
+                // Empty State
+                if (!state.isLoading && state.allItems.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(FontAwesomeIcons.boxOpen, size: 64, color: theme.dividerColor),
+                        const SizedBox(height: 16),
+                        Text('No orders found', style: theme.textTheme.titleMedium?.copyWith(color: theme.hintColor)),
+                         TextButton(
+                          onPressed: () => notifier.refresh(),
+                          child: const Text('Refresh'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // Data List
+                return RefreshIndicator(
+                  onRefresh: () async => notifier.refresh(),
+                  child: ListView.separated(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(16),
+                    // Add 1 for the loading indicator at button if loading more
+                    itemCount: state.allItems.length + (state.isLoadingMore ? 1 : 0),
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      if (index == state.allItems.length) {
+                         return const Center(child: Padding(
+                           padding: EdgeInsets.all(16.0),
+                           child: CircularProgressIndicator.adaptive(),
+                         ));
+                      }
+
+                      final order = state.allItems[index];
+                      return _OrderListItem(
+                        order: order,
+                        onDetails: () async {
+                           final result = await Navigator.of(context).push<bool?>(
+                            MaterialPageRoute(
+                              builder: (_) => OrderDetailsScreen(orderId: order.id),
+                            ),
+                          );
+                          // Refresh if changes made (e.g. status update)
+                          if (result == true) {
+                            notifier.refresh();
+                          }
+                        },
+                      );
+                    },
                   ),
                 );
               },
             ),
           ),
-          const SizedBox(height: 24),
-          // The rest of the list remains the same
-          ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: filteredOrders.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              return _OrderListItem(order: filteredOrders[index]);
-            },
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonList(ThemeData theme) {
+    return Skeletonizer(
+      enabled: true,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: 6,
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemBuilder: (_, index) => _OrderListItem(
+          order: SellerOrderSummary(
+            id: 12345,
+            orderDate: DateTime.now(),
+            totalAmount: 150.00,
+            status: 'Pending',
+            itemCount: 3,
+            storeName: 'Loading Store',
+          ),
+          onDetails: () {},
+        ),
       ),
     );
   }
 }
 
-// ✅ MODIFIED: Added onTap and isActive properties for interactivity.
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.label,
-    required this.value,
-    this.onTap,
-    this.isActive = false,
-    this.activeColor,
-  });
-  final String label, value;
-  final VoidCallback? onTap;
-  final bool isActive;
-  final Color? activeColor;
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FilterChip({required this.label, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = isSelected 
+      ? theme.colorScheme.primary 
+      : theme.colorScheme.surfaceContainerHighest;
+    final onColor = isSelected 
+      ? theme.colorScheme.onPrimary 
+      : theme.colorScheme.onSurfaceVariant;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.transparent),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: theme.colorScheme.primary.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            )
+          ] : [],
+        ),
+        child: Text(
+          label,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: onColor,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class _OrderListItem extends StatelessWidget {
+  final SellerOrderSummary order;
+  final VoidCallback onDetails;
+
+  const _OrderListItem({required this.order, required this.onDetails});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Determine colors based on whether the card is active
-    final backgroundColor = isActive
-        ? activeColor ?? theme.colorScheme.primary
-        : theme.colorScheme.surface;
-    final textColor = isActive
-        ? theme.colorScheme.onPrimary
-        : theme.colorScheme.onSurface;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: textColor.withOpacity(0.8),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ✅ IMPLEMENTED WIDGET
-class _OrderListItem extends ConsumerWidget {
-  const _OrderListItem({required this.order});
-  final _OrderData order;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final l10n = ref.watch(l10nProvider);
-
-    // Determine color and icon based on status
-    final (IconData icon, Color color) = switch (order.status) {
-      _ when order.status == l10n.orderStatusPending => (
-        FontAwesomeIcons.clock,
-        Colors.orange,
-      ),
-      _ when order.status == l10n.orderStatusShipped => (
-        FontAwesomeIcons.truck,
-        Colors.blue,
-      ),
-      _ when order.status == l10n.ordersDelivered => (
-        FontAwesomeIcons.circleCheck,
-        Colors.green,
-      ),
+    // Status helpers
+    final (IconData icon, Color color) = switch (order.status.toLowerCase()) {
+      'pending' => (FontAwesomeIcons.clock, Colors.orange),
+      'confirmed' => (FontAwesomeIcons.circleCheck, Colors.blue),
+      'processing' => (FontAwesomeIcons.spinner, Colors.purple),
+      'shipped' => (FontAwesomeIcons.truck, Colors.indigo),
+      'delivered' => (FontAwesomeIcons.circleCheck, Colors.green),
+      'cancelled' => (FontAwesomeIcons.ban, Colors.red),
       _ => (FontAwesomeIcons.circleQuestion, Colors.grey),
     };
 
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
+        border: Border.all(color: theme.dividerColor.withOpacity(0.05)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                order.id,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onDetails,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header: ID and Status
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(icon, size: 16, color: color),
-                    const SizedBox(width: 6),
                     Text(
-                      order.status,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: color,
+                      '#${order.id}',
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(icon, size: 12, color: color),
+                          const SizedBox(width: 6),
+                          Text(
+                            order.status,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: color,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(order.customerName, style: theme.textTheme.bodyLarge),
-          Text(
-            order.items,
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            order.price,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
+                const SizedBox(height: 16),
+                
+                // Info Row
+                Row(
+                  children: [
+                    // Date
+                    _InfoItem(
+                      icon: FontAwesomeIcons.calendar, 
+                      text: order.orderDate != null 
+                          ? '${order.orderDate!.day}/${order.orderDate!.month}/${order.orderDate!.year}' 
+                          : 'N/A'
+                    ),
+                    const SizedBox(width: 24),
+                    // Items
+                    _InfoItem(
+                      icon: FontAwesomeIcons.layerGroup, 
+                      text: '${order.itemCount} Items'
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 12),
+
+                // Footer: Total Price & Action
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Total Amount', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
+                        const SizedBox(height: 2),
+                        Text(
+                          '\$${order.totalAmount.toStringAsFixed(2)}', 
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Icon(Icons.arrow_forward_ios, size: 16, color: theme.hintColor.withOpacity(0.5)),
+                  ],
+                ),
+              ],
             ),
           ),
-          const Divider(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                order.date,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.hintColor,
-                ),
-              ),
-              SizedBox(
-                height: 36,
-                child: ElevatedButton(
-                  onPressed: () {
-                    /* TODO: Navigate to order details screen */
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.onSurface.withOpacity(
-                      0.1,
-                    ),
-                    foregroundColor: theme.colorScheme.onSurface,
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    l10n.orderDetails,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 }
+
+class _InfoItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _InfoItem({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: theme.hintColor),
+        const SizedBox(width: 6),
+        Text(text, style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
+      ],
+    );
+  }
+}
+

@@ -100,7 +100,6 @@ class RegisterScreen extends HookConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: AppBackButton(
-          size: 36,
           backgroundColor: const Color(0xFF0F3B5C),
           iconColor: Colors.white,
           onPressed: () => context.go(AppRoutes.roleSelection),
@@ -178,7 +177,6 @@ class RegisterScreen extends HookConsumerWidget {
                   // Back Button (Icon only)
                   if (registerState.currentStep > 0)
                     AppBackButton(
-                      size: 36,
                       backgroundColor: const Color(0xFF0F3B5C),
                       iconColor: Colors.white,
                       onPressed: registerNotifier.previousStep,

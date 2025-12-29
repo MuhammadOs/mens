@@ -317,5 +317,6 @@
   "comingSoonMessage": "This feature is coming soon.",
   "brandOwner": "Owner",
   "brandProducts": "Products",
-  "noProductsFound": "No products found for this brand"
+  "noProductsFound": "No products found for this brand",
+  "ordersEmpty": "There are no orders, yet!" 
 }

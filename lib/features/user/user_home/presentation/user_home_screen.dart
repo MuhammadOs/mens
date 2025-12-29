@@ -44,10 +44,46 @@ class UserHomeScreen extends HookConsumerWidget {
       const SizedBox.shrink(),
     ];
 
+    final items = [
+      BottomNavigationBarItem(
+        icon: const Icon(FontAwesomeIcons.house),
+        label: l10n.homeProducts,
+      ),
+      if (userProfile?.role != "Admin")
+        BottomNavigationBarItem(
+          icon: const Icon(FontAwesomeIcons.cartShopping),
+          label: l10n.cart,
+        ),
+      BottomNavigationBarItem(
+        icon: const Icon(FontAwesomeIcons.store),
+        label: l10n.allBrandsTitle,
+      ),
+      if (userProfile?.role != "Admin")
+        BottomNavigationBarItem(
+          icon: const Icon(FontAwesomeIcons.shirt),
+          label: l10n.tryOn,
+        ),
+      if (userProfile?.role == "Admin")
+        BottomNavigationBarItem(
+          icon: const Icon(FontAwesomeIcons.comments),
+          label: l10n.conversations,
+        ),
+      BottomNavigationBarItem(
+        icon: const Icon(FontAwesomeIcons.user),
+        label: l10n.profile,
+      ),
+    ];
+
+    // Ensure index is valid for current items
+    final safeIndex = selectedIndex >= items.length ? 0 : selectedIndex;
+
+    // Verify screens length matches expected logic (ignoring the extra sizedbox) or at least covers safeIndex
+    // We don't need to change screens logic as long as it maps 1:1 with items logic conceptually
+
     return Scaffold(
-      body: IndexedStack(index: selectedIndex, children: screens),
+      body: IndexedStack(index: safeIndex, children: screens),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
+        currentIndex: safeIndex,
         backgroundColor: Theme.of(context).colorScheme.surface,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(
@@ -57,35 +93,7 @@ class UserHomeScreen extends HookConsumerWidget {
         onTap: (index) {
           ref.read(adminNavIndexProvider.notifier).state = index;
         },
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(FontAwesomeIcons.house),
-            label: l10n.homeProducts,
-          ),
-          if (userProfile?.role != "Admin")
-            BottomNavigationBarItem(
-              icon: const Icon(FontAwesomeIcons.cartShopping),
-              label: l10n.cart,
-            ),
-          BottomNavigationBarItem(
-            icon: const Icon(FontAwesomeIcons.store),
-            label: l10n.allBrandsTitle,
-          ),
-          if (userProfile?.role != "Admin")
-            BottomNavigationBarItem(
-              icon: const Icon(FontAwesomeIcons.shirt),
-              label: l10n.tryOn,
-            ),
-          if (userProfile?.role == "Admin")
-            BottomNavigationBarItem(
-              icon: const Icon(FontAwesomeIcons.comments),
-              label: l10n.conversations,
-            ),
-          BottomNavigationBarItem(
-            icon: const Icon(FontAwesomeIcons.user),
-            label: l10n.profile,
-          ),
-        ],
+        items: items,
       ),
     );
   }

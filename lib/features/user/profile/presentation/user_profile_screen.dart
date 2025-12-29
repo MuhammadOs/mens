@@ -121,12 +121,6 @@ class UserProfileScreen extends ConsumerWidget {
                       l10n.userNameLabel,
                       user?.phoneNumber ?? '',
                     ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      context,
-                      l10n.language,
-                      user?.store?.location ?? '',
-                    ),
                   ],
                 ),
               ),

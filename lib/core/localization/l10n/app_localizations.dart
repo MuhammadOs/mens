@@ -1441,6 +1441,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Products'**
   String get brandProducts;
+
+  /// No description provided for @ordersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no orders, yet!'**
+  String get ordersEmpty;
 }
 
 class _AppLocalizationsDelegate
