@@ -171,7 +171,7 @@ class EditProfileScreen extends HookConsumerWidget {
                       Text(
                         l10n.birthDateLabel,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.9),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -183,7 +183,7 @@ class EditProfileScreen extends HookConsumerWidget {
                           hintText: 'dd-MM-yyyy',
                           suffixIcon: Icon(
                             FontAwesomeIcons.calendar,
-                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         onTap: () async {

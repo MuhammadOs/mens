@@ -7,6 +7,7 @@ import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/shared/theme/theme_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserProfileScreen extends ConsumerWidget {
   const UserProfileScreen({super.key});
@@ -331,6 +332,67 @@ class UserProfileScreen extends ConsumerWidget {
                   ),
                 ),
               if (user?.role != "Admin") const SizedBox(height: 20),
+
+              // Legal Section
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.shieldHalved,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "Legal", // TODO: Localize
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () async {
+                        final Uri url = Uri.parse(
+                          'https://mens-shop-api-fhgf2.ondigitalocean.app/privacy-policy.html',
+                        );
+                        if (!await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        )) {
+                           if (context.mounted) {
+                             ScaffoldMessenger.of(context).showSnackBar(
+                               const SnackBar(content: Text('Could not launch Privacy Policy')),
+                             );
+                           }
+                        }
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Privacy Policy", style: theme.textTheme.bodyMedium),
+                          Icon(
+                            FontAwesomeIcons.arrowUpRightFromSquare,
+                            size: 14,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

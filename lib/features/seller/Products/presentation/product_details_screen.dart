@@ -123,7 +123,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                   leading: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: AppBackButton(
-                      backgroundColor: Colors.black.withOpacity(0.3), // Glassy look
+                      backgroundColor: Colors.black.withValues(alpha: 0.3), // Glassy look
                       iconColor: Colors.white,
                       onPressed: () => Navigator.of(context).pop(),
                     ),
@@ -134,7 +134,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                        padding: const EdgeInsets.all(8.0),
                        child: IconButton(
                          onPressed: shareScreenshot,
-                         style: IconButton.styleFrom(backgroundColor: Colors.black.withOpacity(0.3)),
+                         style: IconButton.styleFrom(backgroundColor: Colors.black.withValues(alpha: 0.3)),
                          icon: const Icon(Icons.share, color: Colors.white, size: 20),
                        ),
                      ),
@@ -161,7 +161,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                                     fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => Container(
                                       color: theme.colorScheme.surfaceContainerHighest,
-                                      child: Icon(FontAwesomeIcons.image, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.2)),
+                                      child: Icon(FontAwesomeIcons.image, size: 64, color: theme.colorScheme.onSurface.withValues(alpha: 0.2)),
                                     ),
                                   ),
                                 ),
@@ -169,7 +169,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                             },
                           )
                         else
-                          Container(color: theme.colorScheme.surfaceContainerHighest, child: Icon(FontAwesomeIcons.image, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.2))),
+                          Container(color: theme.colorScheme.surfaceContainerHighest, child: Icon(FontAwesomeIcons.image, size: 64, color: theme.colorScheme.onSurface.withValues(alpha: 0.2))),
   
                         // Gradient Overlay
                         Positioned.fill(
@@ -179,10 +179,10 @@ class ProductDetailsScreen extends HookConsumerWidget {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.black.withOpacity(0.4),
+                                  Colors.black.withValues(alpha: 0.4),
                                   Colors.transparent,
                                   Colors.transparent,
-                                  Colors.black.withOpacity(0.1),
+                                  Colors.black.withValues(alpha: 0.1),
                                 ],
                                 stops: const [0.0, 0.2, 0.8, 1.0],
                               ),
@@ -206,9 +206,9 @@ class ProductDetailsScreen extends HookConsumerWidget {
                                   height: 6,
                                   width: isActive ? 24 : 6,
                                   decoration: BoxDecoration(
-                                    color: isActive ? theme.colorScheme.primary : Colors.white.withOpacity(0.5),
+                                    color: isActive ? theme.colorScheme.primary : Colors.white.withValues(alpha: 0.5),
                                     borderRadius: BorderRadius.circular(3),
-                                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4)],
+                                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 4)],
                                   ),
                                 );
                               }),
@@ -225,7 +225,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surface,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(32)), // Rounded top sheet effect
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0,-5))]
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0,-5))]
                     ),
                     transform: Matrix4.translationValues(0, -20, 0), // Slight overlap with image
                     child: Padding(
@@ -242,7 +242,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: theme.colorScheme.primary.withOpacity(0.1),
+                                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
@@ -329,7 +329,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                           ),
   
                           const SizedBox(height: 24),
-                          Divider(color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                          Divider(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
                           const SizedBox(height: 24),
   
                           // Description
@@ -346,7 +346,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                                 Text( // We can make this expandable later if needed
                                   displayedProduct.description,
                                   style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurface.withOpacity(0.8),
+                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                                     height: 1.6,
                                   ),
                                 ),
@@ -381,12 +381,12 @@ class ProductDetailsScreen extends HookConsumerWidget {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
                         ],
-                        border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
                       ),
                       child: Row(
                         children: [
@@ -394,7 +394,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
                            Container(
                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                              decoration: BoxDecoration(
-                               color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                               color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                                borderRadius: BorderRadius.circular(12),
                              ),
                              child: Row(
@@ -467,7 +467,7 @@ class _QuantityButton extends StatelessWidget {
             size: 20,
             color: isEnabled
                 ? Theme.of(context).colorScheme.onSurface
-                : Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
           ),
         ),
       ),

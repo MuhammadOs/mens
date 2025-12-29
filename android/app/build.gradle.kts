@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.muhammados.mens"  // Updated to match applicationId
-    compileSdk = 35  // Updated to Android 15 for Google Play requirement
+    compileSdk = 36  // Updated to Android 15/16 for plugin compatibility
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

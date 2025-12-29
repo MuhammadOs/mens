@@ -7,7 +7,7 @@ import 'package:mens/features/seller/Products/presentation/product_details_scree
 import 'package:mens/features/user/cart/cart.dart';
 import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
 import 'package:mens/features/user/products/presentation/product_card_extensions.dart';
-import 'package:skeletonizer/skeletonizer.dart';
+
 
 // Use shared theming and assets; this component is style-agnostic and uses
 // the current Theme for colors and text styles so it integrates with the app.
@@ -63,7 +63,7 @@ class ProductCard extends StatelessWidget {
             Text(
               "$price\$",
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             InkWell(
@@ -198,11 +198,11 @@ class BuyerProductCard extends HookConsumerWidget {
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 6,
             offset: const Offset(0, 3),
           ),

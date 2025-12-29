@@ -167,9 +167,7 @@ class ShopInformationScreen extends HookConsumerWidget {
                             ? Icon(
                                 FontAwesomeIcons.store,
                                 size: 50,
-                                color: theme.colorScheme.secondary.withOpacity(
-                                  0.5,
-                                ),
+                                color: theme.colorScheme.secondary.withValues(alpha: 0.5),
                               )
                             : null, // Show icon only if no image
                       ),
