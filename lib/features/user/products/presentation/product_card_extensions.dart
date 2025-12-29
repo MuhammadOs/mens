@@ -3,9 +3,7 @@ import 'package:mens/features/user/cart/cart.dart';
 
 extension ProductCartExtensions on Product {
   /// Maps a Domain Product to a Cart Item safely
-  CartItem? toCartItem() {
-    if (id == null) return null; // Ensure ID exists
-    
+  CartItem? toCartItem() {    
     return CartItem(
       id: id.toString(),
       title: name,

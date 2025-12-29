@@ -19,7 +19,6 @@ class PaginatedProductsScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = ref.watch(l10nProvider);
-    final theme = Theme.of(context); // Define theme
     final notifier = ref.read(paginatedProductsProvider.notifier);
     final paginatedState = ref.watch(paginatedProductsProvider);
 

@@ -7,7 +7,6 @@ import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/user/conversations/data/conversations_repository.dart';
 import 'package:mens/features/user/conversations/domain/conversation.dart';
 import 'package:mens/features/user/conversations/presentation/notifiers/reply_notifier.dart';
-import 'package:mens/features/user/user_home/presentation/user_drawer.dart';
 
 class ConversationsView extends HookConsumerWidget {
   const ConversationsView({super.key});
