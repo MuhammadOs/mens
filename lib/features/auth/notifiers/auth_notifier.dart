@@ -46,7 +46,7 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
   Future<void> login(String email, String password) async {
     state = const AsyncValue.loading();
-    
+
     final repo = ref.read(authRepositoryProvider);
     try {
       final userData = await repo.login(email, password);
@@ -59,6 +59,25 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncValue.data(null);
+  }
+
+  void loginAsGuest() {
+    state = const AsyncValue.loading();
+    try {
+      final guestProfile = UserProfile(
+        userId: 0, // 0 identifies a guest
+        email: 'guest@mens.com',
+        firstName: 'Guest',
+        lastName: 'User',
+        fullName: 'Guest User',
+        role: 'customer', // Use standard 'customer' role
+        emailConfirmed: true,
+        createdAt: DateTime.now(),
+      );
+      state = AsyncValue.data(guestProfile);
+    } catch (e, stackTrace) {
+      state = AsyncValue.error(e, stackTrace);
+    }
   }
 
   void setLoggedOut() {

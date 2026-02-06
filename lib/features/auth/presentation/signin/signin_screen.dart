@@ -298,16 +298,13 @@ class SignInScreen extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Opacity(
-                  opacity: 0.4,
-                  child: _buildRichTextLink(
-                    linkText: l10n.continueAsGuest,
-                    text: "",
-                    context: context,
-                    onTap: () {
-                      /* Disabled - TODO: Navigate */
-                    },
-                  ),
+                _buildRichTextLink(
+                  linkText: l10n.continueAsGuest,
+                  text: "",
+                  context: context,
+                  onTap: () {
+                    ref.read(authNotifierProvider.notifier).loginAsGuest();
+                  },
                 ),
               ],
             ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/user/cart/cart.dart';
 import 'package:mens/features/user/cart/presentation/all_orders_screen.dart';
 import 'package:mens/features/user/cart/presentation/checkout_screen.dart';
@@ -183,6 +185,41 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   ),
                 ),
                 onPressed: () {
+                  final authState = ref.read(authNotifierProvider);
+                  // Check for guest by userId == 0
+                  final isGuest = authState.asData?.value?.userId == 0;
+
+                  if (isGuest) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(l10n.signIn), // Reusing 'Sign In'
+                        content: const Text(
+                          'You need to sign in to checkout.',
+                        ), // TODO: Localize
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              l10n.cartClearDialogCancel,
+                            ), // Reusing 'Cancel'
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              ref.read(authNotifierProvider.notifier).logout();
+                              context.go(
+                                '/signIn',
+                              ); // Using explicit route string as in AppRouter.signIn
+                            },
+                            child: Text(l10n.signIn),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

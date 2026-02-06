@@ -18,6 +18,8 @@ class UserProfileScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final authState = ref.watch(authNotifierProvider);
     final user = authState.asData?.value;
+    // Check for guest by userId == 0
+    final isGuest = user?.userId == 0;
 
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
@@ -29,106 +31,165 @@ class UserProfileScreen extends ConsumerWidget {
           child: Column(
             children: [
               const SizedBox(height: 8),
-              // Avatar + Names
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: theme.cardColor,
-                backgroundImage: user?.store?.brandImage != null
-                    ? NetworkImage(user!.store!.brandImage!) as ImageProvider
-                    : null,
-                child: user?.store?.brandImage == null
-                    ? Icon(
-                        FontAwesomeIcons.user,
-                        size: 40,
-                        color: theme.colorScheme.onSurface,
-                      )
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                user?.fullName ??
-                    '${user?.firstName ?? ''} ${user?.lastName ?? ''}'
-                        .trim()
-                        .ifEmpty('Guest'),
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: theme.colorScheme.onSurface,
+              if (isGuest) ...[
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: theme.cardColor,
+                  child: Icon(
+                    FontAwesomeIcons.userSecret,
+                    size: 40,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                user?.email ?? l10n.emailLabel,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.continueAsGuest,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Profile Information Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.profile,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onSurface,
-                          ),
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        l10n.loginPageTitle,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                        InkWell(
-                          onTap: () => context.push(AppRoutes.editProfile),
-                          child: Row(
-                            children: [
-                              Icon(
-                                FontAwesomeIcons.penToSquare,
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.7,
-                                ),
-                                size: 16,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                l10n.editProfile,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
-                          ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.dontHaveAccount,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            ref.read(authNotifierProvider.notifier).logout();
+                            context.go(AppRoutes.signIn);
+                          },
+                          child: Text(l10n.loginButton),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInfoRow(
-                      context,
-                      l10n.firstNameLabel,
-                      user?.firstName ?? '',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(context, l10n.emailLabel, user?.email ?? ''),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(
-                      context,
-                      l10n.userNameLabel,
-                      user?.phoneNumber ?? '',
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 20),
+              ] else ...[
+                // Avatar + Names
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: theme.cardColor,
+                  backgroundImage: user?.store?.brandImage != null
+                      ? NetworkImage(user!.store!.brandImage!) as ImageProvider
+                      : null,
+                  child: user?.store?.brandImage == null
+                      ? Icon(
+                          FontAwesomeIcons.user,
+                          size: 40,
+                          color: theme.colorScheme.onSurface,
+                        )
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  user?.fullName ??
+                      '${user?.firstName ?? ''} ${user?.lastName ?? ''}'
+                          .trim()
+                          .ifEmpty('Guest'),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  user?.email ?? l10n.emailLabel,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-              const SizedBox(height: 16),
+                // Profile Information Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.profile,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () => context.push(AppRoutes.editProfile),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  FontAwesomeIcons.penToSquare,
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  l10n.editProfile,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _buildInfoRow(
+                        context,
+                        l10n.firstNameLabel,
+                        user?.firstName ?? '',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        context,
+                        l10n.emailLabel,
+                        user?.email ?? '',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildInfoRow(
+                        context,
+                        l10n.userNameLabel,
+                        user?.phoneNumber ?? '',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
 
-              // Settings Card
+              // Settings Card (Visible for both)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -162,7 +223,9 @@ class UserProfileScreen extends ConsumerWidget {
                       children: [
                         Icon(
                           FontAwesomeIcons.sun,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.7,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -182,8 +245,9 @@ class UserProfileScreen extends ConsumerWidget {
                                           ? l10n.lightTheme
                                           : l10n.systemTheme),
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.7,
+                                  ),
                                 ),
                               ),
                             ],
@@ -200,12 +264,14 @@ class UserProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
 
-                    // Language selector (uses localeProvider)
+                    // Language selector
                     Row(
                       children: [
                         Icon(
                           FontAwesomeIcons.globe,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.7,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -223,8 +289,9 @@ class UserProfileScreen extends ConsumerWidget {
                                     ? l10n.arabic
                                     : l10n.english,
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.7),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.7,
+                                  ),
                                 ),
                               ),
                             ],
@@ -270,7 +337,7 @@ class UserProfileScreen extends ConsumerWidget {
               const SizedBox(height: 18),
 
               // Support card
-              if (user?.role != "Admin")
+              if (user?.role != "Admin" && !isGuest) ...[
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -331,7 +398,8 @@ class UserProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              if (user?.role != "Admin") const SizedBox(height: 20),
+                const SizedBox(height: 20),
+              ],
 
               // Legal Section
               Container(
@@ -352,7 +420,7 @@ class UserProfileScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          "Legal", // TODO: Localize
+                          "Legal",
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
@@ -370,21 +438,30 @@ class UserProfileScreen extends ConsumerWidget {
                           url,
                           mode: LaunchMode.externalApplication,
                         )) {
-                           if (context.mounted) {
-                             ScaffoldMessenger.of(context).showSnackBar(
-                               const SnackBar(content: Text('Could not launch Privacy Policy')),
-                             );
-                           }
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Could not launch Privacy Policy',
+                                ),
+                              ),
+                            );
+                          }
                         }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Privacy Policy", style: theme.textTheme.bodyMedium),
+                          Text(
+                            "Privacy Policy",
+                            style: theme.textTheme.bodyMedium,
+                          ),
                           Icon(
                             FontAwesomeIcons.arrowUpRightFromSquare,
                             size: 14,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ],
                       ),
@@ -393,7 +470,7 @@ class UserProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const SizedBox(height: 12),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -412,28 +489,30 @@ class UserProfileScreen extends ConsumerWidget {
                 ],
               ),
 
-              const SizedBox(height: 20),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: theme.colorScheme.error),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 14,
+              if (!isGuest) ...[
+                const SizedBox(height: 20),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: theme.colorScheme.error),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                  onPressed: () async {
+                    // Logout
+                    await ref.read(authNotifierProvider.notifier).logout();
+                    if (context.mounted) context.go(AppRoutes.signIn);
+                  },
+                  child: Text(
+                    l10n.drawerLogOut,
+                    style: TextStyle(color: theme.colorScheme.error),
                   ),
                 ),
-                onPressed: () async {
-                  // Logout
-                  await ref.read(authNotifierProvider.notifier).logout();
-                  if (context.mounted) context.go(AppRoutes.signIn);
-                },
-                child: Text(
-                  l10n.drawerLogOut,
-                  style: TextStyle(color: theme.colorScheme.error),
-                ),
-              ),
+              ],
             ],
           ),
         ),
