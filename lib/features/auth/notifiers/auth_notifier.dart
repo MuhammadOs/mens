@@ -19,9 +19,7 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
   Future<void> _checkInitialAuthStatus() async {
     final repo = ref.read(authRepositoryProvider);
-    final storage = ref.read(
-      secureStorageProvider,
-    ); // Assuming you have this provider
+    final storage = ref.read(secureStorageProvider);
     final token = await storage.read(key: 'jwt_token');
 
     // Small delay helps prevent race conditions during widget build
@@ -29,18 +27,14 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
     try {
       if (token != null) {
-        final userData = await repo
-            .getUserData(); // Will use cache if available
-        // Update state if successful
+        final userData = await repo.getUserData();
         state = AsyncValue.data(userData);
       } else {
-        // No token, ensure state is logged out
         state = const AsyncValue.data(null);
       }
     } catch (e) {
-      // If getUserData fails (e.g., token expired/invalid), log out
-      await repo.logout(); // Clear token and cache
-      state = const AsyncValue.data(null); // Set state to logged out
+      await repo.logout();
+      state = const AsyncValue.data(null);
     }
   }
 

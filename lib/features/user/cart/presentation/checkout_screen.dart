@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/features/user/cart/cart.dart';
+import 'package:mens/features/user/cart/notifiers/cart_notifier.dart';
 import 'package:mens/features/user/orders/data/order_repository.dart';
 import 'package:mens/features/user/orders/domain/order_models.dart';
 import 'package:mens/shared/widgets/app_back_button.dart';
+import 'package:mens/core/localization/l10n_provider.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   final List<CartItem> items;
@@ -42,10 +44,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = ref.watch(l10nProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Checkout"),
+        title: Text(l10n.checkoutTitle),
         centerTitle: true,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -61,17 +64,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle(theme, "Order Summary"),
+            _buildSectionTitle(theme, l10n.orderSummary),
             const SizedBox(height: 12),
             _buildOrderSummary(theme),
 
             const SizedBox(height: 24),
-            _buildSectionTitle(theme, "Payment Method"),
+            _buildSectionTitle(theme, l10n.paymentMethod),
             const SizedBox(height: 12),
             _buildPaymentMethod(theme),
 
             const SizedBox(height: 24),
-            _buildSectionTitle(theme, "Shipping Address"),
+            _buildSectionTitle(theme, l10n.shippingAddress),
             const SizedBox(height: 12),
             _buildShippingForm(theme),
 
@@ -100,9 +103,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           color: theme.colorScheme.onPrimary,
                         ),
                       )
-                    : const Text(
-                        "Place Order",
-                        style: TextStyle(
+                    : Text(
+                        l10n.placeOrder,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -124,6 +127,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Widget _buildOrderSummary(ThemeData theme) {
+    final l10n = ref.read(l10nProvider);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -136,7 +140,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         children: [
@@ -195,7 +201,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Total",
+                l10n.cartTotal,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -215,11 +221,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Widget _buildPaymentMethod(ThemeData theme) {
+    final l10n = ref.read(l10nProvider);
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -230,9 +239,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       child: Column(
         children: [
-          _buildRadioTile(theme, 0, "Cash", FontAwesomeIcons.moneyBill),
+          _buildRadioTile(theme, 0, l10n.cash, FontAwesomeIcons.moneyBill),
           Divider(height: 1, color: theme.dividerColor.withValues(alpha: 0.5)),
-          _buildRadioTile(theme, 1, "Credit Card", FontAwesomeIcons.creditCard),
+          _buildRadioTile(
+            theme,
+            1,
+            l10n.creditCard,
+            FontAwesomeIcons.creditCard,
+          ),
         ],
       ),
     );
@@ -270,27 +284,30 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Widget _buildShippingForm(ThemeData theme) {
+    final l10n = ref.read(l10nProvider);
     return Column(
       children: [
         Row(
           children: [
-            Expanded(child: _buildTextField("City", _cityController)),
+            Expanded(child: _buildTextField(l10n.city, _cityController)),
             const SizedBox(width: 12),
-            Expanded(child: _buildTextField("Street", _streetController)),
+            Expanded(child: _buildTextField(l10n.street, _streetController)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildTextField("Building", _buildingController)),
+            Expanded(
+              child: _buildTextField(l10n.building, _buildingController),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _buildTextField("Floor", _floorController)),
+            Expanded(child: _buildTextField(l10n.floor, _floorController)),
             const SizedBox(width: 12),
-            Expanded(child: _buildTextField("Flat", _flatController)),
+            Expanded(child: _buildTextField(l10n.flat, _flatController)),
           ],
         ),
         const SizedBox(height: 12),
-        _buildTextField("Additional Notes", _notesController, maxLines: 3),
+        _buildTextField(l10n.additionalNotes, _notesController, maxLines: 3),
       ],
     );
   }
@@ -316,15 +333,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Future<void> _handlePlaceOrder() async {
+    final l10n = ref.read(l10nProvider);
     // Basic validation
     if (_cityController.text.isEmpty || _streetController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Please fill in the required address fields (City, Street)",
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.fillRequiredFields)));
       return;
     }
 
@@ -353,7 +367,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       final storeId = widget.items.isNotEmpty ? widget.items.first.storeId : 0;
 
       final request = OrderRequest(
-        storeId: storeId, 
+        storeId: storeId,
         items: orderItems,
         paymentMethod: _paymentMethod == 0 ? "Cash" : "CreditCard",
         shippingAddress: shippingAddress,
@@ -366,7 +380,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
       if (mounted) {
         // Clear Cart
-        CartRepository.instance.clear();
+        ref.read(cartNotifierProvider.notifier).clear();
 
         setState(() => _isLoading = false);
         _showSuccessDialog(response.id.toString());
@@ -383,6 +397,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   void _showSuccessDialog(String orderId) {
     final theme = Theme.of(context);
+    final l10n = ref.read(l10nProvider);
 
     showDialog(
       context: context,
@@ -410,7 +425,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                "Order Placed!",
+                l10n.orderPlaced,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onSurface,
@@ -418,7 +433,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                "Order ID: #$orderId",
+                l10n.orderIdDisplay(orderId),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -437,7 +452,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       Navigator.pop(context);
                     }
                   },
-                  child: const Text("Back to Shopping"),
+                  child: Text(l10n.backToShopping),
                 ),
               ),
             ],

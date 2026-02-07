@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mens/core/localization/l10n/app_localizations.dart'
+    show AppLocalizations;
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -32,12 +34,12 @@ class OrderDetailsScreen extends ConsumerWidget {
         ),
       ),
       body: orderAsync.when(
-        data: (order) => _buildOrderContent(context, order, theme),
+        data: (order) => _buildOrderContent(context, order, theme, l10n),
         loading: () => Skeletonizer(
           enabled: true,
-          child: _buildOrderContent(context, _dummyOrder, theme),
+          child: _buildOrderContent(context, _dummyOrder, theme, l10n),
         ),
-        error: (err, stack) => Center(child: Text("Error: $err")),
+        error: (err, stack) => Center(child: Text("${l10n.error}: $err")),
       ),
     );
   }
@@ -46,6 +48,7 @@ class OrderDetailsScreen extends ConsumerWidget {
     BuildContext context,
     OrderResponse order,
     ThemeData theme,
+    AppLocalizations l10n,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -73,15 +76,21 @@ class OrderDetailsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Order #${order.id}",
+                        l10n.orderIdDisplay(order.id.toString()),
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        "Placed on ${DateFormat('MMM d, yyyy').format(order.orderDate ?? DateTime.now())}",
+                        l10n.placedOn(
+                          DateFormat(
+                            'MMM d, yyyy',
+                          ).format(order.orderDate ?? DateTime.now()),
+                        ),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                     ],
@@ -93,11 +102,11 @@ class OrderDetailsScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(order.status).withOpacity(0.1),
+                    color: _getStatusColor(order.status).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    order.status,
+                    _getStatusText(order.status, l10n),
                     style: TextStyle(
                       color: _getStatusColor(order.status),
                       fontWeight: FontWeight.bold,
@@ -111,7 +120,7 @@ class OrderDetailsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           Text(
-            "Items (${order.items.length})",
+            l10n.itemsCount(order.items.length),
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -142,7 +151,8 @@ class OrderDetailsScreen extends ConsumerWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: item.productImage != null &&
+                      child:
+                          item.productImage != null &&
                               item.productImage!.isNotEmpty
                           ? Image.network(
                               item.productImage!,
@@ -189,7 +199,7 @@ class OrderDetailsScreen extends ConsumerWidget {
 
           const SizedBox(height: 24),
           Text(
-            "Order Summary",
+            l10n.orderSummary,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -208,14 +218,14 @@ class OrderDetailsScreen extends ConsumerWidget {
               children: [
                 _buildSummaryRow(
                   theme,
-                  "Payment Method",
+                  l10n.paymentMethod,
                   order.paymentMethod,
                   icon: FontAwesomeIcons.creditCard,
                 ),
                 const Divider(height: 24),
                 _buildSummaryRow(
                   theme,
-                  "Shipping Address",
+                  l10n.shippingAddress,
                   order.shippingAddress ?? "N/A",
                   icon: FontAwesomeIcons.locationDot,
                 ),
@@ -223,7 +233,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                   const Divider(height: 24),
                   _buildSummaryRow(
                     theme,
-                    "Notes",
+                    l10n.notes,
                     order.notes!,
                     icon: FontAwesomeIcons.noteSticky,
                   ),
@@ -233,7 +243,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Total Amount",
+                      l10n.totalAmount,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -368,6 +378,23 @@ class OrderDetailsScreen extends ConsumerWidget {
         return FontAwesomeIcons.circleXmark;
       default:
         return FontAwesomeIcons.circleQuestion;
+    }
+  }
+
+  String _getStatusText(String status, AppLocalizations l10n) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return l10n.statusPending;
+      case 'processing':
+        return l10n.statusProcessing;
+      case 'shipped':
+        return l10n.statusShipped;
+      case 'delivered':
+        return l10n.statusDelivered;
+      case 'cancelled':
+        return l10n.statusCancelled;
+      default:
+        return status;
     }
   }
 }

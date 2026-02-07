@@ -7,12 +7,12 @@ import 'package:mens/features/seller/Products/presentation/product_details_scree
 import 'package:mens/features/user/cart/cart.dart';
 import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
 import 'package:mens/features/user/products/presentation/product_card_extensions.dart';
-
+import 'package:mens/features/user/cart/notifiers/cart_notifier.dart';
 
 // Use shared theming and assets; this component is style-agnostic and uses
 // the current Theme for colors and text styles so it integrates with the app.
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends ConsumerWidget {
   final String title;
   final String price;
   final String imagePlaceholder; // Use assets in real app
@@ -25,7 +25,7 @@ class ProductCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +81,7 @@ class ProductCard extends StatelessWidget {
                   // avoid import cycle by using delayed import via repository
                   // but here we import directly
                   // ignore: avoid_dynamic_calls
-                  _addToCartAndNotify(context, newItem);
+                  _addToCartAndNotify(context, ref, newItem);
                 } catch (_) {}
               },
               child: Container(
@@ -105,10 +105,18 @@ class ProductCard extends StatelessWidget {
 
   static _toCartItem(String title, double price, String image) =>
       // return a minimal cart model-like map; will be converted in repository helper
-      CartItemShim(title: title, price: price, image: image, storeId: 1); // Default storeId for demo
+      CartItemShim(
+        title: title,
+        price: price,
+        image: image,
+        storeId: 1,
+      ); // Default storeId for demo
 
-  void _addToCartAndNotify(BuildContext context, CartItemShim shim) {
-    final repo = CartRepository.instance;
+  void _addToCartAndNotify(
+    BuildContext context,
+    WidgetRef ref,
+    CartItemShim shim,
+  ) {
     final cartItem = CartItem(
       id: shim.id,
       title: shim.title,
@@ -116,7 +124,7 @@ class ProductCard extends StatelessWidget {
       image: shim.image,
       storeId: shim.storeId,
     );
-    repo.addItem(cartItem);
+    ref.read(cartNotifierProvider.notifier).addItem(cartItem);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(
       context,
@@ -130,7 +138,12 @@ class CartItemShim {
   final double price;
   final String image;
   final int storeId;
-  CartItemShim({required this.title, required this.price, required this.image, required this.storeId});
+  CartItemShim({
+    required this.title,
+    required this.price,
+    required this.image,
+    required this.storeId,
+  });
 
   String get id => title; // demo id
 }
@@ -144,8 +157,6 @@ class BuyerProductCard extends HookConsumerWidget {
 
   // --- CART LOGIC ---
   void _addToCart(BuildContext context, ref) {
-    final repo = CartRepository.instance;
-
     // 1. Map to Cart Item
     final cartItem = product.toCartItem();
 
@@ -156,7 +167,7 @@ class BuyerProductCard extends HookConsumerWidget {
 
     // 2. Add to Repo
     try {
-      repo.addItem(cartItem);
+      ref.read(cartNotifierProvider.notifier).addItem(cartItem);
       _showFeedback(context, 'Added "${product.name}" to cart', ref: ref);
     } catch (e) {
       _showFeedback(context, 'Failed to add to cart', isError: true, ref: ref);
@@ -293,22 +304,22 @@ class BuyerProductCard extends HookConsumerWidget {
                         ),
                       ),
                       if (role != "Admin")
-                      Material(
-                        color: theme.colorScheme.primary,
-                        borderRadius: BorderRadius.circular(8),
-                        child: InkWell(
-                          onTap: () => _addToCart(context, ref),
+                        Material(
+                          color: theme.colorScheme.primary,
                           borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: Icon(
-                              FontAwesomeIcons.cartPlus,
-                              size: 12,
-                              color: theme.colorScheme.onPrimary,
+                          child: InkWell(
+                            onTap: () => _addToCart(context, ref),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: Icon(
+                                FontAwesomeIcons.cartPlus,
+                                size: 12,
+                                color: theme.colorScheme.onPrimary,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ],

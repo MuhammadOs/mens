@@ -718,4 +718,92 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ordersEmpty => 'لا يوجد طلبات بعد !';
+
+  @override
+  String get checkoutTitle => 'Checkout';
+
+  @override
+  String get orderSummary => 'Order Summary';
+
+  @override
+  String get paymentMethod => 'Payment Method';
+
+  @override
+  String get shippingAddress => 'Shipping Address';
+
+  @override
+  String get placeOrder => 'Place Order';
+
+  @override
+  String get cash => 'Cash';
+
+  @override
+  String get creditCard => 'Credit Card';
+
+  @override
+  String get city => 'City';
+
+  @override
+  String get street => 'Street';
+
+  @override
+  String get building => 'Building';
+
+  @override
+  String get floor => 'Floor';
+
+  @override
+  String get flat => 'Flat';
+
+  @override
+  String get additionalNotes => 'Additional Notes';
+
+  @override
+  String get fillRequiredFields =>
+      'Please fill in the required address fields (City, Street)';
+
+  @override
+  String get orderPlaced => 'Order Placed!';
+
+  @override
+  String orderIdDisplay(String id) {
+    return 'Order ID: #$id';
+  }
+
+  @override
+  String get backToShopping => 'Back to Shopping';
+
+  @override
+  String get legal => 'Legal';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String itemsCount(int count) {
+    return 'Items ($count)';
+  }
+
+  @override
+  String placedOn(String date) {
+    return 'Placed on $date';
+  }
+
+  @override
+  String get totalAmount => 'Total Amount';
+
+  @override
+  String get notes => 'Notes';
+
+  @override
+  String get statusPending => 'Pending';
+
+  @override
+  String get statusProcessing => 'Processing';
+
+  @override
+  String get statusShipped => 'Shipped';
+
+  @override
+  String get statusCancelled => 'Cancelled';
 }

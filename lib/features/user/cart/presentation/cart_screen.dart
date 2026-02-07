@@ -5,6 +5,7 @@ import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/user/cart/cart.dart';
+import 'package:mens/features/user/cart/notifiers/cart_notifier.dart';
 import 'package:mens/features/user/cart/presentation/all_orders_screen.dart';
 import 'package:mens/features/user/cart/presentation/checkout_screen.dart';
 import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
@@ -18,36 +19,11 @@ class CartScreen extends ConsumerStatefulWidget {
 }
 
 class _CartScreenState extends ConsumerState<CartScreen> {
-  final _repo = CartRepository.instance;
-
-  void _increment(int index) {
-    final current = List<CartItem>.from(_repo.items.value);
-    if (index >= 0 && index < current.length) {
-      current[index].quantity++;
-      _repo.items.value = current;
-    }
-  }
-
-  void _decrement(int index) {
-    final current = List<CartItem>.from(_repo.items.value);
-    if (index >= 0 && index < current.length) {
-      if (current[index].quantity > 1) current[index].quantity--;
-      _repo.items.value = current;
-    }
-  }
-
-  void _removeItem(int index) {
-    final current = List<CartItem>.from(_repo.items.value);
-    if (index >= 0 && index < current.length) {
-      current.removeAt(index);
-      _repo.items.value = current;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = ref.watch(l10nProvider);
+    final cartState = ref.watch(cartNotifierProvider);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -67,14 +43,15 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           ),
         ],
       ),
-      body: ValueListenableBuilder<List<CartItem>>(
-        valueListenable: _repo.items,
-        builder: (context, items, _) {
+      body: cartState.when(
+        data: (items) {
           return items.isEmpty
               // Pass l10n to helper methods
               ? _buildEmptyState(theme, l10n)
               : _buildCartList(theme, l10n, items);
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error loading cart: $e')),
       ),
     );
   }
@@ -131,10 +108,14 @@ class _CartScreenState extends ConsumerState<CartScreen> {
               return CartItemCard(
                 key: ValueKey(item.id),
                 item: item,
-                onIncrement: () => _increment(index),
-                onDecrement: () => _decrement(index),
+                onIncrement: () => ref
+                    .read(cartNotifierProvider.notifier)
+                    .incrementQuantity(item.id),
+                onDecrement: () => ref
+                    .read(cartNotifierProvider.notifier)
+                    .decrementQuantity(item.id),
                 onRemove: () {
-                  _removeItem(index);
+                  ref.read(cartNotifierProvider.notifier).removeItem(item.id);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.cartItemRemoved(item.title))),
                   );
@@ -256,7 +237,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     ),
                   );
                   if (confirm ?? false) {
-                    _repo.clear();
+                    ref.read(cartNotifierProvider.notifier).clear();
                   }
                 },
                 icon: Icon(

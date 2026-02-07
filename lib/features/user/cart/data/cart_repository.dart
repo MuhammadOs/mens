@@ -1,44 +1,50 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'cart_model.dart';
+import '../../../auth/data/auth_repository_impl.dart';
 
-/// Simple in-memory cart repository for demo/testing.
-/// Uses a ValueNotifier so UI can listen without introducing large state management changes.
+final cartRepositoryProvider = Provider<CartRepository>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return CartRepository(prefs);
+});
+
 class CartRepository {
-  CartRepository._privateConstructor();
-  static final CartRepository instance = CartRepository._privateConstructor();
+  final SharedPreferences _prefs;
 
-  final ValueNotifier<List<CartItem>> items = ValueNotifier<List<CartItem>>([]);
+  CartRepository(this._prefs);
 
-  void addItem(CartItem item) {
-    final current = List<CartItem>.from(items.value);
-    final existing = current.indexWhere(
-      (e) => e.id == item.id || e.title == item.title,
-    );
-    if (existing >= 0) {
-      current[existing].quantity += item.quantity;
-    } else {
-      current.add(item);
-    }
-    items.value = current;
-  }
+  /// Load cart items for a specific user ID
+  Future<List<CartItem>> fetchCart(int userId) async {
+    try {
+      final key = 'cart_$userId';
+      final jsonString = _prefs.getString(key);
 
-  void removeAt(int index) {
-    final current = List<CartItem>.from(items.value);
-    if (index >= 0 && index < current.length) {
-      current.removeAt(index);
-      items.value = current;
+      if (jsonString != null) {
+        final List<dynamic> decoded = jsonDecode(jsonString);
+        return decoded.map((e) => CartItem.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      // Return empty list on error to prevent crashing
+      return [];
     }
   }
 
-  void updateQuantity(int index, int quantity) {
-    final current = List<CartItem>.from(items.value);
-    if (index >= 0 && index < current.length) {
-      current[index].quantity = quantity;
-      items.value = current;
+  /// Save cart items for a specific user ID
+  Future<void> saveCart(int userId, List<CartItem> items) async {
+    try {
+      final key = 'cart_$userId';
+      final jsonString = jsonEncode(items.map((e) => e.toJson()).toList());
+      await _prefs.setString(key, jsonString);
+    } catch (e) {
+      // Log error or handle gracefully
     }
   }
 
-  void clear() {
-    items.value = [];
+  /// Clear cart for a specific user ID
+  Future<void> clearCart(int userId) async {
+    final key = 'cart_$userId';
+    await _prefs.remove(key);
   }
 }

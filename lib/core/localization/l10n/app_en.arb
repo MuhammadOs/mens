@@ -318,5 +318,48 @@
   "brandOwner": "Owner",
   "brandProducts": "Products",
   "noProductsFound": "No products found for this brand",
-  "ordersEmpty": "There are no orders, yet!" 
+  "ordersEmpty": "There are no orders, yet!",
+  "checkoutTitle": "Checkout",
+  "orderSummary": "Order Summary",
+  "paymentMethod": "Payment Method",
+  "shippingAddress": "Shipping Address",
+  "placeOrder": "Place Order",
+  "cash": "Cash",
+  "creditCard": "Credit Card",
+  "city": "City",
+  "street": "Street",
+  "building": "Building",
+  "floor": "Floor",
+  "flat": "Flat",
+  "additionalNotes": "Additional Notes",
+  "fillRequiredFields": "Please fill in the required address fields (City, Street)",
+  "orderPlaced": "Order Placed!",
+  "orderIdDisplay": "Order ID: #{id}",
+  "@orderIdDisplay": {
+    "placeholders": {
+        "id": { "type": "String" }
+    }
+  },
+  "backToShopping": "Back to Shopping",
+  "legal": "Legal",
+  "privacyPolicy": "Privacy Policy",
+  "itemsCount": "Items ({count})",
+  "@itemsCount": {
+    "placeholders": {
+        "count": { "type": "int" }
+    }
+  },
+  "placedOn": "Placed on {date}",
+  "@placedOn": {
+      "placeholders": {
+          "date": { "type": "String" }
+      }
+  },
+  "totalAmount": "Total Amount",
+  "notes": "Notes",
+  "statusPending": "Pending",
+  "statusProcessing": "Processing",
+  "statusShipped": "Shipped",
+  "statusDelivered": "Delivered",
+  "statusCancelled": "Cancelled"
 }

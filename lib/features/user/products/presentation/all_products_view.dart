@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
@@ -66,11 +67,11 @@ class AllProductsView extends HookConsumerWidget {
             child: Container(
               decoration: BoxDecoration(
                 boxShadow: [
-                   BoxShadow(
-                     color: Colors.black.withValues(alpha: 0.05),
-                     blurRadius: 10,
-                     offset: const Offset(0, 4),
-                   )
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
                 ],
               ),
               child: SearchBar(
@@ -96,7 +97,9 @@ class AllProductsView extends HookConsumerWidget {
                 shape: WidgetStateProperty.all(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+                    side: BorderSide(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                    ),
                   ),
                 ),
                 onChanged: onSearchChanged,
@@ -167,7 +170,7 @@ class AllProductsView extends HookConsumerWidget {
                               orElse: () => categories.first,
                             );
 
-                             if (selectedCategory.subCategories.isEmpty) {
+                            if (selectedCategory.subCategories.isEmpty) {
                               return const SizedBox.shrink();
                             }
 
@@ -177,22 +180,35 @@ class AllProductsView extends HookConsumerWidget {
                                 height: 32,
                                 child: ListView.separated(
                                   scrollDirection: Axis.horizontal,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                                  itemCount: selectedCategory.subCategories.length,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 8),
+                                  itemCount:
+                                      selectedCategory.subCategories.length,
                                   itemBuilder: (context, index) {
-                                    final sub = selectedCategory.subCategories[index];
+                                    final sub =
+                                        selectedCategory.subCategories[index];
                                     return _FilterChip(
                                       label: sub.name,
                                       isSmall: true,
-                                      isSelected: selectedSubCategoryId.value == sub.id,
+                                      isSelected:
+                                          selectedSubCategoryId.value == sub.id,
                                       onSelected: (selected) {
-                                        selectedSubCategoryId.value = selected ? sub.id : null;
+                                        selectedSubCategoryId.value = selected
+                                            ? sub.id
+                                            : null;
                                         ref
-                                            .read(paginatedUserProductsProvider.notifier)
+                                            .read(
+                                              paginatedUserProductsProvider
+                                                  .notifier,
+                                            )
                                             .setFilters(
-                                              categoryId: selectedCategoryId.value,
-                                              subCategoryId: selectedSubCategoryId.value,
+                                              categoryId:
+                                                  selectedCategoryId.value,
+                                              subCategoryId:
+                                                  selectedSubCategoryId.value,
                                             );
                                       },
                                     );
@@ -207,7 +223,29 @@ class AllProductsView extends HookConsumerWidget {
                 const SizedBox(height: 16),
               ],
             ),
-            loading: () => const SizedBox(height: 60),
+            loading: () => Skeletonizer(
+              enabled: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemCount: 6,
+                      itemBuilder: (_, __) => _FilterChip(
+                        label: 'Category Name',
+                        isSelected: false,
+                        onSelected: (_) {}, // Loading
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
             error: (_, __) => const SizedBox.shrink(),
           ),
 
@@ -330,8 +368,8 @@ class AllProductsView extends HookConsumerWidget {
         delegate: SliverChildBuilderDelegate((context, index) {
           final product = state.allItems[index];
           return StaggeredSlideFade(
-             index: index,
-             child: BuyerProductCard(product: product),
+            index: index,
+            child: BuyerProductCard(product: product),
           );
         }, childCount: state.allItems.length),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -380,7 +418,9 @@ class _FilterChip extends StatelessWidget {
         backgroundColor: theme.colorScheme.surface,
         selectedColor: theme.colorScheme.primary,
         checkmarkColor: theme.colorScheme.onPrimary,
-        side: isSelected ? BorderSide.none : BorderSide(color: theme.colorScheme.outlineVariant),
+        side: isSelected
+            ? BorderSide.none
+            : BorderSide(color: theme.colorScheme.outlineVariant),
         elevation: isSelected ? 2 : 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: isSmall

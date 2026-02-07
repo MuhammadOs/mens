@@ -420,7 +420,7 @@ class UserProfileScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          "Legal",
+                          l10n.legal,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
@@ -453,7 +453,7 @@ class UserProfileScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Privacy Policy",
+                            l10n.privacyPolicy,
                             style: theme.textTheme.bodyMedium,
                           ),
                           Icon(
