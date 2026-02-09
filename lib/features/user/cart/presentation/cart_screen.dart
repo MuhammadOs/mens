@@ -167,8 +167,9 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                 ),
                 onPressed: () {
                   final authState = ref.read(authNotifierProvider);
-                  // Check for guest by userId == 0
-                  final isGuest = authState.asData?.value?.userId == 0;
+                  // Check for guest: either profile is null OR userId is 0
+                  final user = authState.asData?.value;
+                  final isGuest = user == null || user.userId == 0;
 
                   if (isGuest) {
                     showDialog(

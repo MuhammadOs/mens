@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/user/brands/domain/brand.dart';
 import 'package:mens/features/user/brands/presentation/notifiers/paginated_brand_products_notifier.dart';
 import 'package:mens/features/seller/Products/domain/product.dart';
-import 'package:mens/features/seller/Products/presentation/product_details_screen.dart';
+
 import 'package:mens/shared/providers/paginated_notifier.dart';
-import 'package:mens/shared/widgets/sticky_header_delegate.dart';
 import 'package:mens/shared/widgets/staggered_slide_fade.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mens/features/user/products/presentation/product_card.dart';
 
 class BrandDetailsScreen extends HookConsumerWidget {
   final Brand brand;
@@ -32,7 +33,7 @@ class BrandDetailsScreen extends HookConsumerWidget {
     useEffect(() {
       Future.microtask(() {
         if (!productsState.hasData && !productsState.isLoading) {
-           notifier.loadFirstPage();
+          notifier.loadFirstPage();
         }
       });
       return null;
@@ -48,6 +49,7 @@ class BrandDetailsScreen extends HookConsumerWidget {
           notifier.loadNextPage();
         }
       }
+
       scrollController.addListener(onScroll);
       return () => scrollController.removeListener(onScroll);
     }, [scrollController, productsState.canLoadMore]);
@@ -58,43 +60,165 @@ class BrandDetailsScreen extends HookConsumerWidget {
         onRefresh: () async => notifier.refresh(),
         child: CustomScrollView(
           controller: scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // 1. Enhanced Banner
+            // 1. Modern Collapsing Header
             SliverAppBar(
-              expandedHeight: 200.0,
+              expandedHeight: 280.0,
               pinned: true,
               stretch: true,
               backgroundColor: theme.colorScheme.surface,
+              systemOverlayStyle: SystemUiOverlayStyle.light,
+              leading: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
               flexibleSpace: FlexibleSpaceBar(
-                stretchModes: const [StretchMode.zoomBackground],
+                stretchModes: const [
+                  StretchMode.zoomBackground,
+                  StretchMode.blurBackground,
+                ],
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
+                    // Brand Image Background
                     if (brand.brandImage != null)
-                      Image.network(brand.brandImage!, fit: BoxFit.cover)
+                      Image.network(
+                        brand.brandImage!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            Container(color: theme.primaryColor),
+                      )
                     else
                       Container(
                         decoration: BoxDecoration(
-                           gradient: LinearGradient(
-                              colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                           ),
+                          gradient: LinearGradient(
+                            colors: [
+                              theme.colorScheme.primary,
+                              theme.colorScheme.secondary,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                         ),
-                        child: Icon(Icons.store, size: 80, color: Colors.white.withOpacity(0.3)),
+                        child: Center(
+                          child: Icon(
+                            FontAwesomeIcons.store,
+                            size: 80,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                        ),
                       ),
-                    // Gradient
+
+                    // Gradient Overlay for text readability
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withOpacity(0.4),
+                            Colors.black.withOpacity(0.3),
                             Colors.transparent,
-                            Colors.black.withOpacity(0.6), // Darker bottom for text contrast
+                            Colors.black.withOpacity(0.8),
                           ],
+                          stops: const [0.0, 0.5, 1.0],
                         ),
+                      ),
+                    ),
+
+                    // Brand Info centered in the expanded space
+                    Positioned(
+                      bottom: 30,
+                      left: 20,
+                      right: 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: CircleAvatar(
+                                  radius: 32,
+                                  backgroundColor: theme.colorScheme.surface,
+                                  backgroundImage: brand.brandImage != null
+                                      ? NetworkImage(brand.brandImage!)
+                                      : null,
+                                  child: brand.brandImage == null
+                                      ? Text(
+                                          brand.brandName[0].toUpperCase(),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 24,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      brand.brandName,
+                                      style: theme.textTheme.headlineSmall
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            shadows: [
+                                              Shadow(
+                                                offset: const Offset(0, 2),
+                                                blurRadius: 4,
+                                                color: Colors.black.withOpacity(
+                                                  0.5,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.3),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        brand.categoryName,
+                                        style: theme.textTheme.labelMedium
+                                            ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -102,136 +226,80 @@ class BrandDetailsScreen extends HookConsumerWidget {
               ),
             ),
 
-            // 2. Profile Info (Overlapping)
+            // 2. Content Body
             SliverToBoxAdapter(
-               child: Transform.translate(
-                 offset: const Offset(0, -30),
-                 child: Container(
-                   decoration: BoxDecoration(
-                     color: theme.colorScheme.surface,
-                     borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                   ),
-                   child: Column(
-                     children: [
-                       const SizedBox(height: 12),
-                       // Handle Bar
-                       Container(
-                         width: 40, height: 4,
-                         decoration: BoxDecoration(
-                           color: theme.colorScheme.outlineVariant.withOpacity(0.5),
-                           borderRadius: BorderRadius.circular(2),
-                         ),
-                       ),
-                       Padding(
-                         padding: const EdgeInsets.all(16.0),
-                         child: Column(
-                           children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 30,
-                                    backgroundColor: theme.colorScheme.primaryContainer,
-                                    backgroundImage: brand.brandImage != null ? NetworkImage(brand.brandImage!) : null,
-                                    child: brand.brandImage == null ? Text(brand.brandName[0].toUpperCase()) : null,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          brand.brandName,
-                                          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          brand.categoryName,
-                                          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              // Description or Owner
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.category_outlined, size: 20, color: theme.colorScheme.onSurfaceVariant),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      "${l10n.categoryLabel}: ${brand.categoryName}",
-                                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                           ],
-                         ),
-                       ),
-                     ],
-                   ),
-                 ),
-               ),
-            ),
-
-            // 3. Sticky Header for Products Title & Count
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: StickyHeaderDelegate(
-                minHeight: 60,
-                maxHeight: 60,
-                child: Container(
+              child: Container(
+                decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                         l10n.brandProducts,
-                         style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          '${productsState.currentPage?.totalCount ?? productsState.allItems.length} Items',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
                   ),
+                ),
+                transform: Matrix4.translationValues(0, -20, 0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.outlineVariant.withOpacity(
+                            0.3,
+                          ),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.brandProducts,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              '${productsState.currentPage?.totalCount ?? productsState.allItems.length} Items',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onPrimaryContainer,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
 
-            // 4. Products Grid
+            // 3. Products Grid
             _buildProductGrid(context, productsState, ref, l10n, theme),
 
-            // 5. Loading More Indicator
+            // 4. Loading More
             if (productsState.isLoadingMore)
-              SliverToBoxAdapter(
+              const SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Center(
-                    child: CircularProgressIndicator.adaptive(strokeWidth: 2),
-                  ),
+                  padding: EdgeInsets.all(24.0),
+                  child: Center(child: CircularProgressIndicator.adaptive()),
                 ),
               ),
 
-             const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
+            const SliverPadding(padding: EdgeInsets.only(bottom: 40)),
           ],
         ),
       ),
@@ -245,6 +313,7 @@ class BrandDetailsScreen extends HookConsumerWidget {
     dynamic l10n,
     ThemeData theme,
   ) {
+    // Initial Loading Skeleton
     if (productsState.isLoading && productsState.allItems.isEmpty) {
       return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -255,7 +324,7 @@ class BrandDetailsScreen extends HookConsumerWidget {
           ),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            childAspectRatio: 0.70, // Slightly taller for better layout
+            childAspectRatio: 0.58,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
@@ -263,6 +332,7 @@ class BrandDetailsScreen extends HookConsumerWidget {
       );
     }
 
+    // Error State
     if (productsState.error != null && productsState.allItems.isEmpty) {
       return SliverFillRemaining(
         hasScrollBody: false,
@@ -273,15 +343,20 @@ class BrandDetailsScreen extends HookConsumerWidget {
               Icon(
                 Icons.error_outline,
                 color: theme.colorScheme.error,
-                size: 40,
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Oops! Something went wrong.',
+                style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
-              Text(l10n.errorPrefix + productsState.error.toString()),
-              TextButton(
+              TextButton.icon(
                 onPressed: () => ref
                     .read(brandProductsProvider(brand.id).notifier)
                     .refresh(),
-                child: Text(l10n.retry),
+                icon: const Icon(Icons.refresh),
+                label: Text(l10n.retry),
               ),
             ],
           ),
@@ -289,6 +364,7 @@ class BrandDetailsScreen extends HookConsumerWidget {
       );
     }
 
+    // Empty State
     if (productsState.allItems.isEmpty) {
       return SliverFillRemaining(
         hasScrollBody: false,
@@ -296,19 +372,43 @@ class BrandDetailsScreen extends HookConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.inventory_2_outlined,
-                size: 64,
-                color: theme.colorScheme.outline,
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(
+                    0.3,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  FontAwesomeIcons.boxOpen,
+                  size: 48,
+                  color: theme.colorScheme.outline,
+                ),
               ),
-              const SizedBox(height: 16),
-              Text(l10n.noProductsFound, style: theme.textTheme.bodyLarge),
+              const SizedBox(height: 24),
+              Text(
+                l10n.noProductsFound,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Check back later for new arrivals from ${brand.brandName}.",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
             ],
           ),
         ),
       );
     }
 
+    // Product Grid
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverGrid(
@@ -316,128 +416,14 @@ class BrandDetailsScreen extends HookConsumerWidget {
           final product = productsState.allItems[index];
           return StaggeredSlideFade(
             index: index,
-            child: _EnhancedProductCard(product: product),
+            child: BuyerProductCard(product: product),
           );
         }, childCount: productsState.allItems.length),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          childAspectRatio: 0.65, // Taller aspect ratio for more "premium" look
-          crossAxisSpacing: 10,
+          childAspectRatio: 0.58,
+          crossAxisSpacing: 12,
           mainAxisSpacing: 16,
-        ),
-      ),
-    );
-  }
-}
-
-// --- ENHANCED PRODUCT CARD ---
-
-class _EnhancedProductCard extends StatelessWidget {
-  final Product product;
-  const _EnhancedProductCard({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        // ADDED: Navigation to Product Details Screen
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailsScreen(product: product),
-            ),
-          );
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image Section with Wishlist Button
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (product.images.isNotEmpty)
-                    Image.network(
-                      product.images.first.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        child: Icon(
-                          Icons.image,
-                          color: theme.colorScheme.outline,
-                        ),
-                      ),
-                    )
-                  else
-                    Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: Icon(
-                        Icons.image_not_supported,
-                        color: theme.colorScheme.outline,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            // Info Section
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Category Tag
-                  Text(
-                    "Men's Wear", // Fallback or product.categoryName
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.tertiary,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    product.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '\$${product.price}',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -460,32 +446,28 @@ class _ProductCardSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
+              flex: 4,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  color: Colors.grey[200],
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 4),
-                  Container(height: 12, width: 80, color: Colors.grey[300]), // title
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(height: 16, width: 40, color: Colors.grey[300]), // price
-                      Container(
-                        width: 24, height: 24,
-                        decoration: BoxDecoration(color: Colors.grey[300], shape: BoxShape.circle),
-                      ), // add button
-                    ],
-                  ),
-                ],
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(height: 12, width: 80, color: Colors.grey[200]),
+                    const SizedBox(height: 8),
+                    Container(height: 16, width: 40, color: Colors.grey[200]),
+                  ],
+                ),
               ),
             ),
           ],

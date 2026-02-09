@@ -246,6 +246,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             1,
             l10n.creditCard,
             FontAwesomeIcons.creditCard,
+            enabled: false,
           ),
         ],
       ),
@@ -256,12 +257,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     ThemeData theme,
     int value,
     String title,
-    IconData icon,
-  ) {
+    IconData icon, {
+    bool enabled = true, // Add this optional parameter
+  }) {
     return RadioListTile<int>(
       value: value,
       groupValue: _paymentMethod,
-      onChanged: (val) => setState(() => _paymentMethod = val!),
+      // If enabled is false, onChanged is null, disabling the tile
+      onChanged: enabled
+          ? (val) => setState(() => _paymentMethod = val!)
+          : null,
       activeColor: theme.colorScheme.primary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       title: Row(
@@ -269,13 +274,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           Icon(
             icon,
             size: 20,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            color: enabled
+                ? theme.colorScheme.onSurface.withValues(alpha: 0.7)
+                : theme.disabledColor,
           ),
           const SizedBox(width: 12),
           Text(
             title,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
+              color: enabled ? null : theme.disabledColor,
             ),
           ),
         ],

@@ -261,38 +261,49 @@ class HomeDrawer extends ConsumerWidget {
 
   // ✅ 6. Updated social icons to be functional
   Widget _buildSocialIcons(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    // TODO: Replace with your actual social media URLs
-    const String facebookUrl = "https://www.facebook.com/your-page";
-    const String instagramUrl = "https://www.instagram.com/your-page";
-    const String whatsappUrl =
-        "https://wa.me/your-number"; // e.g., https://wa.me/201234567890
-    const String xUrl = "https://www.x.com/your-page";
-
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
-          icon: const Icon(FontAwesomeIcons.facebook),
-          color: theme.colorScheme.primary,
-          onPressed: () => _launchURL(ref, facebookUrl),
+        _socialIcon(
+          FontAwesomeIcons.facebook,
+          const Color(0xFF1877F2),
+          onTap: () async {
+            const url =
+                'https://www.facebook.com/profile.php?id=61582850605930';
+            await _launchURL(ref, url);
+          },
         ),
-        IconButton(
-          icon: const Icon(FontAwesomeIcons.instagram), // Instagram
-          color: theme.colorScheme.primary,
-          onPressed: () => _launchURL(ref, instagramUrl),
+        _socialIcon(
+          FontAwesomeIcons.instagram,
+          const Color(0xFFE4405F),
+          onTap: () async {
+            const url = 'https://www.instagram.com/mens2.025/';
+            await _launchURL(ref, url);
+          },
         ),
-        IconButton(
-          icon: const Icon(FontAwesomeIcons.whatsapp), // WhatsApp
-          color: theme.colorScheme.primary,
-          onPressed: () => _launchURL(ref, whatsappUrl),
-        ),
-        IconButton(
-          icon: const Icon(FontAwesomeIcons.xTwitter), // X (Twitter)
-          color: theme.colorScheme.primary,
-          onPressed: () => _launchURL(ref, xUrl),
+        _socialIcon(
+          FontAwesomeIcons.whatsapp,
+          const Color(0xFF25D366),
+          onTap: () async {
+            const url = 'https://wa.me/201554367033';
+            await _launchURL(ref, url);
+          },
         ),
       ],
+    );
+  }
+
+  // Helper Widget for Social Icons (Same as UserProfileScreen)
+  Widget _socialIcon(IconData icon, Color bg, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
     );
   }
 }

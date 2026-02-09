@@ -1,4 +1,6 @@
 // import 'package:device_preview/device_preview.dart';
+import 'package:device_preview/device_preview.dart' show DevicePreview;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
@@ -17,23 +19,23 @@ Future<void> main() async {
   final initialLocale = Locale(languageCode);
 
   runApp(
-    // DevicePreview(
-    //   enabled: true,
-    //   builder: (context) => ProviderScope(
-    //     overrides: [
-    //       initialLocaleProvider.overrideWithValue(initialLocale),
-    //       sharedPreferencesProvider.overrideWithValue(prefs),
-    //     ],
-    //     child: const Mens(),
-    //   ),
-    // ),
-    ProviderScope(
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => ProviderScope(
+        overrides: [
+          initialLocaleProvider.overrideWithValue(initialLocale),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+        child: const Mens(),
+      ),
+    ),
+    /*ProviderScope(
       overrides: [
         initialLocaleProvider.overrideWithValue(initialLocale),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const Mens(),
-    ),
+    ),*/
   );
 }
 
@@ -58,8 +60,12 @@ class Mens extends ConsumerWidget {
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
+      useInheritedMediaQuery: !kReleaseMode, // Required for DevicePreview
       builder: (context, child) {
-        return LoadingOverlay(child: child ?? const SizedBox.shrink());
+        // Wrap the child with LoadingOverlay first, then DevicePreview
+        final widget = LoadingOverlay(child: child ?? const SizedBox.shrink());
+        // Apply DevicePreview builder only in debug/profile when enabled
+        return DevicePreview.appBuilder(context, widget);
       },
     );
   }

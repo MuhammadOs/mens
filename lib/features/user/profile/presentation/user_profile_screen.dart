@@ -477,14 +477,42 @@ class UserProfileScreen extends ConsumerWidget {
                   _socialIcon(
                     FontAwesomeIcons.facebook,
                     const Color(0xFF1877F2),
+                    onTap: () async {
+                      const url =
+                          'https://www.facebook.com/profile.php?id=61582850605930';
+                      if (!await launchUrl(
+                        Uri.parse(url),
+                        mode: LaunchMode.externalApplication,
+                      )) {
+                        debugPrint("Could not launch $url");
+                      }
+                    },
                   ),
                   _socialIcon(
                     FontAwesomeIcons.instagram,
                     const Color(0xFFE4405F),
+                    onTap: () async {
+                      const url = 'https://www.instagram.com/mens2.025/';
+                      if (!await launchUrl(
+                        Uri.parse(url),
+                        mode: LaunchMode.externalApplication,
+                      )) {
+                        debugPrint("Could not launch $url");
+                      }
+                    },
                   ),
                   _socialIcon(
                     FontAwesomeIcons.whatsapp,
                     const Color(0xFF25D366),
+                    onTap: () async {
+                      const url = 'https://wa.me/201554367033';
+                      if (!await launchUrl(
+                        Uri.parse(url),
+                        mode: LaunchMode.externalApplication,
+                      )) {
+                        debugPrint("Could not launch $url");
+                      }
+                    },
                   ),
                 ],
               ),
@@ -546,12 +574,16 @@ class UserProfileScreen extends ConsumerWidget {
   }
 
   // Helper Widget for Social Icons
-  Widget _socialIcon(IconData icon, Color bg) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-      child: Icon(icon, color: Colors.white, size: 20),
+  Widget _socialIcon(IconData icon, Color bg, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
     );
   }
 }
