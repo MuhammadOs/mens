@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// ✅ 1. Import fluttertoast
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
-// ✅ 2. Import app_localizations for the success toast
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
+import 'package:mens/features/auth/presentation/otp/otp_verification_screen.dart';
 import 'package:mens/shared/theme/theme_provider.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
 
@@ -38,35 +37,66 @@ class SignInScreen extends HookConsumerWidget {
 
       // --- Handle Error ---
       if (next is AsyncError) {
-        Fluttertoast.showToast(
-          msg: next.error?.toString() ?? l10n.errorWhileLoggingIn,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Theme.of(context).colorScheme.error,
-          textColor: Theme.of(context).colorScheme.onError,
-          fontSize: 16.0,
-        );
+        final errorMsg = next.error?.toString() ?? l10n.errorWhileLoggingIn;
+
+        // Check if the error is about unconfirmed email
+        if (errorMsg.toLowerCase().contains('email') &&
+            (errorMsg.toLowerCase().contains('confirm') ||
+             errorMsg.toLowerCase().contains('verified'))) {
+          // Show dialog offering to resend confirmation
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text(l10n.emailNotConfirmed),
+              content: Text(l10n.emailNotConfirmedDescription),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(l10n.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    context.push(
+                      AppRoutes.confirmEmail,
+                      extra: {
+                        'email': emailController.text.trim(),
+                        'mode': OtpMode.confirmEmail,
+                      },
+                    );
+                  },
+                  child: Text(l10n.confirmEmailTitle),
+                ),
+              ],
+            ),
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: errorMsg,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            textColor: Theme.of(context).colorScheme.onError,
+            fontSize: 16.0,
+          );
+        }
       }
 
       // --- Handle Success ---
       if (next is AsyncData && next.value != null) {
-        // Use localized success message
         final successMessage = l10n.loginSuccess;
 
-        // 1. Show the combined success toast
         Fluttertoast.showToast(
           msg: successMessage,
-          toastLength: Toast.LENGTH_LONG, // Long toast for 2 lines
+          toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green, // Or a theme success color
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 16.0,
         );
 
-        // 2. Navigate after a short delay
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (context.mounted) {
-            // Navigate to the unified user home (4-tab) for both Admin and User roles
             context.go(AppRoutes.userHome);
           }
         });
@@ -224,7 +254,23 @@ class SignInScreen extends HookConsumerWidget {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            context.push(AppRoutes.forgotPassword);
+                          },
+                          child: Text(
+                            l10n.forgotPasswordLink,
+                            style: TextStyle(
+                              color: colorScheme.primary,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         height: 50,

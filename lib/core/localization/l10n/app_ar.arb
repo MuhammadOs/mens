@@ -37,8 +37,7 @@
     "lastNameHint": "أدخل الاسم الأخير",
     "userNameLabel": "اسم المستخدم",
     "userNameHint": "أدخل اسم المستخدم",
-    "nationalIdLabel": "الرقم القومي (اختياري)",
-    "nationalIdHint": "أدخل الرقم القومي",
+
     "birthDateLabel": "تاريخ الميلاد",
     "brandNameLabel": "اسم العلامة التجارية",
     "brandNameHint": "أدخل اسم العلامة التجارية",
@@ -229,5 +228,42 @@
   "brandOwner": "المالك",
   "brandProducts": "المنتجات",
   "noProductsFound": "لا توجد منتجات لهذه العلامة التجارية",
-  "ordersEmpty": "لا يوجد طلبات بعد !"
+  "ordersEmpty": "لا يوجد طلبات بعد !",
+  "forgotPasswordLink": "نسيت كلمة المرور؟",
+  "forgotPasswordTitle": "نسيت كلمة المرور",
+  "forgotPasswordDescription": "أدخل بريدك الإلكتروني وسنرسل لك رمز مكون من 6 أرقام لإعادة تعيين كلمة المرور.",
+  "sendOtpButton": "إرسال الرمز",
+  "otpSentSuccess": "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
+  "otpResentSuccess": "تم إعادة إرسال رمز التحقق بنجاح.",
+  "confirmEmailTitle": "تأكيد البريد الإلكتروني",
+  "resetPasswordTitle": "إعادة تعيين كلمة المرور",
+  "resetPasswordDescription": "أدخل كلمة المرور الجديدة أدناه.",
+  "resetPasswordButton": "إعادة تعيين كلمة المرور",
+  "newPasswordLabel": "كلمة المرور الجديدة",
+  "confirmNewPasswordLabel": "تأكيد كلمة المرور الجديدة",
+  "verifyButton": "تحقق",
+  "otpHint": "الرجاء إدخال الرمز المكون من 6 أرقام",
+  "resendOtp": "إعادة إرسال الرمز",
+  "resendOtpCountdown": "إعادة إرسال الرمز خلال {seconds} ثانية",
+  "@resendOtpCountdown": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "otpSentTo": "تم إرسال رمز مكون من 6 أرقام إلى {email}",
+  "@otpSentTo": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "emailConfirmedSuccess": "تم تأكيد البريد الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول.",
+  "passwordResetSuccess": "تم إعادة تعيين كلمة المرور بنجاح! سجّل الدخول بكلمة المرور الجديدة.",
+  "emailNotConfirmed": "البريد الإلكتروني غير مؤكد",
+  "emailNotConfirmedDescription": "لم يتم تأكيد بريدك الإلكتروني بعد. هل تريد تأكيده الآن؟",
+  "nationalIdLabel": "الرقم القومي",
+  "nationalIdHint": "أدخل الرقم القومي المكون من 14 رقم",
+  "nationalIdLength": "الرقم القومي يجب أن يكون 14 رقم بالضبط",
+  "phoneNumberLabel": "رقم الهاتف",
+  "phoneNumberHint": "أدخل رقم هاتفك",
+  "birthDateHint": "اختر تاريخ ميلادك"
 }

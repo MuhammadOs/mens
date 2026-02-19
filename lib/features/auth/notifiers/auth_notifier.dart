@@ -88,6 +88,47 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
     }
   }
 
+  Future<String?> confirmEmail(String email, String token) async {
+    final repo = ref.read(authRepositoryProvider);
+    try {
+      await repo.confirmEmail(email, token);
+      return null; // success
+    } catch (e) {
+      return e.toString().replaceFirst('Exception: ', '');
+    }
+  }
+
+  Future<String?> forgetPassword(String email) async {
+    final repo = ref.read(authRepositoryProvider);
+    try {
+      await repo.forgetPassword(email);
+      return null; // success
+    } catch (e) {
+      return e.toString().replaceFirst('Exception: ', '');
+    }
+  }
+
+  Future<String?> resetPassword(String email, String token, String newPassword) async {
+    final repo = ref.read(authRepositoryProvider);
+    try {
+      await repo.resetPassword(email, token, newPassword);
+      return null; // success
+    } catch (e) {
+      return e.toString().replaceFirst('Exception: ', '');
+    }
+  }
+
+  Future<String?> resendConfirmation(String email) async {
+    final repo = ref.read(authRepositoryProvider);
+    try {
+      await repo.resendConfirmation(email);
+      return null; // success
+    } catch (e) {
+      return e.toString().replaceFirst('Exception: ', '');
+    }
+  }
+
   // Getter to easily check login status
   bool get isLoggedIn => state.hasValue && state.value != null;
 }
+

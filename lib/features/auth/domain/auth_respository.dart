@@ -8,4 +8,8 @@ abstract class AuthRepository {
   Future<UserProfile> getUserData({bool forceRefresh = false});
   Future<void> updateProfile(UserProfileData data);
   Future<void> logout();
+  Future<void> confirmEmail(String email, String token);
+  Future<void> forgetPassword(String email);
+  Future<void> resetPassword(String email, String token, String newPassword);
+  Future<void> resendConfirmation(String email);
 }

@@ -10,7 +10,9 @@ import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/auth/presentation/signin/signin_screen.dart';
 import 'package:mens/features/auth/presentation/register/roles_selection.dart';
 import 'package:mens/features/auth/presentation/register/customer_register.dart';
-// seller home screen import removed (unused in router)
+import 'package:mens/features/auth/presentation/otp/otp_verification_screen.dart';
+import 'package:mens/features/auth/presentation/forgot_password/forgot_password_screen.dart';
+import 'package:mens/features/auth/presentation/forgot_password/reset_password_screen.dart';
 import 'package:mens/features/seller/Orders/presentation/orders_screen.dart';
 import 'package:mens/features/seller/Orders/presentation/order_details_screen.dart';
 import 'package:mens/features/seller/Products/presentation/add_product_screen.dart';
@@ -54,6 +56,9 @@ class AppRoutes {
   static const contactUs = '/contact-us';
   static const customersHome = '/customers-home';
   static const orderDetails = '/orders/:id';
+  static const confirmEmail = '/auth/confirm-email';
+  static const forgotPassword = '/auth/forgot-password';
+  static const resetPassword = '/auth/reset-password';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -101,6 +106,30 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.registerCustomer,
         builder: (context, state) => const RegisterCustomerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.confirmEmail,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return OtpVerificationScreen(
+            email: extra['email'] as String? ?? '',
+            mode: extra['mode'] as OtpMode? ?? OtpMode.confirmEmail,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ResetPasswordScreen(
+            email: extra['email'] as String? ?? '',
+            otp: extra['otp'] as String? ?? '',
+          );
+        },
       ),
 
       GoRoute(
@@ -205,7 +234,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       final location = state.matchedLocation;
       // Consider any path under /register as an auth route (role selection, register, customer)
       final isGoingToAuthRoute =
-          location == AppRoutes.signIn || location.startsWith('/register');
+          location == AppRoutes.signIn ||
+          location.startsWith('/register') ||
+          location.startsWith('/auth/');
 
       // --- NEWER, STRICTER REDIRECTION RULES ---
 

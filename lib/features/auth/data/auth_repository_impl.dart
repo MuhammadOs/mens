@@ -206,6 +206,118 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> confirmEmail(String email, String token) async {
+    try {
+      final response = await _dio.post(
+        '/auth/confirm-email',
+        data: {'email': email, 'token': token},
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final dynamic messageValue = response.data?['message'];
+        throw Exception(
+          messageValue?.toString() ?? 'Email confirmation failed.',
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'A network error occurred during email confirmation.';
+      if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
+        errorMessage = messageValue?.toString() ?? errorMessage;
+      }
+      throw Exception(errorMessage);
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred during email confirmation.');
+    }
+  }
+
+  @override
+  Future<void> forgetPassword(String email) async {
+    try {
+      final response = await _dio.post(
+        '/auth/forget-password',
+        data: {'email': email},
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final dynamic messageValue = response.data?['message'];
+        throw Exception(
+          messageValue?.toString() ?? 'Failed to send password reset OTP.',
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'A network error occurred.';
+      if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
+        errorMessage = messageValue?.toString() ?? errorMessage;
+      }
+      throw Exception(errorMessage);
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred.');
+    }
+  }
+
+  @override
+  Future<void> resetPassword(String email, String token, String newPassword) async {
+    try {
+      final response = await _dio.post(
+        '/auth/reset-password',
+        data: {
+          'email': email,
+          'token': token,
+          'newPassword': newPassword,
+        },
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final dynamic messageValue = response.data?['message'];
+        throw Exception(
+          messageValue?.toString() ?? 'Password reset failed.',
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'A network error occurred during password reset.';
+      if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
+        errorMessage = messageValue?.toString() ?? errorMessage;
+      }
+      throw Exception(errorMessage);
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred during password reset.');
+    }
+  }
+
+  @override
+  Future<void> resendConfirmation(String email) async {
+    try {
+      final response = await _dio.post(
+        '/auth/resend-confirmation',
+        data: {'email': email},
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final dynamic messageValue = response.data?['message'];
+        throw Exception(
+          messageValue?.toString() ?? 'Failed to resend confirmation.',
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'A network error occurred.';
+      if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
+        errorMessage = messageValue?.toString() ?? errorMessage;
+      }
+      throw Exception(errorMessage);
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred.');
+    }
+  }
+
+  @override
   Future<void> logout() async {
     // ... (logout implementation remains the same)
     try {
@@ -216,3 +328,4 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 }
+
