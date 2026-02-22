@@ -28,10 +28,7 @@ class OtpVerificationScreen extends HookConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final otpControllers = List.generate(
-      6,
-      (_) => useTextEditingController(),
-    );
+    final otpControllers = List.generate(6, (_) => useTextEditingController());
     final focusNodes = List.generate(6, (_) => useFocusNode());
     final isLoading = useState(false);
     final canResend = useState(true);
@@ -54,6 +51,7 @@ class OtpVerificationScreen extends HookConsumerWidget {
     }, [canResend.value, resendCountdown.value]);
 
     Future<void> submitOtp() async {
+      if (isLoading.value) return; // Prevent double submission
       final otp = otpControllers.map((c) => c.text).join();
       if (otp.length != 6) {
         Fluttertoast.showToast(
@@ -199,49 +197,59 @@ class OtpVerificationScreen extends HookConsumerWidget {
                         return SizedBox(
                           width: 44,
                           height: 52,
-                          child: TextField(
-                            controller: otpControllers[index],
-                            focusNode: focusNodes[index],
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            maxLength: 1,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: InputDecoration(
-                              counterText: '',
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: colorScheme.primary,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            onChanged: (value) {
-                              if (value.isNotEmpty && index < 5) {
-                                focusNodes[index + 1].requestFocus();
-                              }
-                              if (value.isEmpty && index > 0) {
+                          child: KeyboardListener(
+                            focusNode: FocusNode(),
+                            onKeyEvent: (event) {
+                              // Handle backspace on empty field → move to previous
+                              if (event is KeyDownEvent &&
+                                  event.logicalKey ==
+                                      LogicalKeyboardKey.backspace &&
+                                  otpControllers[index].text.isEmpty &&
+                                  index > 0) {
                                 focusNodes[index - 1].requestFocus();
                               }
-                              // Auto-submit when all 6 digits entered
-                              final otp = otpControllers
-                                  .map((c) => c.text)
-                                  .join();
-                              if (otp.length == 6) {
-                                submitOtp();
-                              }
                             },
+                            child: TextField(
+                              controller: otpControllers[index],
+                              focusNode: focusNodes[index],
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                              maxLength: 1,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: InputDecoration(
+                                counterText: '',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: colorScheme.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              onChanged: (value) {
+                                if (value.isNotEmpty && index < 5) {
+                                  focusNodes[index + 1].requestFocus();
+                                }
+                                // Auto-submit when all 6 digits entered
+                                final otp = otpControllers
+                                    .map((c) => c.text)
+                                    .join();
+                                if (otp.length == 6) {
+                                  submitOtp();
+                                }
+                              },
+                            ),
                           ),
                         );
                       }),

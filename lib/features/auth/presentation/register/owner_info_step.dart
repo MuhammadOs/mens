@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/features/auth/notifiers/register_notifier.dart';
+import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/shared/widgets/custom_text_field.dart';
 
 class OwnerInfoStep extends HookConsumerWidget {
@@ -42,8 +43,17 @@ class OwnerInfoStep extends HookConsumerWidget {
           : '',
     );
 
+    // Register this step's form key so RegisterScreen can validate on 'Next'
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        StepFormScope.of(context)?.formKeyNotifier.value = formKey;
+      });
+      return null;
+    }, []);
+
     return Form(
-      // You can wrap this in a Form with a GlobalKey if you want to validate on 'Next' button press
+      key: formKey,
       child: Directionality(
         textDirection: ui.TextDirection.ltr,
         child: Column(

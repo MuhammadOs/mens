@@ -62,6 +62,16 @@ class ProductRepositoryImpl implements ProductRepository {
   final Dio _dio;
   final Ref _ref; // Riverpod Ref to read other providers
 
+  /// Safely extracts a human-readable message from a response body.
+  /// Handles both Map (normal JSON object) and List (array) responses from the server.
+  String? _extractMessage(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      return data['message']?.toString() ?? data['errors']?.toString();
+    }
+    // Server returned a JSON array or something unexpected — no message to extract
+    return null;
+  }
+
   ProductRepositoryImpl(this._dio, this._ref);
 
   /// Fetches a list of products for the currently logged-in user's store.
@@ -231,7 +241,6 @@ class ProductRepositoryImpl implements ProductRepository {
     required List<ProductImage> images,
   }) async {
     try {
-      // Prepare the request body as JSON
       final requestBody = {
         'name': name,
         'description': description,
@@ -241,29 +250,24 @@ class ProductRepositoryImpl implements ProductRepository {
         'images': images.map((img) => img.toJson()).toList(),
       };
 
-      // Send POST request to the /products endpoint
       final response = await _dio.post('/products', data: requestBody);
 
-      // Check for successful status codes
       if (response.statusCode != 200 && response.statusCode != 201) {
-        final dynamic messageValue = response.data?['message'];
         final serverMessage =
-            messageValue?.toString() ??
+            _extractMessage(response.data) ??
             'Failed to add product: ${response.statusCode}';
         throw Exception(serverMessage);
       }
     } on DioException catch (e) {
       String errorMessage = 'Network error adding product.';
       if (e.response != null) {
-        final dynamic messageValue = e.response!.data?['message'];
-        final dynamic errors = e.response!.data?['errors'];
         errorMessage =
-            messageValue?.toString() ??
-            errors?.toString() ??
+            _extractMessage(e.response!.data) ??
             'Failed with status: ${e.response!.statusCode}';
       }
       throw Exception(errorMessage);
     } catch (e) {
+      if (e is Exception) rethrow;
       throw Exception('An unexpected error occurred while adding the product.');
     }
   }
@@ -280,7 +284,6 @@ class ProductRepositoryImpl implements ProductRepository {
     required List<ProductImage> images,
   }) async {
     try {
-      // Prepare the request body as JSON
       final requestBody = {
         'name': name,
         'description': description,
@@ -296,22 +299,21 @@ class ProductRepositoryImpl implements ProductRepository {
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
-        final dynamic messageValue = response.data?['message'];
         final serverMessage =
-            messageValue?.toString() ?? 'Update failed: ${response.statusCode}';
+            _extractMessage(response.data) ??
+            'Update failed: ${response.statusCode}';
         throw Exception(serverMessage);
       }
     } on DioException catch (e) {
       String errorMessage = 'Network error updating product.';
       if (e.response != null) {
-        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            messageValue?.toString() ??
-            (e.response!.data?['errors']?.toString() ??
-                'Update failed with status: ${e.response!.statusCode}');
+            _extractMessage(e.response!.data) ??
+            'Update failed with status: ${e.response!.statusCode}';
       }
       throw Exception(errorMessage);
     } catch (e) {
+      if (e is Exception) rethrow;
       throw Exception('An unexpected error occurred while updating product.');
     }
   }
@@ -319,25 +321,24 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<void> deleteProduct(int productId) async {
     try {
-      final response = await _dio.delete(
-        '/products/$productId', // Use the DELETE method
-      );
+      final response = await _dio.delete('/products/$productId');
 
-      // Check for 200 (OK) or 204 (No Content) status
       if (response.statusCode != 200 && response.statusCode != 204) {
-        throw Exception('Failed to delete product: ${response.statusCode}');
+        throw Exception(
+          _extractMessage(response.data) ??
+              'Failed to delete product: ${response.statusCode}',
+        );
       }
     } on DioException catch (e) {
       String errorMessage = 'Network error deleting product.';
       if (e.response != null) {
-        // Handle both string and non-string message types
-        final dynamic messageValue = e.response!.data?['message'];
         errorMessage =
-            messageValue?.toString() ??
+            _extractMessage(e.response!.data) ??
             'Delete failed: ${e.response!.statusCode}';
       }
       throw Exception(errorMessage);
     } catch (e) {
+      if (e is Exception) rethrow;
       throw Exception('An unexpected error occurred while deleting.');
     }
   }

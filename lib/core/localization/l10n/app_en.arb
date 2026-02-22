@@ -396,5 +396,15 @@
   "nationalIdLength": "National ID must be exactly 14 digits",
   "phoneNumberLabel": "Phone Number",
   "phoneNumberHint": "Enter your phone number",
-  "birthDateHint": "Select your birth date"
+  "birthDateHint": "Select your birth date",
+  "adminUsersTitle": "Users",
+  "adminUsersSearch": "Search by name, email or role…",
+  "adminUsersEmpty": "No users found",
+  "adminUsersEmptySearch": "No users match your search",
+  "adminUsersFailedToLoad": "Failed to load users",
+  "adminUsersEmailVerified": "Verified",
+  "adminUsersEmailUnverified": "Unverified",
+  "adminUsersRoleAdmin": "Admin",
+  "adminUsersRoleStoreOwner": "Store Owner",
+  "adminUsersRoleUser": "User"
 }

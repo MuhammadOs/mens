@@ -265,5 +265,15 @@
   "nationalIdLength": "الرقم القومي يجب أن يكون 14 رقم بالضبط",
   "phoneNumberLabel": "رقم الهاتف",
   "phoneNumberHint": "أدخل رقم هاتفك",
-  "birthDateHint": "اختر تاريخ ميلادك"
+  "birthDateHint": "اختر تاريخ ميلادك",
+  "adminUsersTitle": "المستخدمون",
+  "adminUsersSearch": "ابحث بالاسم أو البريد أو الدور…",
+  "adminUsersEmpty": "لا يوجد مستخدمون",
+  "adminUsersEmptySearch": "لا يوجد مستخدمون يطابقون بحثك",
+  "adminUsersFailedToLoad": "فشل تحميل المستخدمين",
+  "adminUsersEmailVerified": "موثق",
+  "adminUsersEmailUnverified": "غير موثق",
+  "adminUsersRoleAdmin": "مدير",
+  "adminUsersRoleStoreOwner": "صاحب متجر",
+  "adminUsersRoleUser": "مستخدم"
 }

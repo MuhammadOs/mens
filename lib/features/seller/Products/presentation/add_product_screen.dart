@@ -44,26 +44,58 @@ class AddProductScreen extends HookConsumerWidget {
     final mainImage = useState<XFile?>(null);
     final additionalImages = useState<List<XFile>>([]);
     final imagePicker = useMemoized(() => ImagePicker());
+    final isPickingImage = useState(false);
 
     // --- Functions ---
-    // (Image picking functions are unchanged)
     Future<void> pickMainImage() async {
-      final XFile? pickedImage = await imagePicker.pickImage(
-        source: ImageSource.gallery,
-      );
-      if (pickedImage != null) {
-        mainImage.value = pickedImage;
+      if (isPickingImage.value) return;
+      isPickingImage.value = true;
+      try {
+        final XFile? pickedImage = await imagePicker.pickImage(
+          source: ImageSource.gallery,
+        );
+        if (pickedImage != null) {
+          mainImage.value = pickedImage;
+        }
+      } catch (e) {
+        Fluttertoast.showToast(
+          msg: "${l10n.errorUploadingImage}: $e",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: colorScheme.error,
+          textColor: colorScheme.onError,
+          fontSize: 16.0,
+        );
+      } finally {
+        isPickingImage.value = false;
       }
     }
 
     Future<void> pickAdditionalImages() async {
-      final List<XFile> pickedImages = await imagePicker.pickMultiImage();
-      if (pickedImages.isNotEmpty) {
-        final currentPaths = additionalImages.value.map((f) => f.path).toSet();
-        final newImages = pickedImages
-            .where((f) => !currentPaths.contains(f.path))
-            .toList();
-        additionalImages.value = [...additionalImages.value, ...newImages];
+      if (isPickingImage.value) return;
+      isPickingImage.value = true;
+      try {
+        final List<XFile> pickedImages = await imagePicker.pickMultiImage();
+        if (pickedImages.isNotEmpty) {
+          final currentPaths = additionalImages.value
+              .map((f) => f.path)
+              .toSet();
+          final newImages = pickedImages
+              .where((f) => !currentPaths.contains(f.path))
+              .toList();
+          additionalImages.value = [...additionalImages.value, ...newImages];
+        }
+      } catch (e) {
+        Fluttertoast.showToast(
+          msg: "${l10n.errorUploadingImage}: $e",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: colorScheme.error,
+          textColor: colorScheme.onError,
+          fontSize: 16.0,
+        );
+      } finally {
+        isPickingImage.value = false;
       }
     }
 
@@ -92,8 +124,12 @@ class AddProductScreen extends HookConsumerWidget {
         }
       } else if (next is AsyncError && !(next.isLoading)) {
         // --- Show Error Toast ---
+        final rawError = next.error.toString();
+        final displayError = rawError.startsWith('Exception: ')
+            ? rawError.substring('Exception: '.length)
+            : rawError;
         Fluttertoast.showToast(
-          msg: "${l10n.errorAddingProduct}: ${next.error.toString()}",
+          msg: "${l10n.errorAddingProduct}: $displayError",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -407,18 +443,14 @@ class AddProductScreen extends HookConsumerWidget {
 
                           // Validate the form first
                           if (formKey.currentState?.validate() ?? false) {
-                            if (mainImage.value == null) {
-                              showErrorToast(l10n.pleaseAddMainImage);
-                              return;
-                            }
                             if (selectedSubCategoryId.value == null) {
                               showErrorToast(l10n.pleaseSelectCategory);
                               return;
                             }
 
-                            // Combine main image and additional images
+                            // Combine main image + additional images (images are optional)
                             final allImages = [
-                              mainImage.value!,
+                              if (mainImage.value != null) mainImage.value!,
                               ...additionalImages.value,
                             ];
 
@@ -426,14 +458,9 @@ class AddProductScreen extends HookConsumerWidget {
                             addProductNotifier.submitProduct(
                               name: nameController.text,
                               description: descriptionController.text,
-                              price: double.parse(
-                                priceController.text,
-                              ), // Already validated
-                              stockQuantity: int.parse(
-                                stockController.text,
-                              ), // Already validated
-                              subCategoryId: selectedSubCategoryId
-                                  .value!, // Already validated
+                              price: double.parse(priceController.text),
+                              stockQuantity: int.parse(stockController.text),
+                              subCategoryId: selectedSubCategoryId.value!,
                               images: allImages,
                             );
                           } else {

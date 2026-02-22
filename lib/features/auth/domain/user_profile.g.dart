@@ -1,4 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// MANUALLY PATCHED: safe int parsing to handle backends that return numbers as strings
 
 part of 'user_profile.dart';
 
@@ -6,8 +7,17 @@ part of 'user_profile.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+/// Safe int parser: handles int, double, and String values from the server
+int _toInt(dynamic value) {
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String)
+    return int.tryParse(value) ?? double.tryParse(value)?.toInt() ?? 0;
+  return 0;
+}
+
 UserProfile _$UserProfileFromJson(Map<String, dynamic> json) => UserProfile(
-  userId: (json['userId'] as num).toInt(),
+  userId: _toInt(json['userId']),
   email: json['email'] as String,
   firstName: json['firstName'] as String,
   lastName: json['lastName'] as String,

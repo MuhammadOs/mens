@@ -218,47 +218,46 @@ class UserProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // Theme toggle
+                    // Premium theme picker
                     Row(
                       children: [
-                        Icon(
-                          FontAwesomeIcons.sun,
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.7,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.theme,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onSurface,
-                                ),
-                              ),
-                              Text(
-                                themeMode == ThemeMode.dark
-                                    ? l10n.darkTheme
-                                    : (themeMode == ThemeMode.light
-                                          ? l10n.lightTheme
-                                          : l10n.systemTheme),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Switch(
-                          value: themeMode == ThemeMode.dark,
-                          activeTrackColor: theme.colorScheme.primary,
-                          onChanged: (val) => ref
+                        _ThemeCard(
+                          mode: ThemeMode.light,
+                          icon: FontAwesomeIcons.sun,
+                          label: l10n.lightTheme,
+                          selected: themeMode == ThemeMode.light,
+                          accentColor: theme.colorScheme.primary,
+                          bgColor: const Color(0xFFF5F5F5),
+                          barColor: const Color(0xFFDDDDDD),
+                          onTap: () => ref
                               .read(themeProvider.notifier)
-                              .setTheme(val ? ThemeMode.dark : ThemeMode.light),
+                              .setTheme(ThemeMode.light),
+                        ),
+                        const SizedBox(width: 10),
+                        _ThemeCard(
+                          mode: ThemeMode.system,
+                          icon: FontAwesomeIcons.circleHalfStroke,
+                          label: l10n.systemTheme,
+                          selected: themeMode == ThemeMode.system,
+                          accentColor: theme.colorScheme.primary,
+                          bgColor: const Color(0xFFE0E0E0),
+                          barColor: const Color(0xFFBBBBBB),
+                          onTap: () => ref
+                              .read(themeProvider.notifier)
+                              .setTheme(ThemeMode.system),
+                        ),
+                        const SizedBox(width: 10),
+                        _ThemeCard(
+                          mode: ThemeMode.dark,
+                          icon: FontAwesomeIcons.moon,
+                          label: l10n.darkTheme,
+                          selected: themeMode == ThemeMode.dark,
+                          accentColor: theme.colorScheme.primary,
+                          bgColor: const Color(0xFF1E1E1E),
+                          barColor: const Color(0xFF3A3A3A),
+                          onTap: () => ref
+                              .read(themeProvider.notifier)
+                              .setTheme(ThemeMode.dark),
                         ),
                       ],
                     ),
@@ -591,4 +590,149 @@ class UserProfileScreen extends ConsumerWidget {
 // Small extension helper
 extension _StringHelpers on String {
   String ifEmpty(String other) => trim().isEmpty ? other : this;
+}
+
+/// A tappable card that previews a theme mode (light / system / dark).
+class _ThemeCard extends StatelessWidget {
+  final ThemeMode mode;
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final Color accentColor;
+  final Color bgColor;
+  final Color barColor;
+  final VoidCallback onTap;
+
+  const _ThemeCard({
+    required this.mode,
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.accentColor,
+    required this.bgColor,
+    required this.barColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected ? accentColor : Colors.transparent,
+              width: 2.5,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.30),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 6,
+                    ),
+                  ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Mini UI preview
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(11),
+                ),
+                child: Container(
+                  height: 56,
+                  color: bgColor,
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Fake "header" bar
+                      Container(
+                        height: 8,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: barColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // Fake "content" bars
+                      Container(
+                        height: 6,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: barColor.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        height: 6,
+                        width: 28,
+                        decoration: BoxDecoration(
+                          color: barColor.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Label + icon row
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(11),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (selected)
+                      Icon(
+                        FontAwesomeIcons.solidCircleCheck,
+                        size: 11,
+                        color: accentColor,
+                      )
+                    else
+                      Icon(icon, size: 11, color: barColor),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: selected ? accentColor : barColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

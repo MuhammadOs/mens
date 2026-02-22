@@ -122,12 +122,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userNameHint => 'Enter username';
 
   @override
-  String get nationalIdLabel => 'National ID (Optional)';
-
-  @override
-  String get nationalIdHint => 'Enter national ID';
-
-  @override
   String get birthDateLabel => 'Birth Date';
 
   @override
@@ -806,4 +800,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statusCancelled => 'Cancelled';
+
+  @override
+  String get forgotPasswordLink => 'Forgot Password?';
+
+  @override
+  String get forgotPasswordTitle => 'Forgot Password';
+
+  @override
+  String get forgotPasswordDescription =>
+      'Enter your email address and we\'ll send you a 6-digit code to reset your password.';
+
+  @override
+  String get sendOtpButton => 'Send Code';
+
+  @override
+  String get otpSentSuccess => 'Verification code sent to your email.';
+
+  @override
+  String get otpResentSuccess => 'Verification code resent successfully.';
+
+  @override
+  String get confirmEmailTitle => 'Confirm Email';
+
+  @override
+  String get resetPasswordTitle => 'Reset Password';
+
+  @override
+  String get resetPasswordDescription => 'Enter your new password below.';
+
+  @override
+  String get resetPasswordButton => 'Reset Password';
+
+  @override
+  String get newPasswordLabel => 'New Password';
+
+  @override
+  String get confirmNewPasswordLabel => 'Confirm New Password';
+
+  @override
+  String get verifyButton => 'Verify';
+
+  @override
+  String get otpHint => 'Please enter the 6-digit code';
+
+  @override
+  String get resendOtp => 'Resend Code';
+
+  @override
+  String resendOtpCountdown(int seconds) {
+    return 'Resend code in ${seconds}s';
+  }
+
+  @override
+  String otpSentTo(String email) {
+    return 'A 6-digit code has been sent to $email';
+  }
+
+  @override
+  String get emailConfirmedSuccess =>
+      'Email confirmed successfully! You can now sign in.';
+
+  @override
+  String get passwordResetSuccess =>
+      'Password reset successfully! Please sign in with your new password.';
+
+  @override
+  String get emailNotConfirmed => 'Email Not Confirmed';
+
+  @override
+  String get emailNotConfirmedDescription =>
+      'Your email has not been confirmed yet. Would you like to confirm it now?';
+
+  @override
+  String get nationalIdLabel => 'National ID';
+
+  @override
+  String get nationalIdHint => 'Enter your 14-digit national ID';
+
+  @override
+  String get nationalIdLength => 'National ID must be exactly 14 digits';
+
+  @override
+  String get phoneNumberLabel => 'Phone Number';
+
+  @override
+  String get phoneNumberHint => 'Enter your phone number';
+
+  @override
+  String get birthDateHint => 'Select your birth date';
+
+  @override
+  String get adminUsersTitle => 'Users';
+
+  @override
+  String get adminUsersSearch => 'Search by name, email or role…';
+
+  @override
+  String get adminUsersEmpty => 'No users found';
+
+  @override
+  String get adminUsersEmptySearch => 'No users match your search';
+
+  @override
+  String get adminUsersFailedToLoad => 'Failed to load users';
+
+  @override
+  String get adminUsersEmailVerified => 'Verified';
+
+  @override
+  String get adminUsersEmailUnverified => 'Unverified';
+
+  @override
+  String get adminUsersRoleAdmin => 'Admin';
+
+  @override
+  String get adminUsersRoleStoreOwner => 'Store Owner';
+
+  @override
+  String get adminUsersRoleUser => 'User';
 }

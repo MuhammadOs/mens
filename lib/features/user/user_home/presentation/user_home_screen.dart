@@ -6,6 +6,7 @@ import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
 import 'package:mens/features/user/brands/presentation/all_brands_view.dart';
+import 'package:mens/features/user/admin_users/presentation/admin_users_view.dart';
 import 'package:mens/features/user/conversations/presentation/conversations_view.dart';
 import 'package:mens/features/user/products/presentation/all_products_view.dart';
 import 'package:mens/features/user/tryon/presentation/tryon_screen.dart';
@@ -40,6 +41,7 @@ class UserHomeScreen extends HookConsumerWidget {
       const AllBrandsView(),
       if (userProfile?.role != "Admin") const TryOnScreen(),
       if (userProfile?.role == "Admin") const ConversationsView(),
+      if (userProfile?.role == "Admin") const AdminUsersView(),
       const UserProfileScreen(),
       const SizedBox.shrink(),
     ];
@@ -68,6 +70,11 @@ class UserHomeScreen extends HookConsumerWidget {
           icon: const Icon(FontAwesomeIcons.comments),
           label: l10n.conversations,
         ),
+      if (userProfile?.role == "Admin")
+        BottomNavigationBarItem(
+          icon: const Icon(FontAwesomeIcons.users),
+          label: l10n.adminUsersTitle,
+        ),
       BottomNavigationBarItem(
         icon: const Icon(FontAwesomeIcons.user),
         label: l10n.profile,
@@ -90,6 +97,8 @@ class UserHomeScreen extends HookConsumerWidget {
           context,
         ).colorScheme.onSurface.withValues(alpha: 0.6),
         type: BottomNavigationBarType.fixed,
+        selectedLabelStyle: const TextStyle(fontSize: 10),
+        unselectedLabelStyle: const TextStyle(fontSize: 10),
         onTap: (index) {
           ref.read(adminNavIndexProvider.notifier).state = index;
         },

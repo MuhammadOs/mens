@@ -1,4 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// MANUALLY PATCHED: safe int parsing to handle backends that return numbers as strings
 
 part of 'store.dart';
 
@@ -6,14 +7,23 @@ part of 'store.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+/// Safe int parser: handles int, double, and String values from the server
+int _toInt(dynamic value) {
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String)
+    return int.tryParse(value) ?? double.tryParse(value)?.toInt() ?? 0;
+  return 0;
+}
+
 Store _$StoreFromJson(Map<String, dynamic> json) => Store(
-  id: (json['id'] as num).toInt(),
-  ownerId: (json['ownerId'] as num).toInt(),
+  id: _toInt(json['id']),
+  ownerId: _toInt(json['ownerId']),
   brandName: json['brandName'] as String,
   brandImage: json['brandImage'] as String?,
   brandDescription: json['brandDescription'] as String?,
   vat: json['vat'] as String?,
-  categoryId: (json['categoryId'] as num).toInt(),
+  categoryId: _toInt(json['categoryId']),
   location: json['location'] as String?,
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: json['updatedAt'] == null

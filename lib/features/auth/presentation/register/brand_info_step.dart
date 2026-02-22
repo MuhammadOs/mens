@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/auth/notifiers/register_notifier.dart';
+import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/seller/categories/data/category_repository.dart';
 import 'package:mens/features/seller/categories/domain/category.dart';
 import 'package:mens/shared/widgets/custom_dropdown.dart';
@@ -59,109 +60,123 @@ class BrandInfoStep extends HookConsumerWidget {
       return null;
     }, [brandInfo]);
 
-    return Directionality(
-      textDirection: ui.TextDirection.ltr,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          CustomTextField(
-            textDirection: ui.TextDirection.ltr,
-            textAlign: TextAlign.left, // Explicitly left-aligned for LTR
-            labelText: l10n.brandNameLabel,
-            hintText: l10n.brandNameHint,
-            controller: brandNameController,
-            onChanged: (value) =>
-                registerNotifier.updateBrandInfo(brandName: value),
-            validator: (value) =>
-                value == null || value.isEmpty ? l10n.validationRequired : null,
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
-          CustomTextField(
-            // FIX: Added textDirection
-            textDirection: ui.TextDirection.ltr,
-            textAlign: TextAlign.left, // Explicitly left-aligned for LTR
-            labelText: l10n.vatRegistrationNumberLabel,
-            controller: vatRegistrationNumberController,
-            onChanged: (value) =>
-                registerNotifier.updateBrandInfo(vatRegistrationNumber: value),
-            textInputAction: TextInputAction.next,
-            keyboardType: TextInputType.text,
-          ),
-          const SizedBox(height: 12),
+    // Register this step's form key so RegisterScreen can validate on 'Next'
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        StepFormScope.of(context)?.formKeyNotifier.value = formKey;
+      });
+      return null;
+    }, []);
 
-          // Category Dropdown
-          categoriesAsyncValue.when(
-            data: (categories) {
-              final dropdownItems = categories.map((Category cat) {
-                return DropdownMenuItem<int>(
-                  value: cat.id,
-                  child: Text(cat.name),
+    return Form(
+      key: formKey,
+      child: Directionality(
+        textDirection: ui.TextDirection.ltr,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CustomTextField(
+              textDirection: ui.TextDirection.ltr,
+              textAlign: TextAlign.left, // Explicitly left-aligned for LTR
+              labelText: l10n.brandNameLabel,
+              hintText: l10n.brandNameHint,
+              controller: brandNameController,
+              onChanged: (value) =>
+                  registerNotifier.updateBrandInfo(brandName: value),
+              validator: (value) => value == null || value.isEmpty
+                  ? l10n.validationRequired
+                  : null,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 12),
+            CustomTextField(
+              // FIX: Added textDirection
+              textDirection: ui.TextDirection.ltr,
+              textAlign: TextAlign.left, // Explicitly left-aligned for LTR
+              labelText: l10n.vatRegistrationNumberLabel,
+              controller: vatRegistrationNumberController,
+              onChanged: (value) => registerNotifier.updateBrandInfo(
+                vatRegistrationNumber: value,
+              ),
+              textInputAction: TextInputAction.next,
+              keyboardType: TextInputType.text,
+            ),
+            const SizedBox(height: 12),
+
+            // Category Dropdown
+            categoriesAsyncValue.when(
+              data: (categories) {
+                final dropdownItems = categories.map((Category cat) {
+                  return DropdownMenuItem<int>(
+                    value: cat.id,
+                    child: Text(cat.name),
+                  );
+                }).toList();
+
+                final currentCategoryId = brandInfo.categoryId;
+                final isValidValue = categories.any(
+                  (cat) => cat.id == currentCategoryId,
                 );
-              }).toList();
+                final dropdownValue = isValidValue ? currentCategoryId : null;
 
-              final currentCategoryId = brandInfo.categoryId;
-              final isValidValue = categories.any(
-                (cat) => cat.id == currentCategoryId,
-              );
-              final dropdownValue = isValidValue ? currentCategoryId : null;
-
-              return CustomDropdownField<int>(
-                labelText: l10n.categoryLabel,
-                hintText: l10n.categoryHint,
-                value: dropdownValue,
-                items: dropdownItems,
-                onChanged: (int? newValue) {
-                  registerNotifier.updateBrandInfo(categoryId: newValue);
-                },
-                validator: (value) =>
-                    value == null ? l10n.validationRequired : null,
-              );
-            },
-            loading: () => Skeletonizer(
-              enabled: true,
-              child: CustomDropdownField<int>(
-                labelText: l10n.categoryLabel,
-                hintText: l10n.categoryHint,
-                value: null,
-                items: const [],
-                onChanged: (value) {}, // Disabled
+                return CustomDropdownField<int>(
+                  labelText: l10n.categoryLabel,
+                  hintText: l10n.categoryHint,
+                  value: dropdownValue,
+                  items: dropdownItems,
+                  onChanged: (int? newValue) {
+                    registerNotifier.updateBrandInfo(categoryId: newValue);
+                  },
+                  validator: (value) =>
+                      value == null ? l10n.validationRequired : null,
+                );
+              },
+              loading: () => Skeletonizer(
+                enabled: true,
+                child: CustomDropdownField<int>(
+                  labelText: l10n.categoryLabel,
+                  hintText: l10n.categoryHint,
+                  value: null,
+                  items: const [],
+                  onChanged: (value) {}, // Disabled
+                ),
+              ),
+              error: (error, stack) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Text(
+                  'Error loading categories: $error',
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
               ),
             ),
-            error: (error, stack) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text(
-                'Error loading categories: $error',
-                style: TextStyle(color: theme.colorScheme.error),
-              ),
-            ),
-          ),
 
-          const SizedBox(height: 12),
-          CustomTextField(
-            // FIX: Added textDirection
-            textDirection: ui.TextDirection.ltr,
-            textAlign: TextAlign.left, // Explicitly left-aligned for LTR
-            labelText: l10n.descriptionLabel,
-            controller: descriptionController,
-            onChanged: (value) =>
-                registerNotifier.updateBrandInfo(description: value),
-            maxLines: 3,
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
-          CustomTextField(
-            // FIX: Added textDirection
-            textDirection: ui.TextDirection.ltr,
-            textAlign: TextAlign.left, // Explicitly left-aligned for LTR
-            labelText: l10n.locationLabel,
-            hintText: l10n.locationHint,
-            controller: locationController,
-            onChanged: (value) =>
-                registerNotifier.updateBrandInfo(location: value),
-            textInputAction: TextInputAction.done,
-          ),
-        ],
+            const SizedBox(height: 12),
+            CustomTextField(
+              // FIX: Added textDirection
+              textDirection: ui.TextDirection.ltr,
+              textAlign: TextAlign.left, // Explicitly left-aligned for LTR
+              labelText: l10n.descriptionLabel,
+              controller: descriptionController,
+              onChanged: (value) =>
+                  registerNotifier.updateBrandInfo(description: value),
+              maxLines: 3,
+              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 12),
+            CustomTextField(
+              // FIX: Added textDirection
+              textDirection: ui.TextDirection.ltr,
+              textAlign: TextAlign.left, // Explicitly left-aligned for LTR
+              labelText: l10n.locationLabel,
+              hintText: l10n.locationHint,
+              controller: locationController,
+              onChanged: (value) =>
+                  registerNotifier.updateBrandInfo(location: value),
+              textInputAction: TextInputAction.done,
+            ),
+          ],
+        ),
       ),
     );
   }

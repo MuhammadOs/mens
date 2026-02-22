@@ -123,12 +123,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get userNameHint => 'أدخل اسم المستخدم';
 
   @override
-  String get nationalIdLabel => 'الرقم القومي (اختياري)';
-
-  @override
-  String get nationalIdHint => 'أدخل الرقم القومي';
-
-  @override
   String get birthDateLabel => 'تاريخ الميلاد';
 
   @override
@@ -806,4 +800,123 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get statusCancelled => 'Cancelled';
+
+  @override
+  String get forgotPasswordLink => 'نسيت كلمة المرور؟';
+
+  @override
+  String get forgotPasswordTitle => 'نسيت كلمة المرور';
+
+  @override
+  String get forgotPasswordDescription =>
+      'أدخل بريدك الإلكتروني وسنرسل لك رمز مكون من 6 أرقام لإعادة تعيين كلمة المرور.';
+
+  @override
+  String get sendOtpButton => 'إرسال الرمز';
+
+  @override
+  String get otpSentSuccess => 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.';
+
+  @override
+  String get otpResentSuccess => 'تم إعادة إرسال رمز التحقق بنجاح.';
+
+  @override
+  String get confirmEmailTitle => 'تأكيد البريد الإلكتروني';
+
+  @override
+  String get resetPasswordTitle => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get resetPasswordDescription => 'أدخل كلمة المرور الجديدة أدناه.';
+
+  @override
+  String get resetPasswordButton => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get newPasswordLabel => 'كلمة المرور الجديدة';
+
+  @override
+  String get confirmNewPasswordLabel => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get verifyButton => 'تحقق';
+
+  @override
+  String get otpHint => 'الرجاء إدخال الرمز المكون من 6 أرقام';
+
+  @override
+  String get resendOtp => 'إعادة إرسال الرمز';
+
+  @override
+  String resendOtpCountdown(int seconds) {
+    return 'إعادة إرسال الرمز خلال $seconds ثانية';
+  }
+
+  @override
+  String otpSentTo(String email) {
+    return 'تم إرسال رمز مكون من 6 أرقام إلى $email';
+  }
+
+  @override
+  String get emailConfirmedSuccess =>
+      'تم تأكيد البريد الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول.';
+
+  @override
+  String get passwordResetSuccess =>
+      'تم إعادة تعيين كلمة المرور بنجاح! سجّل الدخول بكلمة المرور الجديدة.';
+
+  @override
+  String get emailNotConfirmed => 'البريد الإلكتروني غير مؤكد';
+
+  @override
+  String get emailNotConfirmedDescription =>
+      'لم يتم تأكيد بريدك الإلكتروني بعد. هل تريد تأكيده الآن؟';
+
+  @override
+  String get nationalIdLabel => 'الرقم القومي';
+
+  @override
+  String get nationalIdHint => 'أدخل الرقم القومي المكون من 14 رقم';
+
+  @override
+  String get nationalIdLength => 'الرقم القومي يجب أن يكون 14 رقم بالضبط';
+
+  @override
+  String get phoneNumberLabel => 'رقم الهاتف';
+
+  @override
+  String get phoneNumberHint => 'أدخل رقم هاتفك';
+
+  @override
+  String get birthDateHint => 'اختر تاريخ ميلادك';
+
+  @override
+  String get adminUsersTitle => 'المستخدمون';
+
+  @override
+  String get adminUsersSearch => 'ابحث بالاسم أو البريد أو الدور…';
+
+  @override
+  String get adminUsersEmpty => 'لا يوجد مستخدمون';
+
+  @override
+  String get adminUsersEmptySearch => 'لا يوجد مستخدمون يطابقون بحثك';
+
+  @override
+  String get adminUsersFailedToLoad => 'فشل تحميل المستخدمين';
+
+  @override
+  String get adminUsersEmailVerified => 'موثق';
+
+  @override
+  String get adminUsersEmailUnverified => 'غير موثق';
+
+  @override
+  String get adminUsersRoleAdmin => 'مدير';
+
+  @override
+  String get adminUsersRoleStoreOwner => 'صاحب متجر';
+
+  @override
+  String get adminUsersRoleUser => 'مستخدم';
 }

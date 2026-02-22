@@ -28,50 +28,40 @@ class AddProductNotifier extends Notifier<AddProductState> {
     required List<XFile> images,
     int primaryImageIndex = 0,
   }) async {
-    state = const AsyncValue.loading(); // Set loading state
+    state = const AsyncValue.loading();
     try {
       // Step 1: Upload all images first
       final imageUploadService = ref.read(imageUploadServiceProvider);
       final List<ProductImage> productImages = [];
 
       for (int i = 0; i < images.length; i++) {
-        try {
-          final imageUrl = await imageUploadService.uploadImage(images[i]);
-          productImages.add(
-            ProductImage(
-              imageUrl: imageUrl,
-              altText: name, // Use product name as alt text
-              isPrimary: i == primaryImageIndex,
-            ),
-          );
-        } catch (e) {
-          // Generic error for production
-          throw Exception('Failed to upload image');
-        }
+        // Let the real upload error propagate — the service provides the message
+        final imageUrl = await imageUploadService.uploadImage(images[i]);
+        productImages.add(
+          ProductImage(
+            imageUrl: imageUrl,
+            altText: name,
+            isPrimary: i == primaryImageIndex,
+          ),
+        );
       }
 
       // Step 2: Submit product with image URLs
+      // Let the real API error propagate — the repository extracts the server message
       final repository = ref.read(productRepositoryProvider);
-      try {
-        await repository.addProduct(
-          name: name,
-          description: description,
-          price: price,
-          stockQuantity: stockQuantity,
-          subCategoryId: subCategoryId,
-          images: productImages,
-        );
-      } catch (e) {
-        // Generic error for production
-        throw Exception('Failed to create product');
-      }
+      await repository.addProduct(
+        name: name,
+        description: description,
+        price: price,
+        stockQuantity: stockQuantity,
+        subCategoryId: subCategoryId,
+        images: productImages,
+      );
 
-      state = const AsyncValue.data(null); // Set success state (back to idle)
-
-      // Note: Provider invalidation is handled in the UI after navigation
+      state = const AsyncValue.data(null); // Success — back to idle
     } catch (e, st) {
-      state = AsyncValue.error(e, st); // Set error state
-      rethrow; // Re-throw to allow UI to handle
+      state = AsyncValue.error(e, st);
+      // Do NOT rethrow — error is surfaced via state, the UI listens to AsyncError
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/features/seller/profile/presentation/seller_profile_screen.dart'
     show SellerProfileScreen;
 import 'package:mens/features/user/conversations/presentation/conversations_view.dart';
+import 'package:mens/features/user/admin_users/presentation/admin_users_view.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 import 'package:mens/features/auth/presentation/register/register_screen.dart';
 import 'package:mens/features/auth/presentation/signin/signin_screen.dart';
@@ -40,6 +41,7 @@ class AppRoutes {
   static const userProducts = '/user/products';
   static const userBrands = '/user/brands';
   static const adminConversations = '/admin/conversations';
+  static const adminUsers = '/admin/users';
   static const products = '/products';
   static const paginatedProducts = '/paginated-products';
   static const addProduct = '/addProduct';
@@ -143,6 +145,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminConversations,
         builder: (context, state) => const ConversationsView(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminUsers,
+        builder: (context, state) => const AdminUsersView(),
       ),
       GoRoute(
         path: AppRoutes.products,
@@ -268,16 +274,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (roleNorm == 'admin' ||
             roleNorm == 'customer' ||
             roleNorm == 'user') {
-          // If trying to access auth routes or seller/admin-only routes, redirect to user home
+          // If trying to access auth routes redirect to user home.
+          // Allow /admin/* routes for admin role.
           if (isGoingToAuthRoute ||
-              location.startsWith('/admin') ||
+              (location.startsWith('/admin') && roleNorm != 'admin') ||
               location == AppRoutes.home) {
             return AppRoutes.userHome;
           }
         }
 
         // Sellers / Store owners should go to the seller Home
-        if (roleNorm == 'StoreOwner') {
+        if (roleNorm == 'storeowner') {
           if (isGoingToAuthRoute ||
               location.startsWith('/user') ||
               location == AppRoutes.userHome) {

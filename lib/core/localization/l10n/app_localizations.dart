@@ -320,18 +320,6 @@ abstract class AppLocalizations {
   /// **'Enter username'**
   String get userNameHint;
 
-  /// No description provided for @nationalIdLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'National ID (Optional)'**
-  String get nationalIdLabel;
-
-  /// No description provided for @nationalIdHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter national ID'**
-  String get nationalIdHint;
-
   /// No description provided for @birthDateLabel.
   ///
   /// In en, this message translates to:
@@ -1609,6 +1597,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancelled'**
   String get statusCancelled;
+
+  /// No description provided for @forgotPasswordLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get forgotPasswordLink;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address and we\'ll send you a 6-digit code to reset your password.'**
+  String get forgotPasswordDescription;
+
+  /// No description provided for @sendOtpButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Code'**
+  String get sendOtpButton;
+
+  /// No description provided for @otpSentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code sent to your email.'**
+  String get otpSentSuccess;
+
+  /// No description provided for @otpResentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification code resent successfully.'**
+  String get otpResentSuccess;
+
+  /// No description provided for @confirmEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Email'**
+  String get confirmEmailTitle;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your new password below.'**
+  String get resetPasswordDescription;
+
+  /// No description provided for @resetPasswordButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPasswordButton;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get newPasswordLabel;
+
+  /// No description provided for @confirmNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get confirmNewPasswordLabel;
+
+  /// No description provided for @verifyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verifyButton;
+
+  /// No description provided for @otpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the 6-digit code'**
+  String get otpHint;
+
+  /// No description provided for @resendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Code'**
+  String get resendOtp;
+
+  /// No description provided for @resendOtpCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {seconds}s'**
+  String resendOtpCountdown(int seconds);
+
+  /// No description provided for @otpSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'A 6-digit code has been sent to {email}'**
+  String otpSentTo(String email);
+
+  /// No description provided for @emailConfirmedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Email confirmed successfully! You can now sign in.'**
+  String get emailConfirmedSuccess;
+
+  /// No description provided for @passwordResetSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset successfully! Please sign in with your new password.'**
+  String get passwordResetSuccess;
+
+  /// No description provided for @emailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Not Confirmed'**
+  String get emailNotConfirmed;
+
+  /// No description provided for @emailNotConfirmedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email has not been confirmed yet. Would you like to confirm it now?'**
+  String get emailNotConfirmedDescription;
+
+  /// No description provided for @nationalIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID'**
+  String get nationalIdLabel;
+
+  /// No description provided for @nationalIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your 14-digit national ID'**
+  String get nationalIdHint;
+
+  /// No description provided for @nationalIdLength.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID must be exactly 14 digits'**
+  String get nationalIdLength;
+
+  /// No description provided for @phoneNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumberLabel;
+
+  /// No description provided for @phoneNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get phoneNumberHint;
+
+  /// No description provided for @birthDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your birth date'**
+  String get birthDateHint;
+
+  /// No description provided for @adminUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get adminUsersTitle;
+
+  /// No description provided for @adminUsersSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, email or role…'**
+  String get adminUsersSearch;
+
+  /// No description provided for @adminUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get adminUsersEmpty;
+
+  /// No description provided for @adminUsersEmptySearch.
+  ///
+  /// In en, this message translates to:
+  /// **'No users match your search'**
+  String get adminUsersEmptySearch;
+
+  /// No description provided for @adminUsersFailedToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load users'**
+  String get adminUsersFailedToLoad;
+
+  /// No description provided for @adminUsersEmailVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified'**
+  String get adminUsersEmailVerified;
+
+  /// No description provided for @adminUsersEmailUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified'**
+  String get adminUsersEmailUnverified;
+
+  /// No description provided for @adminUsersRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get adminUsersRoleAdmin;
+
+  /// No description provided for @adminUsersRoleStoreOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Store Owner'**
+  String get adminUsersRoleStoreOwner;
+
+  /// No description provided for @adminUsersRoleUser.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get adminUsersRoleUser;
 }
 
 class _AppLocalizationsDelegate

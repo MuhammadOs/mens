@@ -44,10 +44,7 @@ class Mens extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Read the router from the provider
     final router = ref.watch(routerProvider);
-
-    // Watch theme and locale providers
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
     return MaterialApp.router(
@@ -60,11 +57,8 @@ class Mens extends ConsumerWidget {
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      useInheritedMediaQuery: !kReleaseMode, // Required for DevicePreview
       builder: (context, child) {
-        // Wrap the child with LoadingOverlay first, then DevicePreview
         final widget = LoadingOverlay(child: child ?? const SizedBox.shrink());
-        // Apply DevicePreview builder only in debug/profile when enabled
         return DevicePreview.appBuilder(context, widget);
       },
     );

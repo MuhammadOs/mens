@@ -42,7 +42,7 @@ class SignInScreen extends HookConsumerWidget {
         // Check if the error is about unconfirmed email
         if (errorMsg.toLowerCase().contains('email') &&
             (errorMsg.toLowerCase().contains('confirm') ||
-             errorMsg.toLowerCase().contains('verified'))) {
+                errorMsg.toLowerCase().contains('verified'))) {
           // Show dialog offering to resend confirmation
           showDialog(
             context: context,
@@ -97,7 +97,9 @@ class SignInScreen extends HookConsumerWidget {
 
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (context.mounted) {
-            context.go(AppRoutes.userHome);
+            final roleNorm = (next.value?.role ?? '').toLowerCase();
+            final isSeller = roleNorm == 'storeowner';
+            context.go(isSeller ? AppRoutes.home : AppRoutes.userHome);
           }
         });
       }
