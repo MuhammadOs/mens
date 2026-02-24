@@ -5,13 +5,17 @@ import 'package:dio/dio.dart';
 import 'package:mens/shared/models/paginated_response.dart';
 import 'package:mens/shared/models/pagination_params.dart';
 import 'package:mens/shared/providers/paginated_notifier.dart';
+import 'package:mens/features/auth/notifiers/auth_notifier.dart';
 
 // Keeping ordersProvider as it might be used elsewhere, but ideally we deprecate it.
-final ordersProvider =
-    FutureProvider.family<
-      OrderResponse,
-      ({int page, int pageSize, String? status})
-    >((ref, params) async {
+final ordersProvider = FutureProvider.autoDispose
+    .family<OrderResponse, ({int page, int pageSize, String? status})>((
+      ref,
+      params,
+    ) async {
+      // Watch auth state to trigger re-fetch on login/logout
+      ref.watch(authNotifierProvider);
+
       final apiService = ref.watch(apiServiceProvider);
       try {
         final queryParams = <String, dynamic>{
@@ -51,7 +55,7 @@ final updateOrderStatusProvider =
         );
         ref.invalidate(sellerOrderDetailsProvider(params.$1));
         ref.invalidate(paginatedOrdersProvider);
-        ref.invalidate(ordersProvider); 
+        ref.invalidate(ordersProvider);
       } catch (e) {
         rethrow;
       }
@@ -73,10 +77,16 @@ final sellerOrderDetailsProvider = FutureProvider.family<Order, int>((
   }
 });
 
-
 /// Notifier for paginated orders
 class PaginatedOrdersNotifier extends PaginatedNotifier<SellerOrderSummary> {
   String? _status;
+
+  @override
+  PaginatedState<SellerOrderSummary> build() {
+    // Watch auth state to trigger refresh on login/logout
+    ref.watch(authNotifierProvider);
+    return super.build();
+  }
 
   /// Update the status filter and reload
   Future<void> setStatusFilter(String? status) async {
@@ -87,13 +97,15 @@ class PaginatedOrdersNotifier extends PaginatedNotifier<SellerOrderSummary> {
   }
 
   @override
-  Future<PaginatedResponse<SellerOrderSummary>> fetchPage(PaginationParams params) async {
+  Future<PaginatedResponse<SellerOrderSummary>> fetchPage(
+    PaginationParams params,
+  ) async {
     final apiService = ref.read(apiServiceProvider);
     final queryParams = <String, dynamic>{
       'page': params.page,
       'pageSize': params.pageSize,
     };
-    
+
     // Only add status if it's set and not "All" (assuming UI might pass "All")
     if (_status != null && _status != 'All') {
       queryParams['status'] = _status;
@@ -106,7 +118,9 @@ class PaginatedOrdersNotifier extends PaginatedNotifier<SellerOrderSummary> {
       );
 
       if (response.data is Map<String, dynamic>) {
-        final orderResponse = OrderResponse.fromJson(response.data as Map<String, dynamic>);
+        final orderResponse = OrderResponse.fromJson(
+          response.data as Map<String, dynamic>,
+        );
         return PaginatedResponse<SellerOrderSummary>(
           items: orderResponse.orders,
           totalCount: orderResponse.totalCount,
@@ -122,7 +136,8 @@ class PaginatedOrdersNotifier extends PaginatedNotifier<SellerOrderSummary> {
   }
 }
 
-final paginatedOrdersProvider = 
-    NotifierProvider<PaginatedOrdersNotifier, PaginatedState<SellerOrderSummary>>(
-  PaginatedOrdersNotifier.new,
-);
+final paginatedOrdersProvider =
+    NotifierProvider.autoDispose<
+      PaginatedOrdersNotifier,
+      PaginatedState<SellerOrderSummary>
+    >(PaginatedOrdersNotifier.new);

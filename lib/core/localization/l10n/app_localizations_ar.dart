@@ -790,16 +790,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notes => 'Notes';
 
   @override
-  String get statusPending => 'Pending';
+  String get statusPending => 'قيد الانتظار';
 
   @override
-  String get statusProcessing => 'Processing';
+  String get statusProcessing => 'جاري التجهيز';
 
   @override
-  String get statusShipped => 'Shipped';
+  String get statusShipped => 'تم الشحن';
 
   @override
-  String get statusCancelled => 'Cancelled';
+  String get statusCancelled => 'تم الإلغاء';
 
   @override
   String get forgotPasswordLink => 'نسيت كلمة المرور؟';
@@ -919,4 +919,84 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminUsersRoleUser => 'مستخدم';
+
+  @override
+  String get avgOrderValue => 'متوسط قيمة الطلب';
+
+  @override
+  String get salesPerCustomer => 'المبيعات لكل عميل';
+
+  @override
+  String get salesTrend => 'اتجاه المبيعات';
+
+  @override
+  String get insights => 'إحصاءات';
+
+  @override
+  String get ordersChart => 'الطلبات';
+
+  @override
+  String get noDataAvailable => 'لا توجد بيانات';
+
+  @override
+  String get conversionRate => 'معدل التحويل';
+
+  @override
+  String get egpCurrency => 'ج.م';
+
+  @override
+  String get storeNotFound => 'المتجر غير موجود';
+
+  @override
+  String get storeNotFoundDesc => 'تأكد من تسجيل دخولك كبائع لديه متجر نشط.';
+
+  @override
+  String get salesLabel => 'المبيعات';
+
+  @override
+  String get customers => 'العملاء';
+
+  @override
+  String get seeAll => 'عرض الكل';
+
+  @override
+  String get material => 'الخامة';
+
+  @override
+  String get statusConfirmed => 'تم التأكيد';
+
+  @override
+  String get subtotal => 'المجموع الفرعي';
+
+  @override
+  String get shipping => 'الشحن';
+
+  @override
+  String get free => 'مجاني';
+
+  @override
+  String orderHash(String id) {
+    return 'طلب #$id';
+  }
+
+  @override
+  String get couldNotLoadOrder => 'تعذر تحميل تفاصيل الطلب';
+
+  @override
+  String get updateOrderStatus => 'تحديث حالة الطلب';
+
+  @override
+  String get customerDetails => 'تفاصيل العميل';
+
+  @override
+  String get itemsOrdered => 'العناصر المطلوبة';
+
+  @override
+  String get payment => 'الدفع';
+
+  @override
+  String get store => 'المتجر';
+
+  @override
+  String get updateStatus => 'تحديث الحالة';
 }

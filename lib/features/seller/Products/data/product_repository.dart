@@ -30,6 +30,7 @@ abstract class ProductRepository {
     required double price,
     required int stockQuantity,
     required int subCategoryId,
+    required String material,
     required List<ProductImage> images,
   });
 
@@ -43,6 +44,7 @@ abstract class ProductRepository {
     required double price,
     required int stockQuantity,
     required int subCategoryId,
+    required String material,
     required List<ProductImage> images,
   });
 
@@ -238,6 +240,7 @@ class ProductRepositoryImpl implements ProductRepository {
     required double price,
     required int stockQuantity,
     required int subCategoryId,
+    required String material,
     required List<ProductImage> images,
   }) async {
     try {
@@ -247,6 +250,7 @@ class ProductRepositoryImpl implements ProductRepository {
         'price': price,
         'stockQuantity': stockQuantity,
         'subCategoryId': subCategoryId,
+        'material': material,
         'images': images.map((img) => img.toJson()).toList(),
       };
 
@@ -281,6 +285,7 @@ class ProductRepositoryImpl implements ProductRepository {
     required double price,
     required int stockQuantity,
     required int subCategoryId,
+    required String material,
     required List<ProductImage> images,
   }) async {
     try {
@@ -290,6 +295,7 @@ class ProductRepositoryImpl implements ProductRepository {
         'price': price,
         'stockQuantity': stockQuantity,
         'subCategoryId': subCategoryId,
+        'material': material,
         'images': images.map((img) => img.toJson()).toList(),
       };
 

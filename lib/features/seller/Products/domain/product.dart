@@ -17,6 +17,7 @@ class Product {
   final int storeId;
   final String? storeName;
   final List<ProductImage> images;
+  final String? material;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -33,36 +34,61 @@ class Product {
     required this.storeId,
     this.storeName,
     required this.images,
+    this.material,
     this.createdAt,
     this.updatedAt,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     if (json['stockQuantity'] == null && json['stock_quantity'] == null) {
-      print('MISSING STOCK KEY for ${json['name'] ?? 'product'}. Keys: ${json.keys.toList()}');
+      print(
+        'MISSING STOCK KEY for ${json['name'] ?? 'product'}. Keys: ${json.keys.toList()}',
+      );
     }
     return Product(
       id: _parseInt(json['id']) ?? _parseInt(json['product_id']) ?? 0,
-      name: json['name']?.toString() ?? json['product_name']?.toString() ?? 'Unnamed Product',
+      name:
+          json['name']?.toString() ??
+          json['product_name']?.toString() ??
+          'Unnamed Product',
       description: json['description']?.toString() ?? '',
       price: _parseDouble(json['price']) ?? 0.0,
-      stockQuantity: _parseInt(json['stockQuantity']) ?? 
-                     _parseInt(json['stock_quantity']) ?? 
-                     _parseInt(json['quantity']) ?? 
-                     _parseInt(json['stock']) ?? 
-                     _parseInt(json['StockQuantity']) ?? 0,
-      categoryId: _parseInt(json['categoryId']) ?? _parseInt(json['category_id']) ?? 0,
-      categoryName: json['categoryName']?.toString() ?? json['category_name']?.toString() ?? 'Uncategorized',
-      subCategoryId: _parseInt(json['subCategoryId']) ?? _parseInt(json['sub_category_id']) ?? 0,
-      subCategoryName: json['subCategoryName']?.toString() ?? json['sub_category_name']?.toString() ?? '',
+      stockQuantity:
+          _parseInt(json['stockQuantity']) ??
+          _parseInt(json['stock_quantity']) ??
+          _parseInt(json['quantity']) ??
+          _parseInt(json['stock']) ??
+          _parseInt(json['StockQuantity']) ??
+          0,
+      categoryId:
+          _parseInt(json['categoryId']) ?? _parseInt(json['category_id']) ?? 0,
+      categoryName:
+          json['categoryName']?.toString() ??
+          json['category_name']?.toString() ??
+          'Uncategorized',
+      subCategoryId:
+          _parseInt(json['subCategoryId']) ??
+          _parseInt(json['sub_category_id']) ??
+          0,
+      subCategoryName:
+          json['subCategoryName']?.toString() ??
+          json['sub_category_name']?.toString() ??
+          '',
       storeId: _parseInt(json['storeId']) ?? _parseInt(json['store_id']) ?? 0,
-      storeName: json['storeName']?.toString() ?? json['store_name']?.toString(),
-      images: (json['images'] as List<dynamic>?)
+      storeName:
+          json['storeName']?.toString() ?? json['store_name']?.toString(),
+      material: json['material']?.toString(),
+      images:
+          (json['images'] as List<dynamic>?)
               ?.map((e) => ProductImage.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.tryParse(json['created_at']?.toString() ?? ''),
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ?? DateTime.tryParse(json['updated_at']?.toString() ?? ''),
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.tryParse(json['created_at']?.toString() ?? ''),
+      updatedAt:
+          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+          DateTime.tryParse(json['updated_at']?.toString() ?? ''),
     );
   }
 
@@ -78,6 +104,7 @@ class Product {
     'subCategoryName': subCategoryName,
     'storeId': storeId,
     'storeName': storeName,
+    'material': material,
     'images': images.map((e) => e.toJson()).toList(),
     'createdAt': createdAt?.toIso8601String(),
     'updatedAt': updatedAt?.toIso8601String(),
@@ -128,6 +155,7 @@ class Product {
     String? subCategoryName,
     int? storeId,
     String? storeName,
+    String? material,
     List<ProductImage>? images,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -144,6 +172,7 @@ class Product {
       subCategoryName: subCategoryName ?? this.subCategoryName,
       storeId: storeId ?? this.storeId,
       storeName: storeName ?? this.storeName,
+      material: material ?? this.material,
       images: images ?? this.images,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

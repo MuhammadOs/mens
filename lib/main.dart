@@ -29,13 +29,6 @@ Future<void> main() async {
         child: const Mens(),
       ),
     ),
-    /*ProviderScope(
-      overrides: [
-        initialLocaleProvider.overrideWithValue(initialLocale),
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
-      child: const Mens(),
-    ),*/
   );
 }
 

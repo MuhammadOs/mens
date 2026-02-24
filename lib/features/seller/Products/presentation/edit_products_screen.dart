@@ -39,6 +39,7 @@ class EditProductScreen extends HookConsumerWidget {
     final descriptionController = useTextEditingController();
     final priceController = useTextEditingController();
     final stockController = useTextEditingController();
+    final materialController = useTextEditingController();
     final selectedSubCategoryId = useState<int?>(null);
 
     // --- Image State ---
@@ -151,6 +152,7 @@ class EditProductScreen extends HookConsumerWidget {
                         subCategoryId:
                             selectedSubCategoryId.value ??
                             currentProductData.subCategoryId,
+                        material: materialController.text,
                         images: images.value,
                         primaryImageIndex: primaryImageIndex.value,
                       );
@@ -175,6 +177,7 @@ class EditProductScreen extends HookConsumerWidget {
             descriptionController.text = product.description;
             priceController.text = product.price.toStringAsFixed(2);
             stockController.text = product.stockQuantity.toString();
+            materialController.text = product.material ?? '';
 
             if (selectedSubCategoryId.value == null) {
               selectedSubCategoryId.value = product.subCategoryId;
@@ -269,6 +272,11 @@ class EditProductScreen extends HookConsumerWidget {
                     labelText: l10n.description,
                     controller: descriptionController,
                     maxLines: 4,
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    labelText: l10n.material,
+                    controller: materialController,
                   ),
                   const SizedBox(height: 16),
                   Row(

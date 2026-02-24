@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mens/core/services/api_service.dart';
 import 'package:mens/features/auth/data/auth_repository_impl.dart';
 import 'package:mens/features/auth/domain/user_profile.dart';
+import 'package:mens/features/seller/Orders/notifiers/orders_notifier.dart';
+import 'package:mens/features/seller/Statistics/notifiers/statistics_notifier.dart';
 
 final authNotifierProvider =
     NotifierProvider<AuthNotifier, AsyncValue<UserProfile?>>(AuthNotifier.new);
@@ -44,6 +46,10 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
     final repo = ref.read(authRepositoryProvider);
     try {
       final userData = await repo.login(email, password);
+
+      // Invalidate key providers to ensure fresh data for the new user session
+      _invalidateSellerProviders();
+
       state = AsyncValue.data(userData);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -52,6 +58,7 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
+    _invalidateSellerProviders();
     state = const AsyncValue.data(null);
   }
 
@@ -68,6 +75,7 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
         emailConfirmed: true,
         createdAt: DateTime.now(),
       );
+      _invalidateSellerProviders();
       state = AsyncValue.data(guestProfile);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
@@ -75,7 +83,15 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
   }
 
   void setLoggedOut() {
+    _invalidateSellerProviders();
     state = const AsyncValue.data(null);
+  }
+
+  /// Helper to invalidate all seller-related providers
+  void _invalidateSellerProviders() {
+    ref.invalidate(ordersProvider);
+    ref.invalidate(paginatedOrdersProvider);
+    ref.invalidate(statisticsProvider);
   }
 
   Future<void> refreshProfile() async {
@@ -108,7 +124,11 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
     }
   }
 
-  Future<String?> resetPassword(String email, String token, String newPassword) async {
+  Future<String?> resetPassword(
+    String email,
+    String token,
+    String newPassword,
+  ) async {
     final repo = ref.read(authRepositoryProvider);
     try {
       await repo.resetPassword(email, token, newPassword);
@@ -131,4 +151,3 @@ class AuthNotifier extends Notifier<AsyncValue<UserProfile?>> {
   // Getter to easily check login status
   bool get isLoggedIn => state.hasValue && state.value != null;
 }
-

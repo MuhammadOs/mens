@@ -25,6 +25,7 @@ class AddProductNotifier extends Notifier<AddProductState> {
     required double price,
     required int stockQuantity,
     required int subCategoryId,
+    required String material,
     required List<XFile> images,
     int primaryImageIndex = 0,
   }) async {
@@ -55,6 +56,7 @@ class AddProductNotifier extends Notifier<AddProductState> {
         price: price,
         stockQuantity: stockQuantity,
         subCategoryId: subCategoryId,
+        material: material,
         images: productImages,
       );
 

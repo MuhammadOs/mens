@@ -406,5 +406,38 @@
   "adminUsersEmailUnverified": "Unverified",
   "adminUsersRoleAdmin": "Admin",
   "adminUsersRoleStoreOwner": "Store Owner",
-  "adminUsersRoleUser": "User"
+  "adminUsersRoleUser": "User",
+  "avgOrderValue": "Avg. Order Value",
+  "salesPerCustomer": "Sales per Customer",
+  "salesTrend": "Sales Trend",
+  "insights": "Insights",
+  "ordersChart": "Orders",
+  "noDataAvailable": "No data available",
+  "conversionRate": "Conversion Rate",
+  "egpCurrency": "EGP",
+  "storeNotFound": "Store not found",
+  "storeNotFoundDesc": "Please ensure you are logged in as a seller with an active store.",
+  "salesLabel": "Sales",
+  "customers": "Customers",
+  "seeAll": "See all",
+  "material": "Material",
+  "statusConfirmed": "Confirmed",
+  "subtotal": "Subtotal",
+  "shipping": "Shipping",
+  "free": "Free",
+  "orderHash": "Order #{id}",
+  "@orderHash": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotLoadOrder": "Could not load order details",
+  "updateOrderStatus": "Update Order Status",
+  "customerDetails": "Customer Details",
+  "itemsOrdered": "Items Ordered",
+  "payment": "Payment",
+  "store": "Store",
+  "updateStatus": "Update Status"
 }

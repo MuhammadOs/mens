@@ -1819,6 +1819,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User'**
   String get adminUsersRoleUser;
+
+  /// No description provided for @avgOrderValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. Order Value'**
+  String get avgOrderValue;
+
+  /// No description provided for @salesPerCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales per Customer'**
+  String get salesPerCustomer;
+
+  /// No description provided for @salesTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales Trend'**
+  String get salesTrend;
+
+  /// No description provided for @insights.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get insights;
+
+  /// No description provided for @ordersChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get ordersChart;
+
+  /// No description provided for @noDataAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No data available'**
+  String get noDataAvailable;
+
+  /// No description provided for @conversionRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion Rate'**
+  String get conversionRate;
+
+  /// No description provided for @egpCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'EGP'**
+  String get egpCurrency;
+
+  /// No description provided for @storeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Store not found'**
+  String get storeNotFound;
+
+  /// No description provided for @storeNotFoundDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Please ensure you are logged in as a seller with an active store.'**
+  String get storeNotFoundDesc;
+
+  /// No description provided for @salesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get salesLabel;
+
+  /// No description provided for @customers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get customers;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// No description provided for @material.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get material;
+
+  /// No description provided for @statusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get statusConfirmed;
+
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
+  /// No description provided for @shipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping'**
+  String get shipping;
+
+  /// No description provided for @free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get free;
+
+  /// No description provided for @orderHash.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{id}'**
+  String orderHash(String id);
+
+  /// No description provided for @couldNotLoadOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load order details'**
+  String get couldNotLoadOrder;
+
+  /// No description provided for @updateOrderStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Order Status'**
+  String get updateOrderStatus;
+
+  /// No description provided for @customerDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Details'**
+  String get customerDetails;
+
+  /// No description provided for @itemsOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'Items Ordered'**
+  String get itemsOrdered;
+
+  /// No description provided for @payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get payment;
+
+  /// No description provided for @store.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get store;
+
+  /// No description provided for @updateStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Status'**
+  String get updateStatus;
 }
 
 class _AppLocalizationsDelegate

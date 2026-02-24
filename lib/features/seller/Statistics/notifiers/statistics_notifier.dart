@@ -3,10 +3,15 @@ import 'package:dio/dio.dart';
 import 'package:mens/core/services/api_service.dart';
 import 'package:mens/features/seller/Statistics/data/statistics_model.dart';
 
-final statisticsProvider = FutureProvider.family<StatisticsResponse, int?>((
+import 'package:mens/features/auth/notifiers/auth_notifier.dart';
+
+final statisticsProvider = FutureProvider.autoDispose.family<StatisticsResponse, int?>((
   ref,
   storeId,
 ) async {
+  // Watch auth state to trigger re-fetch on login/logout
+  ref.watch(authNotifierProvider);
+
   // If storeId is null, throw error
   if (storeId == null) {
     throw Exception(

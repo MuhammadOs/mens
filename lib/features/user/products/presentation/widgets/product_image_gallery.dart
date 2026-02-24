@@ -29,10 +29,13 @@ class ProductImageGallery extends HookWidget {
             onPageChanged: (index) => currentImageIndex.value = index,
             itemBuilder: (context, index) {
               return InteractiveViewer(
-                // Added Zoom Support
+                // Optimize Zoom vs Swipe
                 panEnabled: true,
                 minScale: 1.0,
                 maxScale: 4.0,
+                onInteractionEnd: (details) {
+                  // Optional: snap back or special logic if needed
+                },
                 child: Hero(
                   tag:
                       'product_${product.id}_image_$index', // Unique tag per image if possible, usually just id
@@ -69,20 +72,22 @@ class ProductImageGallery extends HookWidget {
             ),
           ),
 
-        // Gradient Overlay
+        // Gradient Overlay - Wrapped in IgnorePointer to allow PageView gestures through
         Positioned.fill(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.4),
-                  Colors.transparent,
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.1),
-                ],
-                stops: const [0.0, 0.2, 0.8, 1.0],
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.4),
+                    Colors.transparent,
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.1),
+                  ],
+                  stops: const [0.0, 0.2, 0.8, 1.0],
+                ),
               ),
             ),
           ),

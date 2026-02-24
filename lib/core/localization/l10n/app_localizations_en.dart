@@ -919,4 +919,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminUsersRoleUser => 'User';
+
+  @override
+  String get avgOrderValue => 'Avg. Order Value';
+
+  @override
+  String get salesPerCustomer => 'Sales per Customer';
+
+  @override
+  String get salesTrend => 'Sales Trend';
+
+  @override
+  String get insights => 'Insights';
+
+  @override
+  String get ordersChart => 'Orders';
+
+  @override
+  String get noDataAvailable => 'No data available';
+
+  @override
+  String get conversionRate => 'Conversion Rate';
+
+  @override
+  String get egpCurrency => 'EGP';
+
+  @override
+  String get storeNotFound => 'Store not found';
+
+  @override
+  String get storeNotFoundDesc =>
+      'Please ensure you are logged in as a seller with an active store.';
+
+  @override
+  String get salesLabel => 'Sales';
+
+  @override
+  String get customers => 'Customers';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get material => 'Material';
+
+  @override
+  String get statusConfirmed => 'Confirmed';
+
+  @override
+  String get subtotal => 'Subtotal';
+
+  @override
+  String get shipping => 'Shipping';
+
+  @override
+  String get free => 'Free';
+
+  @override
+  String orderHash(String id) {
+    return 'Order #$id';
+  }
+
+  @override
+  String get couldNotLoadOrder => 'Could not load order details';
+
+  @override
+  String get updateOrderStatus => 'Update Order Status';
+
+  @override
+  String get customerDetails => 'Customer Details';
+
+  @override
+  String get itemsOrdered => 'Items Ordered';
+
+  @override
+  String get payment => 'Payment';
+
+  @override
+  String get store => 'Store';
+
+  @override
+  String get updateStatus => 'Update Status';
 }

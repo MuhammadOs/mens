@@ -36,6 +36,7 @@ class AddProductScreen extends HookConsumerWidget {
     final descriptionController = useTextEditingController();
     final priceController = useTextEditingController();
     final stockController = useTextEditingController();
+    final materialController = useTextEditingController();
     final selectedSubCategoryId = useState<int?>(
       null,
     ); // State for dropdown selection
@@ -292,6 +293,14 @@ class AddProductScreen extends HookConsumerWidget {
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
+              CustomTextField(
+                labelText: l10n.material,
+                controller: materialController,
+                validator: (v) =>
+                    v == null || v.isEmpty ? l10n.validationRequired : null,
+                textInputAction: TextInputAction.next,
+              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -461,6 +470,7 @@ class AddProductScreen extends HookConsumerWidget {
                               price: double.parse(priceController.text),
                               stockQuantity: int.parse(stockController.text),
                               subCategoryId: selectedSubCategoryId.value!,
+                              material: materialController.text,
                               images: allImages,
                             );
                           } else {

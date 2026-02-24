@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/features/seller/Orders/data/order_model.dart';
 import 'package:mens/features/seller/Orders/notifiers/orders_notifier.dart';
+import 'package:mens/core/localization/l10n/app_localizations.dart';
 
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -52,13 +53,14 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
   void _updateOrderStatus(Order order, String newStatus) async {
     try {
       await ref.read(updateOrderStatusProvider((order.id, newStatus)).future);
+      final l10n = ref.read(l10nProvider);
       if (mounted) {
         setState(() {
           selectedStatus = newStatus;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Order status updated to $newStatus'),
+            content: Text('${l10n.productUpdatedSuccess}: $newStatus'),
             backgroundColor: Colors.green,
           ),
         );
@@ -67,10 +69,11 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
         ).pop(true); // Return true to indicate refresh needed
       }
     } catch (e) {
+      final l10n = ref.read(l10nProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update order status: $e'),
+            content: Text('${l10n.errorPrefix} $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -87,6 +90,18 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
       'delivered' => FontAwesomeIcons.circleCheck,
       'cancelled' => FontAwesomeIcons.ban,
       _ => FontAwesomeIcons.questionCircle,
+    };
+  }
+
+  String _getLocalizedStatus(String status, AppLocalizations l10n) {
+    return switch (status.toLowerCase()) {
+      'pending' => l10n.statusPending,
+      'confirmed' => l10n.statusConfirmed,
+      'processing' => l10n.statusProcessing,
+      'shipped' => l10n.statusShipped,
+      'delivered' => l10n.statusDelivered,
+      'cancelled' => l10n.statusCancelled,
+      _ => status,
     };
   }
 
@@ -122,17 +137,17 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Order #${widget.orderId}',
+          l10n.orderHash(widget.orderId.toString()),
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: orderAsync.when(
-        data: (order) => _buildContent(context, order, theme),
+        data: (order) => _buildContent(context, order, theme, l10n),
         loading: () => Skeletonizer(
           enabled: true,
-          child: _buildContent(context, _dummyOrder, theme),
+          child: _buildContent(context, _dummyOrder, theme, l10n),
         ),
         error: (err, stack) => Center(
           child: Column(
@@ -144,15 +159,12 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                 color: Colors.orange.shade300,
               ),
               const SizedBox(height: 16),
-              Text(
-                'Could not load order details',
-                style: theme.textTheme.titleMedium,
-              ),
+              Text(l10n.couldNotLoadOrder, style: theme.textTheme.titleMedium),
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () =>
                     ref.refresh(sellerOrderDetailsProvider(widget.orderId)),
-                child: Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -161,7 +173,12 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, Order order, ThemeData theme) {
+  Widget _buildContent(
+    BuildContext context,
+    Order order,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     final currentStatus = selectedStatus ?? order.status;
 
     return SingleChildScrollView(
@@ -197,7 +214,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        currentStatus.toUpperCase(),
+                        _getLocalizedStatus(currentStatus, l10n).toUpperCase(),
                         style: theme.textTheme.labelLarge?.copyWith(
                           color: _getStatusColor(currentStatus),
                           fontWeight: FontWeight.bold,
@@ -224,7 +241,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
             children: [
               Expanded(
                 child: _InfoTile(
-                  label: 'Store',
+                  label: l10n.store,
                   value: order.storeName,
                   icon: FontAwesomeIcons.store,
                 ),
@@ -232,8 +249,8 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
               const SizedBox(width: 16),
               Expanded(
                 child: _InfoTile(
-                  label: 'Payment',
-                  value: order.paymentMethod ?? 'N/A',
+                  label: l10n.payment,
+                  value: order.paymentMethod ?? '-',
                   icon: FontAwesomeIcons.creditCard,
                 ),
               ),
@@ -262,7 +279,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Notes',
+                        l10n.notes,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.amber.shade900,
@@ -285,7 +302,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
 
           // Order Items
           Text(
-            'Items Ordered',
+            l10n.itemsOrdered,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -377,18 +394,18 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
 
           // Financial Summary
           _FinancialRow(
-            label: 'Subtotal',
+            label: l10n.subtotal,
             value: '\$${_calculateSubtotal(order.items).toStringAsFixed(2)}',
           ),
           const SizedBox(height: 12),
           _FinancialRow(
-            label: 'Shipping',
-            value: 'Free',
+            label: l10n.shipping,
+            value: l10n.free,
             valueColor: Colors.green,
           ),
           const SizedBox(height: 16),
           _FinancialRow(
-            label: 'Total',
+            label: l10n.cartTotal,
             value: '\$${order.totalAmount.toStringAsFixed(2)}',
             isTotal: true,
           ),
@@ -399,7 +416,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
 
           // Customer Info
           Text(
-            'Customer Details',
+            l10n.customerDetails,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -470,9 +487,12 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                   ),
                   elevation: 2,
                 ),
-                child: const Text(
-                  'Update Order Status',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: Text(
+                  l10n.updateOrderStatus,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -483,6 +503,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
   }
 
   void _showStatusUpdateSheet(BuildContext context, Order order) {
+    final l10n = ref.read(l10nProvider);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -495,7 +516,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Update Status',
+              l10n.updateStatus,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -526,7 +547,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                             size: 16,
                             color: _getStatusColor(status),
                           ),
-                          label: Text(status),
+                          label: Text(_getLocalizedStatus(status, l10n)),
                           onPressed: () {
                             Navigator.pop(context);
                             _updateOrderStatus(order, status);

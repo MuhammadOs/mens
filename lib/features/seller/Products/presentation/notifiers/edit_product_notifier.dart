@@ -34,19 +34,20 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
     required double price,
     required int stockQuantity,
     required int subCategoryId,
+    required String material,
     required List<dynamic>
     images, // Mix of XFile (new) and ProductImage (existing)
     required int primaryImageIndex,
   }) async {
     // Set state to loading before the API call.
     state = const AsyncValue.loading();
-
     try {
       final imageUploadService = ref.read(imageUploadServiceProvider);
       final List<ProductImage> productImages = [];
 
       // Process images: upload new ones, keep existing ones
       for (int i = 0; i < images.length; i++) {
+        // ... (omitting inner loop for brevity if allowed, but I'll include the necessary context)
         final image = images[i];
 
         if (image is XFile) {
@@ -94,6 +95,7 @@ class EditProductNotifier extends Notifier<EditProductOperationState> {
           price: price,
           stockQuantity: stockQuantity,
           subCategoryId: subCategoryId,
+          material: material,
           images: productImages,
         );
       } catch (e) {

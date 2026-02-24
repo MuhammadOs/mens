@@ -48,6 +48,7 @@ dependencies:
   fl_chart: ^1.1.1
   share_plus: ^12.0.1
   path_provider: ^2.1.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,15 +77,15 @@ flutter_launcher_icons:
   image_path: "assets/mens_logo.png"
   min_sdk_android: 21
 
-# ✅ STEP 2: Update the splash screen configuration
+# Splash screen configuration
 flutter_native_splash:
   # The background image with the split colors
   background_image: "assets/splash_background.png"
   
-  # Your logo, which will be placed on top of the background image
+  # Logo, which will be placed on top of the background image
   image: "assets/mens_logo.png"
 
-  # IMPORTANT: Android 12+ does NOT support background images.
+  # Android 12+ does NOT support background images.
   # It will fall back to this solid color. This is a system requirement.
   android_12:
     color: "#192A3C"
