@@ -31,6 +31,9 @@ import 'package:mens/features/user/profile/presentation/user_profile_screen.dart
 import 'package:mens/features/user/profile/presentation/shop_info_screen.dart';
 import 'package:mens/features/user/profile/presentation/checkout_preferences_screen.dart';
 import 'package:mens/features/user/profile/presentation/change_password_screen.dart';
+import 'package:mens/features/user/addresses/presentation/address_list_screen.dart';
+import 'package:mens/features/user/addresses/presentation/address_form_screen.dart';
+import 'package:mens/features/user/addresses/domain/address.dart';
 
 class AppRoutes {
   static const signIn = '/signIn';
@@ -51,10 +54,10 @@ class AppRoutes {
   static const userProfile = '/user/profile';
   static const sellerProfile = '/seller/profile';
   static const statistics = '/statistics';
-  static const editProfile = '/profile/edit';
+  static const editProfile = '/user/profile/edit';
   static const helpSupport = '/help';
-  static const shopInformation = '/profile/shop-information';
-  static const notifications = '/profile/notifications';
+  static const shopInformation = '/user/profile/shop-information';
+  static const notifications = '/user/profile/notifications';
   static const editProduct = '/products/:id/edit';
   static const productDetails = '/product-details';
   static const contactUs = '/contact-us';
@@ -63,8 +66,11 @@ class AppRoutes {
   static const confirmEmail = '/auth/confirm-email';
   static const forgotPassword = '/auth/forgot-password';
   static const resetPassword = '/auth/reset-password';
-  static const checkoutPreferences = '/profile/checkout-preferences';
-  static const changePassword = '/profile/change-password';
+  static const checkoutPreferences = '/user/profile/checkout-preferences';
+  static const changePassword = '/user/profile/change-password';
+  static const addresses = '/user/profile/addresses';
+  static const addAddress = '/user/profile/addresses/add';
+  static const editAddress = '/user/profile/addresses/:id/edit';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -243,6 +249,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.userHome,
         builder: (context, state) => const UserHomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.addresses,
+        builder: (context, state) => const AddressListScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.addAddress,
+        builder: (context, state) => const AddressFormScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editAddress,
+        builder: (context, state) {
+          final address = state.extra as Address?;
+          return AddressFormScreen(address: address);
+        },
       ),
     ],
     redirect: (BuildContext context, GoRouterState state) {

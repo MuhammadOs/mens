@@ -309,6 +309,12 @@ class UserProfileScreen extends ConsumerWidget {
                           ),
                           const _Divider(),
                           _SettingsTile(
+                            icon: FontAwesomeIcons.locationDot,
+                            title: l10n.addresses,
+                            onTap: () => context.push(AppRoutes.addresses),
+                          ),
+                          const _Divider(),
+                          _SettingsTile(
                             icon: FontAwesomeIcons.truckFast,
                             title: l10n.checkoutPreferences,
                             onTap: () =>

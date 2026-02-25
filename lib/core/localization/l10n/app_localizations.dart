@@ -2095,6 +2095,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear Cart & Add'**
   String get clearCartAndAdd;
+
+  /// No description provided for @addresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses'**
+  String get addresses;
+
+  /// No description provided for @addressesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No addresses saved yet'**
+  String get addressesEmpty;
 }
 
 class _AppLocalizationsDelegate

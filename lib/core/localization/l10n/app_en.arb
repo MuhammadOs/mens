@@ -460,5 +460,7 @@
   "differentBrandTitle": "Different Brand",
   "differentBrandContent": "Your cart already contains items from another brand. Would you like to clear your cart and add this new item instead?",
   "cancel": "Cancel",
-  "clearCartAndAdd": "Clear Cart & Add"
+  "clearCartAndAdd": "Clear Cart & Add",
+  "addresses": "Addresses",
+  "addressesEmpty": "No addresses saved yet"
 }

@@ -1,0 +1,11 @@
+Analyzing 3 items...                                            
+
+warning - Dead code - lib\features\user\addresses\presentation\address_form_screen.dart:113:36 - dead_code
+warning - The left operand can't be null, so the right operand is never executed - lib\features\user\addresses\presentation\address_form_screen.dart:113:39 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\user\addresses\presentation\address_form_screen.dart:123:47 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\user\addresses\presentation\address_form_screen.dart:132:44 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\user\addresses\presentation\address_form_screen.dart:141:37 - dead_null_aware_expression
+warning - The left operand can't be null, so the right operand is never executed - lib\features\user\addresses\presentation\address_form_screen.dart:149:38 - dead_null_aware_expression
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\features\user\addresses\presentation\address_form_screen.dart:159:17 - deprecated_member_use
+
+7 issues found. (ran in 3.6s)

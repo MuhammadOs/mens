@@ -1064,4 +1064,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get clearCartAndAdd => 'إفراغ السلة والإضافة';
+
+  @override
+  String get addresses => 'العناوين';
+
+  @override
+  String get addressesEmpty => 'لا توجد عناوين محفوظة بعد';
 }

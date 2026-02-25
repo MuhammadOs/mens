@@ -1065,4 +1065,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearCartAndAdd => 'Clear Cart & Add';
+
+  @override
+  String get addresses => 'Addresses';
+
+  @override
+  String get addressesEmpty => 'No addresses saved yet';
 }
