@@ -1000,4 +1000,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateStatus => 'Update Status';
+
+  @override
+  String get checkoutPreferences => 'Checkout Preferences';
+
+  @override
+  String get savePreferences => 'Save Preferences';
+
+  @override
+  String get preferencesSavedSuccess => 'Preferences saved successfully!';
+
+  @override
+  String get saveAsDefaultAddress => 'Save as default address';
+
+  @override
+  String get useAsDefaultAddressDesc =>
+      'Use this address automatically for future orders';
+
+  @override
+  String get defaultShippingAddress => 'Default Shipping Address';
+
+  @override
+  String get saveShippingDetailsDesc =>
+      'Save your details here so you don\'t have to enter them every time you checkout.';
+
+  @override
+  String get changePasswordTitle => 'Change Password';
+
+  @override
+  String get currentPasswordLabel => 'Current Password';
+
+  @override
+  String get currentPasswordHint => 'Enter your current password';
+
+  @override
+  String get changePasswordSaved => 'Password changed successfully!';
+
+  @override
+  String get changePasswordEmailNotFound =>
+      'Email not found. Please log in again.';
+
+  @override
+  String get securePasswordChange => 'Secure Password Change';
+
+  @override
+  String get otpSentToEmailDesc =>
+      'To change your password, we\'ll send a One-Time Password (OTP) to your registered email address.';
+
+  @override
+  String get noEmailFound => 'No email found';
+
+  @override
+  String get sendOtp => 'Send OTP';
+
+  @override
+  String get unexpectedErrorOccurred => 'An unexpected error occurred.';
+
+  @override
+  String get differentBrandTitle => 'Different Brand';
+
+  @override
+  String get differentBrandContent =>
+      'Your cart already contains items from another brand. Would you like to clear your cart and add this new item instead?';
+
+  @override
+  String get clearCartAndAdd => 'Clear Cart & Add';
 }

@@ -29,6 +29,8 @@ import 'package:mens/features/user/profile/presentation/help_support_screen.dart
 import 'package:mens/features/user/profile/presentation/notification_screen.dart';
 import 'package:mens/features/user/profile/presentation/user_profile_screen.dart';
 import 'package:mens/features/user/profile/presentation/shop_info_screen.dart';
+import 'package:mens/features/user/profile/presentation/checkout_preferences_screen.dart';
+import 'package:mens/features/user/profile/presentation/change_password_screen.dart';
 
 class AppRoutes {
   static const signIn = '/signIn';
@@ -61,6 +63,8 @@ class AppRoutes {
   static const confirmEmail = '/auth/confirm-email';
   static const forgotPassword = '/auth/forgot-password';
   static const resetPassword = '/auth/reset-password';
+  static const checkoutPreferences = '/profile/checkout-preferences';
+  static const changePassword = '/profile/change-password';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -133,6 +137,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoutes.changePassword,
+        builder: (context, state) => const ChangePasswordScreen(), // We will import this next
+      ),
 
       GoRoute(
         path: AppRoutes.userProducts,
@@ -204,6 +212,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.notifications,
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.checkoutPreferences,
+        builder: (context, state) => const CheckoutPreferencesScreen(),
       ),
       GoRoute(
         path: '/products/:id/edit', // Match the path structure

@@ -17,7 +17,8 @@ class CustomTextField extends StatelessWidget {
     this.onVisibilityToggle,
     this.onChanged,
     this.textDirection,
-    this.textAlign, // <-- 1. ADDED THIS PROPERTY
+    this.textAlign,
+    this.prefixIcon, // <-- ADDED THIS
   });
 
   final String labelText;
@@ -32,7 +33,8 @@ class CustomTextField extends StatelessWidget {
   final VoidCallback? onVisibilityToggle;
   final ValueChanged<String>? onChanged;
   final ui.TextDirection? textDirection;
-  final TextAlign? textAlign; // <-- 1. ADDED THIS PROPERTY
+  final TextAlign? textAlign;
+  final Widget? prefixIcon; // <-- ADDED THIS
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +65,7 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
+        prefixIcon: prefixIcon, // <-- ADDED THIS
         // Inherit styles from the global theme for better consistency
         labelStyle: inputDecorationTheme.labelStyle?.copyWith(
           color: theme.colorScheme.onSurface.withValues(alpha: 0.7),

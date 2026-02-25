@@ -131,97 +131,140 @@ class EditProfileScreen extends HookConsumerWidget {
           }, [profile]); // Dependency array
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Form(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomTextField(
-                    labelText: l10n.firstNameLabel,
-                    controller: firstNameController,
-                  ),
-                  const SizedBox(height: 16),
-                  CustomTextField(
-                    labelText: l10n.lastNameLabel,
-                    controller: lastNameController,
-                  ),
-                  const SizedBox(height: 16),
-                  CustomTextField(
-                    labelText: l10n.emailLabel,
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 16),
-                  CustomTextField(
-                    labelText: l10n.phone,
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 16),
-                  CustomTextField(
-                    labelText: l10n.nationalIdLabel,
-                    controller: nationalIdController,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // --- Birth Date Picker Field ---
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.birthDateLabel,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
+                  // Personal Information Section
+                  _SectionHeader(title: l10n.profile),
+                  _PremiumCard(
+                    child: Column(
+                      children: [
+                        CustomTextField(
+                          labelText: l10n.firstNameLabel,
+                          controller: firstNameController,
+                          prefixIcon: const Icon(FontAwesomeIcons.user, size: 16),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: birthDateController,
-                        readOnly: true, // Prevents keyboard from showing
-                        style: TextStyle(color: theme.colorScheme.onSurface),
-                        decoration: InputDecoration(
-                          hintText: 'dd-MM-yyyy',
-                          suffixIcon: Icon(
-                            FontAwesomeIcons.calendar,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                          ),
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          labelText: l10n.lastNameLabel,
+                          controller: lastNameController,
+                          prefixIcon: const Icon(FontAwesomeIcons.user, size: 16),
                         ),
-                        onTap: () async {
-                          FocusScope.of(context).requestFocus(FocusNode());
-
-                          DateTime initialDate;
-                          try {
-                            if (birthDateController.text.isNotEmpty) {
-                              initialDate = DateFormat(
-                                'dd-MM-yyyy',
-                              ).parse(birthDateController.text);
-                            } else {
-                              initialDate = profile.birthDate ?? DateTime.now();
-                            }
-                          } catch (e) {
-                            initialDate = profile.birthDate ?? DateTime.now();
-                          }
-
-                          final DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            locale: currentLocale, // Use current app locale
-                            initialDate: initialDate,
-                            firstDate: DateTime(1950),
-                            lastDate: DateTime.now(),
-                            builder: (context, child) {
-                              return Theme(data: theme, child: child!);
-                            },
-                          );
-                          if (pickedDate != null) {
-                            final formattedDate = DateFormat(
-                              'dd-MM-yyyy',
-                            ).format(pickedDate);
-                            birthDateController.text = formattedDate;
-                          }
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 24),
+
+                  // Contact Information Section
+                  _SectionHeader(title: l10n.contactUsTitle), // Using as 'Contact'
+                  _PremiumCard(
+                    child: Column(
+                      children: [
+                        CustomTextField(
+                          labelText: l10n.emailLabel,
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: const Icon(FontAwesomeIcons.envelope, size: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        CustomTextField(
+                          labelText: l10n.phone,
+                          controller: phoneController,
+                          keyboardType: TextInputType.phone,
+                          prefixIcon: const Icon(FontAwesomeIcons.phone, size: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Legal Information Section
+                  _SectionHeader(title: l10n.legal),
+                  _PremiumCard(
+                    child: Column(
+                      children: [
+                        CustomTextField(
+                          labelText: l10n.nationalIdLabel,
+                          controller: nationalIdController,
+                          keyboardType: TextInputType.number,
+                          prefixIcon: const Icon(FontAwesomeIcons.idCard, size: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        // --- Birth Date Picker Field ---
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.birthDateLabel,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: birthDateController,
+                              readOnly: true,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'dd-MM-yyyy',
+                                prefixIcon: const Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: Icon(FontAwesomeIcons.calendar, size: 16),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                              ),
+                              onTap: () async {
+                                FocusScope.of(context).requestFocus(FocusNode());
+                                DateTime initialDate;
+                                try {
+                                  if (birthDateController.text.isNotEmpty) {
+                                    initialDate = DateFormat('dd-MM-yyyy')
+                                        .parse(birthDateController.text);
+                                  } else {
+                                    initialDate =
+                                        profile.birthDate ?? DateTime.now();
+                                  }
+                                } catch (e) {
+                                  initialDate =
+                                      profile.birthDate ?? DateTime.now();
+                                }
+
+                                final DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  locale: currentLocale,
+                                  initialDate: initialDate,
+                                  firstDate: DateTime(1950),
+                                  lastDate: DateTime.now(),
+                                );
+                                if (pickedDate != null) {
+                                  birthDateController.text =
+                                      DateFormat('dd-MM-yyyy').format(pickedDate);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 100), // Spacing for fab or keyboard
                 ],
               ),
             ),
@@ -230,45 +273,30 @@ class EditProfileScreen extends HookConsumerWidget {
         // Show loading skeleton
         loading: () => Skeletonizer(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Use Bone widgets for placeholders
+                const _SectionHeader(title: 'PERSONAL'),
+                _PremiumCard(
+                  child: Column(
+                    children: [
+                      Container(height: 50, color: Colors.white24),
+                      const SizedBox(height: 16),
+                      Container(height: 50, color: Colors.white24),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 24),
-                Bone(
-                  height: 50,
-                  width: double.infinity,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                ),
-                const SizedBox(height: 16),
-                Bone(
-                  height: 50,
-                  width: double.infinity,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                ),
-                const SizedBox(height: 16),
-                Bone(
-                  height: 50,
-                  width: double.infinity,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                ),
-                const SizedBox(height: 16),
-                Bone(
-                  height: 50,
-                  width: double.infinity,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                ),
-                const SizedBox(height: 16),
-                Bone(
-                  height: 50,
-                  width: double.infinity,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                ),
-                const SizedBox(height: 16),
-                Bone(
-                  height: 50,
-                  width: double.infinity,
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                const _SectionHeader(title: 'CONTACT'),
+                _PremiumCard(
+                  child: Column(
+                    children: [
+                      Container(height: 50, color: Colors.white24),
+                      const SizedBox(height: 16),
+                      Container(height: 50, color: Colors.white24),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -276,48 +304,81 @@ class EditProfileScreen extends HookConsumerWidget {
         ),
         // Show error with refresh
         error: (e, st) => RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(editProfileNotifierProvider);
-          },
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics:
-                    const AlwaysScrollableScrollPhysics(), // Enable scrolling
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ), // Ensure it fills height
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            FontAwesomeIcons.circleExclamation,
-                            color: theme.colorScheme.error,
-                            size: 48,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "Error loading profile: $e", // TODO: Localize
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: theme.colorScheme.error),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "Pull down to refresh", // TODO: Localize
-                            style: TextStyle(color: theme.hintColor),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
+          onRefresh: () async => ref.invalidate(editProfileNotifierProvider),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              height: MediaQuery.of(context).size.height - 100,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(FontAwesomeIcons.circleExclamation,
+                      color: theme.colorScheme.error, size: 48),
+                  const SizedBox(height: 16),
+                  Text("Error loading profile: $e",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: theme.colorScheme.error)),
+                  const SizedBox(height: 12),
+                  Text("Pull down to refresh", style: TextStyle(color: theme.hintColor)),
+                ],
+              ),
+            ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// --- SHARED PREMIUM COMPONENTS ---
+// Note: These should ideally be in shared/widgets, but replicated for speed/isolation
+
+class _PremiumCard extends StatelessWidget {
+  final Widget child;
+  const _PremiumCard({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 12),
+      child: Text(
+        title.toUpperCase(),
+        style: theme.textTheme.labelMedium?.copyWith(
+          letterSpacing: 1.2,
+          fontWeight: FontWeight.bold,
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mens/features/user/cart/presentation/notifiers/user_nav_provider.dart';
+import 'package:mens/core/localization/l10n/app_localizations.dart';
 
 /// Shows a premium, custom-styled SnackBar feedback when an item is added to the cart.
 ///
@@ -134,6 +135,34 @@ void showPremiumCartFeedback(
           ),
         ),
       ),
+    ),
+  );
+}
+
+/// Shows a dialog asking the user if they want to clear their cart
+/// because they tried to add an item from a different brand.
+Future<bool?> showClearCartDialog(BuildContext context) {
+  final theme = Theme.of(context);
+  final l10n = AppLocalizations.of(context)!;
+  
+  return showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.differentBrandTitle),
+      content: Text(l10n.differentBrandContent),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: FilledButton.styleFrom(
+            backgroundColor: theme.colorScheme.error,
+          ),
+          child: Text(l10n.clearCartAndAdd),
+        ),
+      ],
     ),
   );
 }

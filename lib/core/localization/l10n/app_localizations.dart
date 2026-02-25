@@ -1975,6 +1975,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update Status'**
   String get updateStatus;
+
+  /// No description provided for @checkoutPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout Preferences'**
+  String get checkoutPreferences;
+
+  /// No description provided for @savePreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Preferences'**
+  String get savePreferences;
+
+  /// No description provided for @preferencesSavedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences saved successfully!'**
+  String get preferencesSavedSuccess;
+
+  /// No description provided for @saveAsDefaultAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as default address'**
+  String get saveAsDefaultAddress;
+
+  /// No description provided for @useAsDefaultAddressDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this address automatically for future orders'**
+  String get useAsDefaultAddressDesc;
+
+  /// No description provided for @defaultShippingAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Default Shipping Address'**
+  String get defaultShippingAddress;
+
+  /// No description provided for @saveShippingDetailsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your details here so you don\'t have to enter them every time you checkout.'**
+  String get saveShippingDetailsDesc;
+
+  /// No description provided for @changePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePasswordTitle;
+
+  /// No description provided for @currentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get currentPasswordLabel;
+
+  /// No description provided for @currentPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password'**
+  String get currentPasswordHint;
+
+  /// No description provided for @changePasswordSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully!'**
+  String get changePasswordSaved;
+
+  /// No description provided for @changePasswordEmailNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Email not found. Please log in again.'**
+  String get changePasswordEmailNotFound;
+
+  /// No description provided for @securePasswordChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Password Change'**
+  String get securePasswordChange;
+
+  /// No description provided for @otpSentToEmailDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'To change your password, we\'ll send a One-Time Password (OTP) to your registered email address.'**
+  String get otpSentToEmailDesc;
+
+  /// No description provided for @noEmailFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No email found'**
+  String get noEmailFound;
+
+  /// No description provided for @sendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send OTP'**
+  String get sendOtp;
+
+  /// No description provided for @unexpectedErrorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred.'**
+  String get unexpectedErrorOccurred;
+
+  /// No description provided for @differentBrandTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Different Brand'**
+  String get differentBrandTitle;
+
+  /// No description provided for @differentBrandContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart already contains items from another brand. Would you like to clear your cart and add this new item instead?'**
+  String get differentBrandContent;
+
+  /// No description provided for @clearCartAndAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Cart & Add'**
+  String get clearCartAndAdd;
 }
 
 class _AppLocalizationsDelegate

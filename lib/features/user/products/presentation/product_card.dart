@@ -113,11 +113,11 @@ class ProductCard extends ConsumerWidget {
         storeId: 1,
       ); // Default storeId for demo
 
-  void _addToCartAndNotify(
+  Future<void> _addToCartAndNotify(
     BuildContext context,
     WidgetRef ref,
     CartItemShim shim,
-  ) {
+  ) async {
     final cartItem = CartItem(
       id: shim.id,
       title: shim.title,
@@ -125,15 +125,42 @@ class ProductCard extends ConsumerWidget {
       image: shim.image,
       storeId: shim.storeId,
     );
-    ref.read(cartNotifierProvider.notifier).addItem(cartItem);
 
-    // Use the shared premium feedback
-    showPremiumCartFeedback(
-      context,
-      ref,
-      title: shim.title,
-      imageUrl: shim.image,
-    );
+    try {
+      await ref.read(cartNotifierProvider.notifier).addItem(cartItem);
+
+      if (context.mounted) {
+        showPremiumCartFeedback(
+          context,
+          ref,
+          title: shim.title,
+          imageUrl: shim.image,
+        );
+      }
+    } on DifferentStoreCartException catch (_) {
+      if (context.mounted) {
+        final shouldClear = await showClearCartDialog(context);
+        if (shouldClear == true && context.mounted) {
+          // Clear cart then add
+          await ref.read(cartNotifierProvider.notifier).clear();
+          await ref.read(cartNotifierProvider.notifier).addItem(cartItem);
+          if (context.mounted) {
+            showPremiumCartFeedback(
+              context,
+              ref,
+              title: shim.title,
+              imageUrl: shim.image,
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add to cart: $e')),
+        );
+      }
+    }
   }
 }
 
@@ -161,7 +188,7 @@ class BuyerProductCard extends HookConsumerWidget {
   const BuyerProductCard({super.key, required this.product});
 
   // --- CART LOGIC ---
-  void _addToCart(BuildContext context, WidgetRef ref) {
+  Future<void> _addToCart(BuildContext context, WidgetRef ref) async {
     // 1. Map to Cart Item
     final cartItem = product.toCartItem();
 
@@ -174,17 +201,37 @@ class BuyerProductCard extends HookConsumerWidget {
 
     // 2. Add to Repo
     try {
-      ref.read(cartNotifierProvider.notifier).addItem(cartItem);
-      showPremiumCartFeedback(
-        context,
-        ref,
-        title: product.name,
-        imageUrl: product.primaryImageUrl,
-      );
+      await ref.read(cartNotifierProvider.notifier).addItem(cartItem);
+      if (context.mounted) {
+        showPremiumCartFeedback(
+          context,
+          ref,
+          title: product.name,
+          imageUrl: product.primaryImageUrl,
+        );
+      }
+    } on DifferentStoreCartException catch (_) {
+      if (context.mounted) {
+        final shouldClear = await showClearCartDialog(context);
+        if (shouldClear == true && context.mounted) {
+          await ref.read(cartNotifierProvider.notifier).clear();
+          await ref.read(cartNotifierProvider.notifier).addItem(cartItem);
+          if (context.mounted) {
+            showPremiumCartFeedback(
+              context,
+              ref,
+              title: product.name,
+              imageUrl: product.primaryImageUrl,
+            );
+          }
+        }
+      }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add to cart: $e')));
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to add to cart: $e')));
+      }
     }
   }
 
@@ -193,18 +240,21 @@ class BuyerProductCard extends HookConsumerWidget {
     final theme = Theme.of(context);
     final userProfile = ref.read(authNotifierProvider).asData?.value;
     final role = userProfile?.role ?? 'User';
+
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
-        ),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+            color: theme.colorScheme.shadow.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: theme.colorScheme.shadow.withValues(alpha: 0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -219,10 +269,11 @@ class BuyerProductCard extends HookConsumerWidget {
           );
         },
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Image Section
             Expanded(
+              flex: 5,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -230,88 +281,89 @@ class BuyerProductCard extends HookConsumerWidget {
                     Image.network(
                       product.primaryImageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        child: Icon(
-                          FontAwesomeIcons.image,
-                          color: theme.colorScheme.outline,
-                        ),
-                      ),
+                      errorBuilder: (_, __, ___) => _buildPlaceholder(theme),
                     )
                   else
-                    Container(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      child: Icon(
-                        FontAwesomeIcons.image,
-                        color: theme.colorScheme.outline,
-                      ),
-                    ),
+                    _buildPlaceholder(theme),
                 ],
               ),
             ),
 
             // Details Section
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Category / Brand
-                  Text(
-                    product.subCategoryName.toUpperCase(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-
-                  // Title
-                  Text(
-                    product.name,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Price & Add Button Row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface,
-                        ),
+            Expanded(
+              flex: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Category / Brand
+                    Text(
+                      product.subCategoryName.toUpperCase(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
                       ),
-                      if (role != "Admin")
-                        Material(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(8),
-                          child: InkWell(
-                            onTap: () => _addToCart(context, ref),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(
-                                FontAwesomeIcons.cartPlus,
-                                size: 12,
-                                color: theme.colorScheme.onPrimary,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+
+                    // Title
+                    Expanded(
+                      child: Text(
+                        product.name,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+
+                    // Price & Add Button Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '\$${product.price.toStringAsFixed(2)}',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (role != "Admin")
+                          Material(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(10),
+                            child: InkWell(
+                              onTap: () => _addToCart(context, ref),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: Icon(
+                                  FontAwesomeIcons.cartPlus,
+                                  size: 12,
+                                  color: theme.colorScheme.onPrimary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -319,4 +371,18 @@ class BuyerProductCard extends HookConsumerWidget {
       ),
     );
   }
+
+  Widget _buildPlaceholder(ThemeData theme) {
+    return Container(
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      child: Center(
+        child: Icon(
+          FontAwesomeIcons.image,
+          size: 32,
+          color: theme.colorScheme.outline.withValues(alpha: 0.5),
+        ),
+      ),
+    );
+  }
 }
+

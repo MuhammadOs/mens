@@ -84,18 +84,22 @@ class SignInScreen extends HookConsumerWidget {
 
       // --- Handle Success ---
       if (next is AsyncData && next.value != null) {
-        final successMessage = l10n.loginSuccess;
+        final isGuest = next.value!.userId == 0;
 
-        Fluttertoast.showToast(
-          msg: successMessage,
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+        if (!isGuest) {
+          final successMessage = l10n.loginSuccess;
 
-        Future.delayed(const Duration(milliseconds: 1500), () {
+          Fluttertoast.showToast(
+            msg: successMessage,
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+
+        Future.delayed(Duration(milliseconds: isGuest ? 0 : 1500), () {
           if (context.mounted) {
             final roleNorm = (next.value?.role ?? '').toLowerCase();
             final isSeller = roleNorm == 'storeowner';

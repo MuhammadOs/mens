@@ -170,8 +170,37 @@ class AppTheme {
         color: _mediumDarkBlue,
       ), // Floating label in accent color
       hintStyle: TextStyle(color: _black.withValues(alpha: 0.4)),
-      prefixIconColor: _darkBlue.withValues(alpha: 0.7),
+    prefixIconColor: _darkBlue.withValues(alpha: 0.7),
       suffixIconColor: _darkBlue.withValues(alpha: 0.7),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: _white,
+      indicatorColor: _darkBlue.withValues(alpha: 0.1),
+      indicatorShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: _darkBlue,
+          );
+        }
+        return TextStyle(
+          fontSize: 12,
+          color: _black.withValues(alpha: 0.6),
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: _darkBlue, size: 24);
+        }
+        return IconThemeData(
+          color: _black.withValues(alpha: 0.6),
+          size: 24,
+        );
+      }),
     ),
   );
 
@@ -327,8 +356,37 @@ class AppTheme {
         color: _white,
       ), // Floating label in accent color
       hintStyle: TextStyle(color: _white.withValues(alpha: 0.4)),
-      prefixIconColor: _white.withValues(alpha: 0.7),
+    prefixIconColor: _white.withValues(alpha: 0.7),
       suffixIconColor: _white.withValues(alpha: 0.7),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: _mediumDarkBlue,
+      indicatorColor: _white.withValues(alpha: 0.1),
+      indicatorShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: _white,
+          );
+        }
+        return TextStyle(
+          fontSize: 12,
+          color: _white.withValues(alpha: 0.6),
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: _white, size: 24);
+        }
+        return IconThemeData(
+          color: _white.withValues(alpha: 0.6),
+          size: 24,
+        );
+      }),
     ),
   );
 }

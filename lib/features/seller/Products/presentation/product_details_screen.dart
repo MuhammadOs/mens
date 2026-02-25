@@ -53,7 +53,7 @@ class ProductDetailsScreen extends HookConsumerWidget {
       }
     }
 
-    void addToCart() {
+    Future<void> addToCart() async {
       final cartItem = CartItem(
         id: displayedProduct.id.toString(),
         title: displayedProduct.name,
@@ -63,15 +63,40 @@ class ProductDetailsScreen extends HookConsumerWidget {
         quantity: quantity.value,
       );
 
-      ref.read(cartNotifierProvider.notifier).addItem(cartItem);
+      try {
+        await ref.read(cartNotifierProvider.notifier).addItem(cartItem);
 
-      // Use shared premium feedback
-      showPremiumCartFeedback(
-        context,
-        ref,
-        title: "${quantity.value} x ${displayedProduct.name}",
-        imageUrl: displayedProduct.primaryImageUrl,
-      );
+        if (context.mounted) {
+          showPremiumCartFeedback(
+            context,
+            ref,
+            title: "${quantity.value} x ${displayedProduct.name}",
+            imageUrl: displayedProduct.primaryImageUrl,
+          );
+        }
+      } on DifferentStoreCartException catch (_) {
+        if (context.mounted) {
+          final shouldClear = await showClearCartDialog(context);
+          if (shouldClear == true && context.mounted) {
+            await ref.read(cartNotifierProvider.notifier).clear();
+            await ref.read(cartNotifierProvider.notifier).addItem(cartItem);
+            if (context.mounted) {
+              showPremiumCartFeedback(
+                context,
+                ref,
+                title: "${quantity.value} x ${displayedProduct.name}",
+                imageUrl: displayedProduct.primaryImageUrl,
+              );
+            }
+          }
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add to cart: $e')),
+          );
+        }
+      }
     }
 
     Future<void> shareScreenshot() async {

@@ -9,8 +9,8 @@
     "english": "English",
     "arabic": "العربية",
     "loginPageTitle": "تسجيل الدخول",
-    "emailLabel": "البريد الإلكتروني / رقم الهاتف",
-    "emailHint": "أدخل بريدك الإلكتروني أو رقم هاتفك",
+    "emailLabel": "البريد الإلكتروني",
+    "emailHint": "أدخل بريدك الإلكتروني",
     "passwordLabel": "أدخل كلمة المرور",
     "passwordHint": "••••••••••••",
     "loginButton": "تسجيل الدخول",
@@ -26,7 +26,7 @@
     "registerPageTitle": "إنشاء حساب",
     "ownerInfo": "بيانات المالك",
     "brandInfo": "بيانات العلامة التجارية",
-    "profile": "الملف الشخصي",
+    "profile": "حسابي",
     "nextButton": "التالي",
     "registerButton": "إنشاء حساب",
     "alreadyHaveAccount": "لديك حساب بالفعل؟ ",
@@ -37,7 +37,6 @@
     "lastNameHint": "أدخل الاسم الأخير",
     "userNameLabel": "اسم المستخدم",
     "userNameHint": "أدخل اسم المستخدم",
-
     "birthDateLabel": "تاريخ الميلاد",
     "brandNameLabel": "اسم العلامة التجارية",
     "brandNameHint": "أدخل اسم العلامة التجارية",
@@ -132,9 +131,15 @@
     "addProduct": "إضافة منتج",
     "productAddedSuccess": "تمت إضافة المنتج بنجاح!",
     "errorAddingProduct": "خطأ في إضافة المنتج",
+    "errorUpdatingProduct": "فشل تحديث المنتج. يرجى المحاولة مرة أخرى.",
+    "errorDeletingProduct": "خطأ في حذف المنتج. يرجى المحاولة مرة اخرى",
+    "errorLoadingProduct": "فشل تحميل المنتج. يرجى المحاولة مرة أخرى.",
+    "errorLoadingCategories": "فشل تحميل الفئات. يرجى المحاولة مرة أخرى.",
+    "errorUploadingImage": "فشل رفع الصورة. يرجى المحاولة مرة أخرى.",
+    "somethingWentWrong": "حدث خطأ. يرجى المحاولة مرة اخرى",
     "pleaseAddMainImage": "الرجاء إضافة صورة المنتج الرئيسية",
     "pleaseSelectCategory": "الرجاء اختيار الفئة",
-    "pleaseFixErrors": "الرجاء إصلاح الأخطاء في النموذج",
+    "pleaseFixErrors": "برجاء إصلاح الخطأ للتمكن من إضافة منتج",
     "invalidPrice": "السعر غير صالح",
     "invalidStock": "المخزون غير صالح",
     "contactUsTitle": "تواصل معنا",
@@ -148,11 +153,34 @@
     "nextPage": "الصفحة التالية",
     "lastPage": "الصفحة الأخيرة",
     "pageOf": "الصفحة {page} من {total}",
+    "@pageOf": {
+        "placeholders": {
+            "page": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
     "itemsRange": "{start}-{end} من {total} عنصر",
+    "@itemsRange": {
+        "placeholders": {
+            "start": {
+                "type": "int"
+            },
+            "end": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
     "loadingMore": "تحميل المزيد...",
     "loadMore": "تحميل المزيد",
     "noMoreItems": "لا توجد عناصر أخرى",
-    "allBrandsTitle": "العلامات التجارية",
+    "allBrandsTitle": "الماركات",
     "searchHint": "بحث",
     "allCategories": "الكل",
     "noBrandsFound": "لم يتم العثور على علامات تجارية",
@@ -196,120 +224,271 @@
     "systemTheme": "الافتراضي للنظام",
     "errorCouldNotLaunchUrl": "حدث خطأ أثناء فتح هذا الرابط",
     "cartOrders": "الطلبات",
-  "cartEmptyTitle": "عربة التسوق فارغة",
-  "cartStartShopping": "ابدأ التسوق",
-  "cartItemRemoved": "تم حذف \"{title}\"",
-  "cartItemSubtotal": "المجموع: ${price}",
-  "cartTotal": "الإجمالي",
-  "cartCheckout": "إتمام الشراء",
-  "cartClearDialogTitle": "إفراغ العربة",
-  "cartClearDialogContent": "هل أنت متأكد من رغبتك في إزالة جميع العناصر من العربة؟",
-  "cartClearDialogCancel": "إلغاء",
-  "cartClearDialogConfirm": "مسح",
-  "ordersTitle": "طلباتك",
-  "orderDetailsTitle": "تفاصيل الطلب",
-  "orderItemsCount": "{count} عناصر",
-  "orderItemFormat": "{quantity} x {title}",
-  "orderTotalPrice": "إجمالي السعر: {price}",
-  "orderTotalLabel": "الإجمالي : {price}",
-  "orderStatusLabel": "حالة الطلب: {status}",
-  "statusLabel": "الحالة : {status}",
-  "statusDelivered": "تم التوصيل",
-  "orderIdLabel": "رقم الطلب: {id}",
-  "paymentMethodLabel": "طريقة الدفع : {method}",
-  "paymentMethodCash": "نقداً",
-  "shippingAddressLabel": "عنوان الشحن : {address}",
-  "cart": "عربة التسوق",
-  "somethingWentWrong": "حدث خطأ. يرجى المحاولة مرة اخرى",
-  "errorDeletingProduct": "خطأ في حذف المنتج. يرجى المحاولة مرة اخرى",
-  "tryOnTitle": "تجربة الملابس",
-  "underConstructionTitle": "قيد التطوير",
-  "comingSoonMessage": "هذه الميزة ستتوفر قريباً.",
-  "brandOwner": "المالك",
-  "brandProducts": "المنتجات",
-  "noProductsFound": "لا توجد منتجات لهذه العلامة التجارية",
-  "ordersEmpty": "لا يوجد طلبات بعد !",
-  "statusPending": "قيد الانتظار",
-  "statusConfirmed": "تم التأكيد",
-  "statusProcessing": "جاري التجهيز",
-  "statusShipped": "تم الشحن",
-  "statusDelivered": "تم التوصيل",
-  "statusCancelled": "تم الإلغاء",
-  "subtotal": "المجموع الفرعي",
-  "shipping": "الشحن",
-  "free": "مجاني",
-  "orderHash": "طلب #{id}",
-  "@orderHash": {
-      "placeholders": {
-          "id": { "type": "String" }
-      }
-  },
-  "couldNotLoadOrder": "تعذر تحميل تفاصيل الطلب",
-  "updateOrderStatus": "تحديث حالة الطلب",
-  "customerDetails": "تفاصيل العميل",
-  "itemsOrdered": "العناصر المطلوبة",
-  "payment": "الدفع",
-  "store": "المتجر",
-  "updateStatus": "تحديث الحالة",
-  "forgotPasswordLink": "نسيت كلمة المرور؟",
-  "forgotPasswordTitle": "نسيت كلمة المرور",
-  "forgotPasswordDescription": "أدخل بريدك الإلكتروني وسنرسل لك رمز مكون من 6 أرقام لإعادة تعيين كلمة المرور.",
-  "sendOtpButton": "إرسال الرمز",
-  "otpSentSuccess": "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
-  "otpResentSuccess": "تم إعادة إرسال رمز التحقق بنجاح.",
-  "confirmEmailTitle": "تأكيد البريد الإلكتروني",
-  "resetPasswordTitle": "إعادة تعيين كلمة المرور",
-  "resetPasswordDescription": "أدخل كلمة المرور الجديدة أدناه.",
-  "resetPasswordButton": "إعادة تعيين كلمة المرور",
-  "newPasswordLabel": "كلمة المرور الجديدة",
-  "confirmNewPasswordLabel": "تأكيد كلمة المرور الجديدة",
-  "verifyButton": "تحقق",
-  "otpHint": "الرجاء إدخال الرمز المكون من 6 أرقام",
-  "resendOtp": "إعادة إرسال الرمز",
-  "resendOtpCountdown": "إعادة إرسال الرمز خلال {seconds} ثانية",
-  "@resendOtpCountdown": {
-    "placeholders": {
-      "seconds": { "type": "int" }
-    }
-  },
-  "otpSentTo": "تم إرسال رمز مكون من 6 أرقام إلى {email}",
-  "@otpSentTo": {
-    "placeholders": {
-      "email": { "type": "String" }
-    }
-  },
-  "emailConfirmedSuccess": "تم تأكيد البريد الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول.",
-  "passwordResetSuccess": "تم إعادة تعيين كلمة المرور بنجاح! سجّل الدخول بكلمة المرور الجديدة.",
-  "emailNotConfirmed": "البريد الإلكتروني غير مؤكد",
-  "emailNotConfirmedDescription": "لم يتم تأكيد بريدك الإلكتروني بعد. هل تريد تأكيده الآن؟",
-  "nationalIdLabel": "الرقم القومي",
-  "nationalIdHint": "أدخل الرقم القومي المكون من 14 رقم",
-  "nationalIdLength": "الرقم القومي يجب أن يكون 14 رقم بالضبط",
-  "phoneNumberLabel": "رقم الهاتف",
-  "phoneNumberHint": "أدخل رقم هاتفك",
-  "birthDateHint": "اختر تاريخ ميلادك",
-  "adminUsersTitle": "المستخدمون",
-  "adminUsersSearch": "ابحث بالاسم أو البريد أو الدور…",
-  "adminUsersEmpty": "لا يوجد مستخدمون",
-  "adminUsersEmptySearch": "لا يوجد مستخدمون يطابقون بحثك",
-  "adminUsersFailedToLoad": "فشل تحميل المستخدمين",
-  "adminUsersEmailVerified": "موثق",
-  "adminUsersEmailUnverified": "غير موثق",
-  "adminUsersRoleAdmin": "مدير",
-  "adminUsersRoleStoreOwner": "صاحب متجر",
-  "adminUsersRoleUser": "مستخدم",
-  "avgOrderValue": "متوسط قيمة الطلب",
-  "salesPerCustomer": "المبيعات لكل عميل",
-  "salesTrend": "اتجاه المبيعات",
-  "insights": "إحصاءات",
-  "ordersChart": "الطلبات",
-  "noDataAvailable": "لا توجد بيانات",
-  "conversionRate": "معدل التحويل",
-  "egpCurrency": "ج.م",
-  "storeNotFound": "المتجر غير موجود",
-  "storeNotFoundDesc": "تأكد من تسجيل دخولك كبائع لديه متجر نشط.",
-  "salesLabel": "المبيعات",
-  "customers": "العملاء",
-  "seeAll": "عرض الكل",
-  "material": "الخامة"
+    "cartEmptyTitle": "عربة التسوق فارغة",
+    "cartStartShopping": "ابدأ التسوق",
+    "cartItemRemoved": "تم حذف \"{title}\"",
+    "@cartItemRemoved": {
+        "description": "الرسالة التي تظهر عند إزالة عنصر من العربة",
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "cartItemSubtotal": "المجموع: {price}",
+    "@cartItemSubtotal": {
+        "description": "المجموع الفرعي لصف عنصر معين",
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "cartTotal": "الإجمالي",
+    "cartCheckout": "إتمام الشراء",
+    "cartClearDialogTitle": "إفراغ العربة",
+    "cartClearDialogContent": "هل أنت متأكد من رغبتك في إزالة جميع العناصر من العربة؟",
+    "cartClearDialogCancel": "إلغاء",
+    "cartClearDialogConfirm": "مسح",
+    "ordersTitle": "طلباتك",
+    "orderDetailsTitle": "تفاصيل الطلب",
+    "orderItemsCount": "{count} عناصر",
+    "@orderItemsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "orderItemFormat": "{quantity} x {title}",
+    "@orderItemFormat": {
+        "placeholders": {
+            "quantity": {
+                "type": "int"
+            },
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "orderTotalPrice": "إجمالي السعر: {price}",
+    "@orderTotalPrice": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "orderTotalLabel": "الإجمالي : {price}",
+    "@orderTotalLabel": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "orderStatusLabel": "حالة الطلب: {status}",
+    "@orderStatusLabel": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "statusLabel": "الحالة : {status}",
+    "@statusLabel": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "statusDelivered": "تم التوصيل",
+    "orderIdLabel": "رقم الطلب: {id}",
+    "@orderIdLabel": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "paymentMethodLabel": "طريقة الدفع : {method}",
+    "@paymentMethodLabel": {
+        "placeholders": {
+            "method": {
+                "type": "String"
+            }
+        }
+    },
+    "paymentMethodCash": "نقداً",
+    "shippingAddressLabel": "عنوان الشحن : {address}",
+    "@shippingAddressLabel": {
+        "placeholders": {
+            "address": {
+                "type": "String"
+            }
+        }
+    },
+    "cart": "السلة",
+    "tryOnTitle": "تجربة الملابس",
+    "underConstructionTitle": "قيد التطوير",
+    "comingSoonMessage": "هذه الميزة ستتوفر قريباً.",
+    "brandOwner": "المالك",
+    "brandProducts": "المنتجات",
+    "noProductsFound": "لا توجد منتجات لهذه العلامة التجارية",
+    "ordersEmpty": "لا يوجد طلبات بعد !",
+    "checkoutTitle": "إتمام الشراء",
+    "orderSummary": "ملخص الطلب",
+    "paymentMethod": "طريقة الدفع",
+    "shippingAddress": "عنوان الشحن",
+    "placeOrder": "إتمام الطلب",
+    "cash": "نقداً",
+    "creditCard": "بطاقة ائتمان",
+    "city": "المدينة",
+    "street": "الشارع",
+    "building": "المبنى",
+    "floor": "الطابق",
+    "flat": "الشقة",
+    "additionalNotes": "ملاحظات إضافية",
+    "fillRequiredFields": "يرجى ملء حقول العنوان المطلوبة (المدينة، الشارع)",
+    "orderPlaced": "تم تقديم الطلب!",
+    "orderIdDisplay": "رقم الطلب: #{id}",
+    "@orderIdDisplay": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "backToShopping": "العودة للتسوق",
+    "legal": "قانوني",
+    "privacyPolicy": "سياسة الخصوصية",
+    "itemsCount": "العناصر ({count})",
+    "@itemsCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "placedOn": "تم الطلب في {date}",
+    "@placedOn": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "totalAmount": "المبلغ الإجمالي",
+    "notes": "ملاحظات",
+    "statusPending": "قيد الانتظار",
+    "statusProcessing": "جاري التجهيز",
+    "statusShipped": "تم الشحن",
+    "statusDelivered": "تم التوصيل",
+    "statusCancelled": "تم الإلغاء",
+    "forgotPasswordLink": "نسيت كلمة المرور؟",
+    "forgotPasswordTitle": "نسيت كلمة المرور",
+    "forgotPasswordDescription": "أدخل بريدك الإلكتروني وسنرسل لك رمز مكون من 6 أرقام لإعادة تعيين كلمة المرور.",
+    "sendOtpButton": "إرسال الرمز",
+    "otpSentSuccess": "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
+    "otpResentSuccess": "تم إعادة إرسال رمز التحقق بنجاح.",
+    "confirmEmailTitle": "تأكيد البريد الإلكتروني",
+    "resetPasswordTitle": "إعادة تعيين كلمة المرور",
+    "resetPasswordDescription": "أدخل كلمة المرور الجديدة أدناه.",
+    "resetPasswordButton": "إعادة تعيين كلمة المرور",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "confirmNewPasswordLabel": "تأكيد كلمة المرور الجديدة",
+    "verifyButton": "تحقق",
+    "otpHint": "الرجاء إدخل الرمز المكون من 6 أرقام",
+    "resendOtp": "إعادة إرسال الرمز",
+    "resendOtpCountdown": "إعادة إرسال الرمز خلال {seconds} ثانية",
+    "@resendOtpCountdown": {
+        "placeholders": {
+            "seconds": {
+                "type": "int"
+            }
+        }
+    },
+    "otpSentTo": "تم إرسال رمز مكون من 6 أرقام إلى {email}",
+    "@otpSentTo": {
+        "placeholders": {
+            "email": {
+                "type": "String"
+            }
+        }
+    },
+    "emailConfirmedSuccess": "تم تأكيد البريد الإلكتروني بنجاح! يمكنك الآن تسجيل الدخول.",
+    "passwordResetSuccess": "تم إعادة تعيين كلمة المرور بنجاح! سجّل الدخول بكلمة المرور الجديدة.",
+    "emailNotConfirmed": "البريد الإلكتروني غير مؤكد",
+    "emailNotConfirmedDescription": "لم يتم تأكيد بريدك الإلكتروني بعد. هل تريد تأكيده الآن؟",
+    "nationalIdLabel": "الرقم القومي",
+    "nationalIdHint": "أدخل الرقم القومي المكون من 14 رقم",
+    "nationalIdLength": "الرقم القومي يجب أن يكون 14 رقم بالضبط",
+    "phoneNumberLabel": "رقم الهاتف",
+    "phoneNumberHint": "أدخل رقم هاتفك",
+    "birthDateHint": "اختر تاريخ ميلادك",
+    "adminUsersTitle": "المستخدمون",
+    "adminUsersSearch": "ابحث بالاسم أو البريد أو الدور…",
+    "adminUsersEmpty": "لا يوجد مستخدمون",
+    "adminUsersEmptySearch": "لا يوجد مستخدمون يطابقون بحثك",
+    "adminUsersFailedToLoad": "فشل تحميل المستخدمين",
+    "adminUsersEmailVerified": "موثق",
+    "adminUsersEmailUnverified": "غير موثق",
+    "adminUsersRoleAdmin": "مدير",
+    "adminUsersRoleStoreOwner": "صاحب متجر",
+    "adminUsersRoleUser": "مستخدم",
+    "avgOrderValue": "متوسط قيمة الطلب",
+    "salesPerCustomer": "المبيعات لكل عميل",
+    "salesTrend": "اتجاه المبيعات",
+    "insights": "إحصاءات",
+    "ordersChart": "الطلبات",
+    "noDataAvailable": "لا توجد بيانات",
+    "conversionRate": "معدل التحويل",
+    "egpCurrency": "ج.م",
+    "storeNotFound": "المتجر غير موجود",
+    "storeNotFoundDesc": "تأكد من تسجيل دخولك كبائع لديه متجر نشط.",
+    "salesLabel": "المبيعات",
+    "customers": "العملاء",
+    "seeAll": "عرض الكل",
+    "material": "الخامة",
+    "statusConfirmed": "تم التأكيد",
+    "subtotal": "المجموع الفرعي",
+    "shipping": "الشحن",
+    "free": "مجاني",
+    "orderHash": "طلب #{id}",
+    "@orderHash": {
+        "placeholders": {
+            "id": {
+                "type": "String"
+            }
+        }
+    },
+    "couldNotLoadOrder": "تعذر تحميل تفاصيل الطلب",
+    "updateOrderStatus": "تحديث حالة الطلب",
+    "customerDetails": "تفاصيل العميل",
+    "itemsOrdered": "العناصر المطلوبة",
+    "payment": "الدفع",
+    "store": "المتجر",
+    "updateStatus": "تحديث الحالة",
+    "checkoutPreferences": "تفضيلات الدفع",
+    "savePreferences": "حفظ التفضيلات",
+    "preferencesSavedSuccess": "تم حفظ التفضيلات بنجاح!",
+    "saveAsDefaultAddress": "تعيين كعنوان افتراضي",
+    "useAsDefaultAddressDesc": "سيتم استخدام هذا العنوان تلقائياً للطلبات القادمة",
+    "defaultShippingAddress": "عنوان الشحن الافتراضي",
+    "saveShippingDetailsDesc": "احفظ بياناتك هنا حتى لا تضطر لإدخالها في كل مرة تطلب فيها.",
+    "changePasswordTitle": "تغيير كلمة المرور",
+    "currentPasswordLabel": "كلمة المرور الحالية",
+    "currentPasswordHint": "أدخل كلمة المرور الحالية",
+    "changePasswordSaved": "تم تغيير كلمة المرور بنجاح!",
+    "changePasswordEmailNotFound": "لم يتم العثور على البريد الإلكتروني. يرجى تسجيل الدخول مرة أخرى.",
+    "securePasswordChange": "تغيير كلمة المرور بأمان",
+    "otpSentToEmailDesc": "لتغيير كلمة المرور الخاصة بك، سنقوم بإرسال كلمة مرور لمرة واحدة (OTP) إلى عنوان بريدك الإلكتروني المسجل.",
+    "noEmailFound": "لم يتم العثور على بريد إلكتروني",
+    "sendOtp": "إرسال رمز التحقق",
+    "unexpectedErrorOccurred": "حدث خطأ غير متوقع.",
+    "differentBrandTitle": "ماركة مختلفة",
+    "differentBrandContent": "تحتوي سلة التسوق الخاصة بك بالفعل على منتجات من ماركة أخرى. هل ترغب في إفراغ السلة وإضافة هذا المنتج الجديد بدلاً من ذلك؟",
+    "cancel": "إلغاء",
+    "clearCartAndAdd": "إفراغ السلة والإضافة"
 }

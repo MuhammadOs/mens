@@ -11,9 +11,10 @@ abstract class UserRepository {
   
   Future<PaginatedResponse<Product>> getAllProductsPaginated({
     PaginationParams? pagination,
-    String? categoryId,
-    String? subCategoryId,
+    int? categoryId,
+    int? subCategoryId,
     String? storeId,
+    String? search,
   });
 
   Future<List<Brand>> getAllBrands();
@@ -21,6 +22,7 @@ abstract class UserRepository {
   Future<PaginatedResponse<Brand>> getAllBrandsPaginated({
     PaginationParams? pagination,
     String? categoryId,
+    String? search,
   });
 
   // --- NEW METHOD ---
@@ -56,9 +58,10 @@ class AdminRepositoryImpl implements UserRepository {
   @override
   Future<PaginatedResponse<Product>> getAllProductsPaginated({
     PaginationParams? pagination,
-    String? categoryId,
-    String? subCategoryId,
+    int? categoryId,
+    int? subCategoryId,
     String? storeId,
+    String? search,
   }) async {
     final paginationParams = pagination ?? const PaginationParams();
 
@@ -67,19 +70,36 @@ class AdminRepositoryImpl implements UserRepository {
       'pageSize': paginationParams.pageSize,
     };
 
-    if (categoryId != null) queryParams['categoryId'] = categoryId;
-    if (subCategoryId != null) queryParams['subCategoryId'] = subCategoryId;
+    if (categoryId != null) {
+      queryParams['categoryId'] = categoryId;
+      queryParams['category_id'] = categoryId;
+    }
+    if (subCategoryId != null) {
+      queryParams['subCategoryId'] = subCategoryId;
+      queryParams['sub_category_id'] = subCategoryId;
+    }
     if (storeId != null) queryParams['storeId'] = storeId;
+    if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
     try {
       final response = await _dio.get(
         '/products',
         queryParameters: queryParams,
       );
+      print('DEBUG: Products Search URI: ${response.realUri}');
+      print('DEBUG: Query Params: $queryParams');
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        final data = response.data as Map<String, dynamic>;
+        final items = data['items'] as List?;
+        if (items != null && items.isNotEmpty) {
+          final firstItem = items.first as Map<String, dynamic>;
+          print('DEBUG: Result Found - ID: ${firstItem['id']}, Name: ${firstItem['name']}, CatID: ${firstItem['categoryId']}, SubCatID: ${firstItem['subCategoryId']}');
+        } else {
+          print('DEBUG: No products returned for this filter.');
+        }
         return PaginatedResponse.fromJsonTyped<Product>(
-          response.data as Map<String, dynamic>,
+          data,
           Product.fromJson,
         );
       }
@@ -154,6 +174,7 @@ class AdminRepositoryImpl implements UserRepository {
   Future<PaginatedResponse<Brand>> getAllBrandsPaginated({
     PaginationParams? pagination,
     String? categoryId,
+    String? search,
   }) async {
     final paginationParams = pagination ?? const PaginationParams();
 
@@ -165,9 +186,18 @@ class AdminRepositoryImpl implements UserRepository {
 
       if (categoryId != null) {
         queryParams['categoryId'] = categoryId;
+        queryParams['category_id'] = categoryId;
+      }
+      if (search != null && search.isNotEmpty) {
+        queryParams['search'] = search;
+        queryParams['name'] = search;
+        queryParams['query'] = search;
+        queryParams['q'] = search;
       }
 
       final response = await _dio.get('/stores', queryParameters: queryParams);
+      print('DEBUG: Brands Search URI: ${response.realUri}');
+      print('DEBUG: Brands Query Params: $queryParams');
 
       if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
         return PaginatedResponse.fromJsonTyped<Brand>(

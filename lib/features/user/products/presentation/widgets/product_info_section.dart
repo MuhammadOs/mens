@@ -69,6 +69,8 @@ class ProductInfoSection extends HookWidget {
                       _buildStockIndicator(context),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  _buildInfoChips(context),
                 ],
               ),
             ),
@@ -195,6 +197,74 @@ class ProductInfoSection extends HookWidget {
             style: theme.textTheme.bodySmall?.copyWith(
               color: isInStock ? Colors.green : Colors.red,
               fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoChips(BuildContext context) {
+    if (product.categoryName.isEmpty && product.material == null) {
+      return const SizedBox.shrink();
+    }
+
+    final chips = <Widget>[];
+
+    // Category / SubCategory Chip
+    if (product.categoryName.isNotEmpty) {
+      String catLabel = product.categoryName;
+      if (product.subCategoryName.isNotEmpty) {
+        catLabel += ' • ${product.subCategoryName}';
+      }
+      chips.add(_StyledChip(label: catLabel, icon: Icons.category_rounded));
+    }
+
+    // Material Chip
+    if (product.material != null && product.material!.isNotEmpty) {
+      chips.add(_StyledChip(label: product.material!, icon: Icons.texture));
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: chips,
+    );
+  }
+}
+
+class _StyledChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+
+  const _StyledChip({required this.label, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 14,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

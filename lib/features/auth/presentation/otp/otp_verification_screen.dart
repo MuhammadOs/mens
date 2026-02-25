@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pinput/pinput.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
 import 'package:mens/core/routing/app_router.dart';
 import 'package:mens/features/auth/notifiers/auth_notifier.dart';
@@ -28,8 +29,8 @@ class OtpVerificationScreen extends HookConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final otpControllers = List.generate(6, (_) => useTextEditingController());
-    final focusNodes = List.generate(6, (_) => useFocusNode());
+    final otpController = useTextEditingController();
+    final focusNode = useFocusNode();
     final isLoading = useState(false);
     final canResend = useState(true);
     final resendCountdown = useState(0);
@@ -52,7 +53,7 @@ class OtpVerificationScreen extends HookConsumerWidget {
 
     Future<void> submitOtp() async {
       if (isLoading.value) return; // Prevent double submission
-      final otp = otpControllers.map((c) => c.text).join();
+      final otp = otpController.text;
       if (otp.length != 6) {
         Fluttertoast.showToast(
           msg: l10n.otpHint,
@@ -190,69 +191,40 @@ class OtpVerificationScreen extends HookConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 28),
-                    // OTP input fields
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(6, (index) {
-                        return SizedBox(
-                          width: 44,
-                          height: 52,
-                          child: KeyboardListener(
-                            focusNode: FocusNode(),
-                            onKeyEvent: (event) {
-                              // Handle backspace on empty field → move to previous
-                              if (event is KeyDownEvent &&
-                                  event.logicalKey ==
-                                      LogicalKeyboardKey.backspace &&
-                                  otpControllers[index].text.isEmpty &&
-                                  index > 0) {
-                                focusNodes[index - 1].requestFocus();
-                              }
-                            },
-                            child: TextField(
-                              controller: otpControllers[index],
-                              focusNode: focusNodes[index],
-                              keyboardType: TextInputType.number,
-                              textAlign: TextAlign.center,
-                              maxLength: 1,
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                              decoration: InputDecoration(
-                                counterText: '',
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: colorScheme.primary,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              onChanged: (value) {
-                                if (value.isNotEmpty && index < 5) {
-                                  focusNodes[index + 1].requestFocus();
-                                }
-                                // Auto-submit when all 6 digits entered
-                                final otp = otpControllers
-                                    .map((c) => c.text)
-                                    .join();
-                                if (otp.length == 6) {
-                                  submitOtp();
-                                }
-                              },
-                            ),
+                    // OTP input field
+                    Pinput(
+                      length: 6,
+                      controller: otpController,
+                      focusNode: focusNode,
+                      hapticFeedbackType: HapticFeedbackType.lightImpact,
+                      defaultPinTheme: PinTheme(
+                        width: 44,
+                        height: 52,
+                        textStyle: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: colorScheme.outline),
+                        ),
+                      ),
+                      focusedPinTheme: PinTheme(
+                        width: 44,
+                        height: 52,
+                        textStyle: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: colorScheme.primary,
+                            width: 2,
                           ),
-                        );
-                      }),
+                        ),
+                      ),
+                      onCompleted: (pin) {
+                        submitOtp();
+                      },
                     ),
                     const SizedBox(height: 28),
                     SizedBox(

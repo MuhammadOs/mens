@@ -40,11 +40,6 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-    if (json['stockQuantity'] == null && json['stock_quantity'] == null) {
-      print(
-        'MISSING STOCK KEY for ${json['name'] ?? 'product'}. Keys: ${json.keys.toList()}',
-      );
-    }
     return Product(
       id: _parseInt(json['id']) ?? _parseInt(json['product_id']) ?? 0,
       name:

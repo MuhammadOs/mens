@@ -318,6 +318,36 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    try {
+      final response = await _dio.post(
+        '/auth/change-password',
+        data: {
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        },
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        final dynamic messageValue = response.data?['message'];
+        throw Exception(
+          messageValue?.toString() ?? 'Failed to change password.',
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'A network error occurred.';
+      if (e.response != null) {
+        final dynamic messageValue = e.response!.data?['message'];
+        errorMessage = messageValue?.toString() ?? errorMessage;
+      }
+      throw Exception(errorMessage);
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred.');
+    }
+  }
+
+  @override
   Future<void> logout() async {
     // ... (logout implementation remains the same)
     try {

@@ -26,6 +26,8 @@ class AllBrandsView extends HookConsumerWidget {
     // State
     final selectedCategoryId = useState<int?>(null);
     final searchController = useTextEditingController();
+    final searchDebounce = useRef<Timer?>(null);
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     
     // Initial Load
     useEffect(() {
@@ -35,142 +37,193 @@ class AllBrandsView extends HookConsumerWidget {
       return null;
     }, []);
 
+    // Search Logic with Debounce
+    void onSearchChanged(String query) {
+      if (searchDebounce.value?.isActive ?? false) {
+        searchDebounce.value!.cancel();
+      }
+      searchDebounce.value = Timer(const Duration(milliseconds: 500), () {
+        ref
+            .read(paginatedBrandsProvider.notifier)
+            .setFilters(
+              categoryId: selectedCategoryId.value,
+              searchQuery: query.trim().isNotEmpty ? query.trim() : null,
+            );
+      });
+    }
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: Text(l10n.allBrandsTitle),
-        scrolledUnderElevation: 0,
-      ),
-      body: Column(
-        children: [
-          // 1. Search Bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ],
-              ),
-              child: SearchBar(
-                controller: searchController,
-                hintText: l10n.searchHint,
-                elevation: WidgetStateProperty.all(0),
-                leading: Icon(
-                  FontAwesomeIcons.magnifyingGlass,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                hintStyle: WidgetStateProperty.all(
-                  theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
-                  ),
-                ),
-                backgroundColor: WidgetStateProperty.all(
-                  theme.colorScheme.surfaceContainerLow,
-                ),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.3)),
-                  ),
-                ),
-                onChanged: (query) {
-                  // Implement search logic here if needed
-                },
-              ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(paginatedBrandsProvider.notifier).refresh();
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            // 1. App Bar (Collapsible/Sticky)
+            SliverAppBar(
+              title: Text(l10n.allBrandsTitle),
+              floating: true,
+              pinned: true,
+              scrolledUnderElevation: 0,
             ),
-          ),
 
-          // 2. Category Filters
-          categoriesAsync.when(
-            data: (categories) => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 48,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    separatorBuilder: (_, __) => const SizedBox(width: 10),
-                    itemCount: categories.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return _CategoryChip(
-                          label: l10n.allCategories,
-                          isSelected: selectedCategoryId.value == null,
-                          onSelected: (_) {
-                            selectedCategoryId.value = null;
-                            ref
-                                .read(paginatedBrandsProvider.notifier)
-                                .setFilters(categoryId: null);
-                          },
-                        );
-                      }
-                      final category = categories[index - 1];
-                      return _CategoryChip(
-                        label: category.name,
-                        isSelected: selectedCategoryId.value == category.id,
-                        onSelected: (selected) {
-                          if (selected) {
-                            selectedCategoryId.value = category.id;
-                            ref
-                                .read(paginatedBrandsProvider.notifier)
-                                .setFilters(categoryId: category.id);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-            loading: () => const SizedBox(height: 64),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
-
-          // 3. Scrollable Brands Grid
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                ref.read(paginatedBrandsProvider.notifier).refresh();
-              },
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  _buildBrandsGrid(theme, l10n, brandState, ref),
-
-                  // Pagination
-                  if (brandState.currentPage != null)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: PaginationWidget(
-                          paginatedData: brandState.currentPage!,
-                          onPageChanged: (page) {
-                            ref
-                                .read(paginatedBrandsProvider.notifier)
-                                .loadPage(page);
-                          },
-                          compact: true,
+            // 2. Search Bar & Category Filters
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Search Bar
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: SearchBar(
+                        controller: searchController,
+                        hintText: l10n.searchHint,
+                        elevation: WidgetStateProperty.all(0),
+                        leading: Icon(
+                          FontAwesomeIcons.magnifyingGlass,
+                          color: theme.colorScheme.primary,
+                          size: 20,
                         ),
+                        padding: WidgetStateProperty.all(
+                          const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        hintStyle: WidgetStateProperty.all(
+                          theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                            ),
+                          ),
+                        ),
+                        onChanged: onSearchChanged,
                       ),
                     ),
+                  ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                  // Category Filters
+                  categoriesAsync.when(
+                    data: (categories) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            itemCount: categories.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                return _CategoryChip(
+                                  label: l10n.allCategories,
+                                  isSelected: selectedCategoryId.value == null,
+                                  onSelected: (_) {
+                                    selectedCategoryId.value = null;
+                                    ref
+                                        .read(paginatedBrandsProvider.notifier)
+                                        .setFilters(
+                                          categoryId: null,
+                                          searchQuery: searchController.text.trim().isNotEmpty
+                                              ? searchController.text.trim()
+                                              : null,
+                                        );
+                                  },
+                                );
+                              }
+                              final category = categories[index - 1];
+                              return _CategoryChip(
+                                label: category.getName(isArabic),
+                                isSelected: selectedCategoryId.value == category.id,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    selectedCategoryId.value = category.id;
+                                    ref
+                                        .read(paginatedBrandsProvider.notifier)
+                                        .setFilters(
+                                          categoryId: category.id,
+                                          searchQuery: searchController.text.trim().isNotEmpty
+                                              ? searchController.text.trim()
+                                              : null,
+                                        );
+                                  }
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    loading: () => Skeletonizer(
+                      enabled: true,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: 40,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              itemCount: 8,
+                              itemBuilder: (_, __) => const _CategoryChip(
+                                label: 'Category Name',
+                                isSelected: false,
+                                onSelected: null,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            // 3. Scrollable Brands Grid
+            _buildBrandsGrid(theme, l10n, brandState, ref),
+
+            // Pagination
+            if (brandState.currentPage != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: PaginationWidget(
+                    paginatedData: brandState.currentPage!,
+                    onPageChanged: (page) {
+                      ref
+                          .read(paginatedBrandsProvider.notifier)
+                          .loadPage(page);
+                    },
+                    compact: true,
+                  ),
+                ),
+              ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          ],
+        ),
       ),
     );
   }
@@ -192,7 +245,7 @@ class AllBrandsView extends HookConsumerWidget {
           ),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            childAspectRatio: 0.75,
+            childAspectRatio: 0.68,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
@@ -265,7 +318,7 @@ class AllBrandsView extends HookConsumerWidget {
         }, childCount: brandState.allItems.length),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          childAspectRatio: 0.75,
+          childAspectRatio: 0.68,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
@@ -279,37 +332,40 @@ class AllBrandsView extends HookConsumerWidget {
 class _CategoryChip extends StatelessWidget {
   final String label;
   final bool isSelected;
-  final ValueChanged<bool> onSelected;
+  final ValueChanged<bool>? onSelected;
 
   const _CategoryChip({
     required this.label,
     required this.isSelected,
-    required this.onSelected,
+    this.onSelected,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
       child: FilterChip(
         label: Text(label),
         selected: isSelected,
         onSelected: onSelected,
         showCheckmark: false,
         labelStyle: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           color: isSelected
               ? theme.colorScheme.onPrimary
-              : theme.colorScheme.onSurface,
-          fontSize: 13,
+              : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          fontSize: 12,
         ),
         backgroundColor: theme.colorScheme.surface,
         selectedColor: theme.colorScheme.primary,
-        side: isSelected ? BorderSide.none : BorderSide(color: theme.colorScheme.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-        elevation: isSelected ? 2 : 0,
+        side: isSelected 
+            ? BorderSide.none 
+            : BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        elevation: isSelected ? 4 : 0,
+        shadowColor: theme.colorScheme.primary.withValues(alpha: 0.3),
       ),
     );
   }
@@ -336,11 +392,14 @@ class _EnhancedBrandCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 10,
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.05),
+          ),
         ),
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -350,35 +409,35 @@ class _EnhancedBrandCard extends StatelessWidget {
             Hero(
               tag: 'brand_${brand.id}',
               child: Container(
-                padding: const EdgeInsets.all(2), // White border effect
+                padding: const EdgeInsets.all(2), // Outer ring
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: theme.colorScheme.surface,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  gradient: LinearGradient(
+                    colors: [
+                      theme.colorScheme.primary.withValues(alpha: 0.2),
+                      theme.colorScheme.primary.withValues(alpha: 0.0),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
                 child: CircleAvatar(
-                  radius: 30,
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                  backgroundImage: brand.brandImage != null
+                  radius: 28,
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  backgroundImage: brand.brandImage != null && brand.brandImage!.isNotEmpty
                       ? NetworkImage(brand.brandImage!)
                       : null,
-                  child: brand.brandImage == null
+                  child: (brand.brandImage == null || brand.brandImage!.isEmpty)
                       ? Icon(
                           FontAwesomeIcons.store,
-                          color: theme.colorScheme.primary.withOpacity(0.7),
-                          size: 24,
+                          color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                          size: 20,
                         )
                       : null,
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             // Brand Name
             Text(
@@ -386,7 +445,7 @@ class _EnhancedBrandCard extends StatelessWidget {
               style: theme.textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurface,
-                fontSize: 13,
+                fontSize: 12,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -395,23 +454,16 @@ class _EnhancedBrandCard extends StatelessWidget {
             const SizedBox(height: 4),
 
             // Category Name
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.secondaryContainer.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(8),
+            Text(
+              brand.categoryName,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
               ),
-              child: Text(
-                brand.categoryName,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.secondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -432,18 +484,18 @@ class _BrandCardSkeleton extends StatelessWidget {
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-             color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+             color: theme.colorScheme.outline.withValues(alpha: 0.1),
           ),
         ),
         padding: const EdgeInsets.all(12),
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Bone.circle(size: 60),
-            const SizedBox(height: 12),
-            const Bone.text(width: 80),
-            const SizedBox(height: 6),
-            const Bone.text(width: 50, fontSize: 10),
+            Bone.circle(size: 56),
+            SizedBox(height: 10),
+            Bone.text(width: 60),
+            SizedBox(height: 4),
+            Bone.text(width: 40, fontSize: 9),
           ],
         ),
       ),

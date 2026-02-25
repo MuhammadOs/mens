@@ -24,6 +24,7 @@ class UserHomeScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(adminNavIndexProvider);
     final l10n = ref.watch(l10nProvider);
+    final theme = Theme.of(context);
     final authState = ref.watch(authNotifierProvider);
     final userProfile = authState.asData?.value;
     useEffect(() {
@@ -89,20 +90,34 @@ class UserHomeScreen extends HookConsumerWidget {
 
     return Scaffold(
       body: IndexedStack(index: safeIndex, children: screens),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: safeIndex,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(
-          context,
-        ).colorScheme.onSurface.withValues(alpha: 0.6),
-        type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: const TextStyle(fontSize: 10),
-        unselectedLabelStyle: const TextStyle(fontSize: 10),
-        onTap: (index) {
-          ref.read(adminNavIndexProvider.notifier).state = index;
-        },
-        items: items,
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final isSelected = states.contains(WidgetState.selected);
+            return TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            );
+          }),
+        ),
+        child: NavigationBar(
+          height: 64,
+          elevation: 0,
+          backgroundColor: theme.colorScheme.surface,
+          surfaceTintColor: Colors.transparent,
+          selectedIndex: safeIndex,
+          onDestinationSelected: (index) {
+            ref.read(adminNavIndexProvider.notifier).state = index;
+          },
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: items.map((item) {
+            return NavigationDestination(
+              icon: item.icon,
+              label: item.label ?? '',
+              tooltip: item.label,
+            );
+          }).toList(),
+        ),
       ),
     );
   }

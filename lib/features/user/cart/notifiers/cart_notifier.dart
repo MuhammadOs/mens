@@ -74,6 +74,15 @@ class CartNotifier extends AsyncNotifier<List<CartItem>> {
 
   Future<void> addItem(CartItem item) async {
     final currentState = state.value ?? [];
+
+    // Enforce single store per cart
+    if (currentState.isNotEmpty) {
+      final currentStoreId = currentState.first.storeId;
+      if (currentStoreId != item.storeId) {
+        throw DifferentStoreCartException(currentStoreId, item.storeId);
+      }
+    }
+
     final newState = List<CartItem>.from(currentState);
 
     final index = newState.indexWhere((e) => e.id == item.id);
@@ -167,4 +176,15 @@ class CartNotifier extends AsyncNotifier<List<CartItem>> {
     final repository = ref.read(cartRepositoryProvider);
     await repository.saveCart(userId, items);
   }
+}
+
+class DifferentStoreCartException implements Exception {
+  final int currentStoreId;
+  final int newStoreId;
+
+  DifferentStoreCartException(this.currentStoreId, this.newStoreId);
+
+  @override
+  String toString() =>
+      'DifferentStoreCartException: Cannot add item from store $newStoreId to cart currently holding store $currentStoreId items.';
 }

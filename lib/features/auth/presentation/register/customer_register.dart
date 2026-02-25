@@ -258,15 +258,15 @@ class _RegisterCustomerScreenState
                       ),
                       const SizedBox(height: 15),
 
-                      // National ID — required, exactly 14 digits
+                      // National ID — optional
                       CustomTextField(
-                        labelText: l10n.nationalIdLabel,
+                        labelText: '${l10n.nationalIdLabel} (Optional)',
                         hintText: l10n.nationalIdHint,
                         controller: _nationalIdController,
                         keyboardType: TextInputType.number,
                         validator: (v) {
                           final val = (v ?? '').trim();
-                          if (val.isEmpty) return l10n.validationRequired;
+                          if (val.isEmpty) return null; // Optional
                           if (val.length != 14) return l10n.nationalIdLength;
                           return null;
                         },

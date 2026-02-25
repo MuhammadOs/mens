@@ -92,13 +92,19 @@ class OwnerInfoStep extends HookConsumerWidget {
             ),
             const SizedBox(height: 12),
             CustomTextField(
-              labelText: l10n.nationalIdLabel,
+              labelText: '${l10n.nationalIdLabel} (Optional)',
               controller: nationalIdController,
               onChanged: (value) =>
                   registerNotifier.updateOwnerInfo(nationalId: value),
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
               textDirection: ui.TextDirection.ltr,
+              validator: (v) {
+                final val = (v ?? '').trim();
+                if (val.isEmpty) return null; // Optional
+                if (val.length != 14) return l10n.nationalIdLength;
+                return null;
+              },
             ),
             const SizedBox(height: 12),
             CustomTextField(

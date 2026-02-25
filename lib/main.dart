@@ -6,11 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mens/core/localization/l10n/app_localizations.dart';
 import 'package:mens/core/localization/locale_provider.dart';
 import 'package:mens/core/routing/app_router.dart';
-import 'package:mens/features/auth/data/auth_repository_impl.dart';
+import 'package:mens/features/auth/data/auth_repository_impl.dart' as auth_repo;
 import 'package:mens/shared/theme/app_theme.dart';
 import 'package:mens/shared/theme/theme_provider.dart';
 import 'package:mens/shared/widgets/loading_overlay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mens/features/user/profile/data/checkout_preferences_repository.dart' as checkout_prefs;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,8 @@ Future<void> main() async {
       builder: (context) => ProviderScope(
         overrides: [
           initialLocaleProvider.overrideWithValue(initialLocale),
-          sharedPreferencesProvider.overrideWithValue(prefs),
+          auth_repo.sharedPreferencesProvider.overrideWithValue(prefs),
+          checkout_prefs.sharedPreferencesProvider.overrideWithValue(prefs),
         ],
         child: const Mens(),
       ),

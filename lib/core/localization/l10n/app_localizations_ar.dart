@@ -36,10 +36,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loginPageTitle => 'تسجيل الدخول';
 
   @override
-  String get emailLabel => 'البريد الإلكتروني / رقم الهاتف';
+  String get emailLabel => 'البريد الإلكتروني';
 
   @override
-  String get emailHint => 'أدخل بريدك الإلكتروني أو رقم هاتفك';
+  String get emailHint => 'أدخل بريدك الإلكتروني';
 
   @override
   String get passwordLabel => 'أدخل كلمة المرور';
@@ -90,7 +90,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get brandInfo => 'بيانات العلامة التجارية';
 
   @override
-  String get profile => 'الملف الشخصي';
+  String get profile => 'حسابي';
 
   @override
   String get nextButton => 'التالي';
@@ -416,14 +416,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'خطأ في حذف المنتج. يرجى المحاولة مرة اخرى';
 
   @override
-  String get errorLoadingProduct => 'Failed to load product. Please try again.';
+  String get errorLoadingProduct => 'فشل تحميل المنتج. يرجى المحاولة مرة أخرى.';
 
   @override
   String get errorLoadingCategories =>
-      'Failed to load categories. Please try again.';
+      'فشل تحميل الفئات. يرجى المحاولة مرة أخرى.';
 
   @override
-  String get errorUploadingImage => 'Failed to upload image. Please try again.';
+  String get errorUploadingImage => 'فشل رفع الصورة. يرجى المحاولة مرة أخرى.';
 
   @override
   String get somethingWentWrong => 'حدث خطأ. يرجى المحاولة مرة اخرى';
@@ -493,7 +493,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noMoreItems => 'لا توجد عناصر أخرى';
 
   @override
-  String get allBrandsTitle => 'العلامات التجارية';
+  String get allBrandsTitle => 'الماركات';
 
   @override
   String get searchHint => 'بحث';
@@ -616,7 +616,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String cartItemSubtotal(String price) {
-    return 'المجموع: \$$price';
+    return 'المجموع: $price';
   }
 
   @override
@@ -693,7 +693,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get cart => 'عربة التسوق';
+  String get cart => 'السلة';
 
   @override
   String get tryOnTitle => 'تجربة الملابس';
@@ -714,80 +714,80 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ordersEmpty => 'لا يوجد طلبات بعد !';
 
   @override
-  String get checkoutTitle => 'Checkout';
+  String get checkoutTitle => 'إتمام الشراء';
 
   @override
-  String get orderSummary => 'Order Summary';
+  String get orderSummary => 'ملخص الطلب';
 
   @override
-  String get paymentMethod => 'Payment Method';
+  String get paymentMethod => 'طريقة الدفع';
 
   @override
-  String get shippingAddress => 'Shipping Address';
+  String get shippingAddress => 'عنوان الشحن';
 
   @override
-  String get placeOrder => 'Place Order';
+  String get placeOrder => 'إتمام الطلب';
 
   @override
-  String get cash => 'Cash';
+  String get cash => 'نقداً';
 
   @override
-  String get creditCard => 'Credit Card';
+  String get creditCard => 'بطاقة ائتمان';
 
   @override
-  String get city => 'City';
+  String get city => 'المدينة';
 
   @override
-  String get street => 'Street';
+  String get street => 'الشارع';
 
   @override
-  String get building => 'Building';
+  String get building => 'المبنى';
 
   @override
-  String get floor => 'Floor';
+  String get floor => 'الطابق';
 
   @override
-  String get flat => 'Flat';
+  String get flat => 'الشقة';
 
   @override
-  String get additionalNotes => 'Additional Notes';
+  String get additionalNotes => 'ملاحظات إضافية';
 
   @override
   String get fillRequiredFields =>
-      'Please fill in the required address fields (City, Street)';
+      'يرجى ملء حقول العنوان المطلوبة (المدينة، الشارع)';
 
   @override
-  String get orderPlaced => 'Order Placed!';
+  String get orderPlaced => 'تم تقديم الطلب!';
 
   @override
   String orderIdDisplay(String id) {
-    return 'Order ID: #$id';
+    return 'رقم الطلب: #$id';
   }
 
   @override
-  String get backToShopping => 'Back to Shopping';
+  String get backToShopping => 'العودة للتسوق';
 
   @override
-  String get legal => 'Legal';
+  String get legal => 'قانوني';
 
   @override
-  String get privacyPolicy => 'Privacy Policy';
+  String get privacyPolicy => 'سياسة الخصوصية';
 
   @override
   String itemsCount(int count) {
-    return 'Items ($count)';
+    return 'العناصر ($count)';
   }
 
   @override
   String placedOn(String date) {
-    return 'Placed on $date';
+    return 'تم الطلب في $date';
   }
 
   @override
-  String get totalAmount => 'Total Amount';
+  String get totalAmount => 'المبلغ الإجمالي';
 
   @override
-  String get notes => 'Notes';
+  String get notes => 'ملاحظات';
 
   @override
   String get statusPending => 'قيد الانتظار';
@@ -842,7 +842,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get verifyButton => 'تحقق';
 
   @override
-  String get otpHint => 'الرجاء إدخال الرمز المكون من 6 أرقام';
+  String get otpHint => 'الرجاء إدخل الرمز المكون من 6 أرقام';
 
   @override
   String get resendOtp => 'إعادة إرسال الرمز';
@@ -999,4 +999,69 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updateStatus => 'تحديث الحالة';
+
+  @override
+  String get checkoutPreferences => 'تفضيلات الدفع';
+
+  @override
+  String get savePreferences => 'حفظ التفضيلات';
+
+  @override
+  String get preferencesSavedSuccess => 'تم حفظ التفضيلات بنجاح!';
+
+  @override
+  String get saveAsDefaultAddress => 'تعيين كعنوان افتراضي';
+
+  @override
+  String get useAsDefaultAddressDesc =>
+      'سيتم استخدام هذا العنوان تلقائياً للطلبات القادمة';
+
+  @override
+  String get defaultShippingAddress => 'عنوان الشحن الافتراضي';
+
+  @override
+  String get saveShippingDetailsDesc =>
+      'احفظ بياناتك هنا حتى لا تضطر لإدخالها في كل مرة تطلب فيها.';
+
+  @override
+  String get changePasswordTitle => 'تغيير كلمة المرور';
+
+  @override
+  String get currentPasswordLabel => 'كلمة المرور الحالية';
+
+  @override
+  String get currentPasswordHint => 'أدخل كلمة المرور الحالية';
+
+  @override
+  String get changePasswordSaved => 'تم تغيير كلمة المرور بنجاح!';
+
+  @override
+  String get changePasswordEmailNotFound =>
+      'لم يتم العثور على البريد الإلكتروني. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get securePasswordChange => 'تغيير كلمة المرور بأمان';
+
+  @override
+  String get otpSentToEmailDesc =>
+      'لتغيير كلمة المرور الخاصة بك، سنقوم بإرسال كلمة مرور لمرة واحدة (OTP) إلى عنوان بريدك الإلكتروني المسجل.';
+
+  @override
+  String get noEmailFound => 'لم يتم العثور على بريد إلكتروني';
+
+  @override
+  String get sendOtp => 'إرسال رمز التحقق';
+
+  @override
+  String get unexpectedErrorOccurred => 'حدث خطأ غير متوقع.';
+
+  @override
+  String get differentBrandTitle => 'ماركة مختلفة';
+
+  @override
+  String get differentBrandContent =>
+      'تحتوي سلة التسوق الخاصة بك بالفعل على منتجات من ماركة أخرى. هل ترغب في إفراغ السلة وإضافة هذا المنتج الجديد بدلاً من ذلك؟';
+
+  @override
+  String get clearCartAndAdd => 'إفراغ السلة والإضافة';
 }

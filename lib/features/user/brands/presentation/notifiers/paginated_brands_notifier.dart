@@ -8,9 +8,11 @@ import 'package:mens/shared/providers/paginated_notifier.dart';
 /// Notifier for paginated brands/stores
 class PaginatedBrandsNotifier extends PaginatedNotifier<Brand> {
   int? _categoryId;
+  String? _searchQuery;
 
-  void setFilters({int? categoryId}) {
+  void setFilters({int? categoryId, String? searchQuery}) {
     _categoryId = categoryId;
+    _searchQuery = searchQuery;
     // Clear current items and reload
     state = PaginatedState<Brand>.initial();
     loadFirstPage();
@@ -22,6 +24,7 @@ class PaginatedBrandsNotifier extends PaginatedNotifier<Brand> {
     return repository.getAllBrandsPaginated(
       pagination: params,
       categoryId: _categoryId?.toString(),
+      search: _searchQuery,
     );
   }
 }

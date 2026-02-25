@@ -27,8 +27,10 @@ class AllProductsView extends HookConsumerWidget {
     // State
     final selectedCategoryId = useState<int?>(null);
     final selectedSubCategoryId = useState<int?>(null);
+    final selectedLevel3Id = useState<int?>(null);
     final searchController = useTextEditingController();
     final searchDebounce = useRef<Timer?>(null);
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     // Initial Load
     useEffect(() {
@@ -48,243 +50,368 @@ class AllProductsView extends HookConsumerWidget {
             .read(paginatedUserProductsProvider.notifier)
             .setFilters(
               categoryId: selectedCategoryId.value,
-              subCategoryId: selectedSubCategoryId.value,
+              subCategoryId: selectedLevel3Id.value ?? selectedSubCategoryId.value,
+              searchQuery: query.trim().isNotEmpty ? query.trim() : null,
             );
       });
     }
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: Text(l10n.productsTitle),
-        scrolledUnderElevation: 0,
-      ),
-      body: Column(
-        children: [
-          // 1. Search Bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: SearchBar(
-                controller: searchController,
-                hintText: l10n.searchHint,
-                elevation: WidgetStateProperty.all(0),
-                leading: Icon(
-                  FontAwesomeIcons.magnifyingGlass,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 16),
-                ),
-                hintStyle: WidgetStateProperty.all(
-                  theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-                backgroundColor: WidgetStateProperty.all(
-                  theme.colorScheme.surfaceContainerLow,
-                ),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                    ),
-                  ),
-                ),
-                onChanged: onSearchChanged,
-              ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(paginatedUserProductsProvider.notifier).refresh();
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            // 1. App Bar & Search (Collapsible)
+            SliverAppBar(
+              title: Text(l10n.productsTitle),
+              floating: true,
+              pinned: true,
+              scrolledUnderElevation: 0,
             ),
-          ),
-
-          // 2. Category Filters
-          categoriesAsync.when(
-            data: (categories) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Main Categories
-                SizedBox(
-                  height: 40,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemCount: categories.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return _FilterChip(
-                          label: l10n.productsAll,
-                          isSelected: selectedCategoryId.value == null,
-                          onSelected: (_) {
-                            selectedCategoryId.value = null;
-                            selectedSubCategoryId.value = null;
-                            ref
-                                .read(paginatedUserProductsProvider.notifier)
-                                .setFilters(
-                                  categoryId: null,
-                                  subCategoryId: null,
-                                );
-                          },
-                        );
-                      }
-                      final category = categories[index - 1];
-                      return _FilterChip(
-                        label: category.name,
-                        isSelected: selectedCategoryId.value == category.id,
-                        onSelected: (selected) {
-                          if (selected) {
-                            selectedCategoryId.value = category.id;
-                            selectedSubCategoryId.value = null;
-                            ref
-                                .read(paginatedUserProductsProvider.notifier)
-                                .setFilters(
-                                  categoryId: category.id,
-                                  subCategoryId: null,
-                                );
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-
-                // Sub Categories (Animated visibility)
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  child: selectedCategoryId.value != null
-                      ? Builder(
-                          builder: (context) {
-                            final selectedCategory = categories.firstWhere(
-                              (cat) => cat.id == selectedCategoryId.value,
-                              orElse: () => categories.first,
-                            );
-
-                            if (selectedCategory.subCategories.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 12.0),
-                              child: SizedBox(
-                                height: 32,
-                                child: ListView.separated(
-                                  scrollDirection: Axis.horizontal,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  separatorBuilder: (_, __) =>
-                                      const SizedBox(width: 8),
-                                  itemCount:
-                                      selectedCategory.subCategories.length,
-                                  itemBuilder: (context, index) {
-                                    final sub =
-                                        selectedCategory.subCategories[index];
-                                    return _FilterChip(
-                                      label: sub.name,
-                                      isSmall: true,
-                                      isSelected:
-                                          selectedSubCategoryId.value == sub.id,
-                                      onSelected: (selected) {
-                                        selectedSubCategoryId.value = selected
-                                            ? sub.id
-                                            : null;
-                                        ref
-                                            .read(
-                                              paginatedUserProductsProvider
-                                                  .notifier,
-                                            )
-                                            .setFilters(
-                                              categoryId:
-                                                  selectedCategoryId.value,
-                                              subCategoryId:
-                                                  selectedSubCategoryId.value,
-                                            );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-            loading: () => Skeletonizer(
-              enabled: true,
+            
+            // 2. Search Bar & Category Filters
+            SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    height: 40,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
-                      itemCount: 6,
-                      itemBuilder: (_, __) => _FilterChip(
-                        label: 'Category Name',
-                        isSelected: false,
-                        onSelected: (_) {}, // Loading
+                  // NEW: Move Search Bar here
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: SearchBar(
+                        controller: searchController,
+                        hintText: l10n.searchHint,
+                        elevation: WidgetStateProperty.all(0),
+                        leading: Icon(
+                          FontAwesomeIcons.magnifyingGlass,
+                          color: theme.colorScheme.primary,
+                          size: 20,
+                        ),
+                        padding: WidgetStateProperty.all(
+                          const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        hintStyle: WidgetStateProperty.all(
+                          theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                        ),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
+                          ),
+                        ),
+                        onChanged: onSearchChanged,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-            error: (_, __) => const SizedBox.shrink(),
-          ),
 
-          // 3. Scrollable Product Grid
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                ref.read(paginatedUserProductsProvider.notifier).refresh();
-              },
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  _buildProductGrid(theme, l10n, paginatedState, ref),
-
-                  // Pagination
-                  if (paginatedState.currentPage != null)
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: PaginationWidget(
-                          paginatedData: paginatedState.currentPage!,
-                          onPageChanged: (page) {
-                            ref
-                                .read(paginatedUserProductsProvider.notifier)
-                                .loadPage(page);
-                          },
-                          compact: true,
+                  categoriesAsync.when(
+                    data: (categories) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            itemCount: categories.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                return _FilterChip(
+                                  label: l10n.productsAll,
+                                  isSelected: selectedCategoryId.value == null,
+                                  onSelected: (_) {
+                                    selectedCategoryId.value = null;
+                                    selectedSubCategoryId.value = null;
+                                    selectedLevel3Id.value = null;
+                                    ref
+                                        .read(
+                                          paginatedUserProductsProvider.notifier,
+                                        )
+                                        .setFilters(
+                                          categoryId: null,
+                                          subCategoryId: null,
+                                          searchQuery:
+                                              searchController.text
+                                                      .trim()
+                                                      .isNotEmpty
+                                                  ? searchController.text.trim()
+                                                  : null,
+                                        );
+                                  },
+                                );
+                              }
+                              final category = categories[index - 1];
+                              return _FilterChip(
+                                label: category.getName(isArabic),
+                                isSelected: selectedCategoryId.value == category.id,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    final newId = category.id;
+                                    selectedCategoryId.value = newId;
+                                    selectedSubCategoryId.value = null;
+                                    selectedLevel3Id.value = null;
+                                    ref
+                                        .read(
+                                          paginatedUserProductsProvider.notifier,
+                                        )
+                                        .setFilters(
+                                          categoryId: newId,
+                                          subCategoryId: null,
+                                          searchQuery:
+                                              searchController.text
+                                                      .trim()
+                                                      .isNotEmpty
+                                                  ? searchController.text.trim()
+                                                  : null,
+                                        );
+                                  }
+                                },
+                              );
+                            },
+                          ),
                         ),
+
+                        // Level 2 Categories
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          child: selectedCategoryId.value != null
+                              ? Builder(
+                                  builder: (context) {
+                                    final selectedCatId = selectedCategoryId.value;
+                                    final selectedCategory = categories.firstWhere(
+                                      (cat) => cat.id == selectedCatId,
+                                      orElse: () => categories.first,
+                                    );
+
+                                    if (selectedCategory.subCategories.isEmpty) {
+                                      return const SizedBox.shrink();
+                                    }
+
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 12.0),
+                                          child: SizedBox(
+                                            height: 32,
+                                            child: ListView.separated(
+                                              scrollDirection: Axis.horizontal,
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                              ),
+                                              separatorBuilder: (_, __) =>
+                                                  const SizedBox(width: 8),
+                                              itemCount:
+                                                  selectedCategory.subCategories.length,
+                                              itemBuilder: (context, index) {
+                                                final sub =
+                                                    selectedCategory
+                                                        .subCategories[index];
+                                                return _FilterChip(
+                                                  label: sub.getName(isArabic),
+                                                  isSmall: true,
+                                                  isSelected:
+                                                      selectedSubCategoryId.value ==
+                                                      sub.id,
+                                                  onSelected: (selected) {
+                                                    final newId = selected ? sub.id : null;
+                                                    selectedSubCategoryId.value = newId;
+                                                    selectedLevel3Id.value = null;
+                                                    ref
+                                                        .read(
+                                                          paginatedUserProductsProvider
+                                                              .notifier,
+                                                        )
+                                                        .setFilters(
+                                                          categoryId: selectedCategoryId.value,
+                                                          subCategoryId: newId,
+                                                          searchQuery:
+                                                              searchController.text
+                                                                      .trim()
+                                                                      .isNotEmpty
+                                                                  ? searchController
+                                                                      .text
+                                                                      .trim()
+                                                                  : null,
+                                                        );
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        // Level 3 Categories
+                                        AnimatedSize(
+                                          duration: const Duration(milliseconds: 300),
+                                          child: selectedSubCategoryId.value != null
+                                              ? Builder(
+                                                  builder: (context) {
+                                                    final subId = selectedSubCategoryId.value;
+                                                    final level2Cat =
+                                                        selectedCategory.subCategories
+                                                            .firstWhere(
+                                                      (c) =>
+                                                          c.id ==
+                                                          subId,
+                                                      orElse: () => selectedCategory
+                                                          .subCategories.first,
+                                                    );
+
+                                                    if (level2Cat.subCategories.isEmpty) {
+                                                      return const SizedBox.shrink();
+                                                    }
+
+                                                    return Padding(
+                                                      padding: const EdgeInsets.only(
+                                                        top: 8.0,
+                                                      ),
+                                                      child: SizedBox(
+                                                        height: 30,
+                                                        child: ListView.separated(
+                                                          scrollDirection:
+                                                              Axis.horizontal,
+                                                          padding: const EdgeInsets
+                                                              .symmetric(
+                                                            horizontal: 16,
+                                                          ),
+                                                          separatorBuilder: (_, __) =>
+                                                              const SizedBox(width: 8),
+                                                          itemCount: level2Cat
+                                                              .subCategories.length,
+                                                          itemBuilder:
+                                                              (context, index) {
+                                                            final l3 = level2Cat
+                                                                    .subCategories[
+                                                                index];
+                                                            return _FilterChip(
+                                                              label:
+                                                                  l3.getName(isArabic),
+                                                              isSmall: true,
+                                                              isSelected:
+                                                                  selectedLevel3Id
+                                                                          .value ==
+                                                                      l3.id,
+                                                              onSelected: (selected) {
+                                                                final newId =
+                                                                    selected
+                                                                        ? l3.id
+                                                                        : null;
+                                                                selectedLevel3Id
+                                                                        .value =
+                                                                    newId;
+                                                                ref
+                                                                    .read(
+                                                                      paginatedUserProductsProvider
+                                                                          .notifier,
+                                                                    )
+                                                                    .setFilters(
+                                                                      categoryId: selectedCategoryId.value,
+                                                                      subCategoryId: newId,
+                                                                      searchQuery:
+                                                                          searchController
+                                                                                  .text
+                                                                                  .trim()
+                                                                                  .isNotEmpty
+                                                                              ? searchController
+                                                                                  .text
+                                                                                  .trim()
+                                                                              : null,
+                                                                    );
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                )
+                                              : const SizedBox.shrink(),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                    loading: () => Skeletonizer(
+                      enabled: true,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: 40,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              itemCount: 8,
+                              itemBuilder: (_, __) => const _FilterChip(
+                                label: 'Category Name',
+                                isSelected: false,
+                                onSelected: null,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                       ),
                     ),
-
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 80),
-                  ), // Bottom padding
-                ],
-              ),
-            ),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
+            ],
           ),
-        ],
+        ),
+
+            // 3. Scrollable Product Grid
+            _buildProductGrid(theme, l10n, paginatedState, ref),
+
+            // Pagination
+            if (paginatedState.currentPage != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: PaginationWidget(
+                    paginatedData: paginatedState.currentPage!,
+                    onPageChanged: (page) {
+                      ref
+                          .read(paginatedUserProductsProvider.notifier)
+                          .loadPage(page);
+                    },
+                    compact: true,
+                  ),
+                ),
+              ),
+
+            // Bottom padding for standard FABs/BottomBars
+            const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          ],
+        ),
       ),
     );
   }
@@ -305,10 +432,10 @@ class AllProductsView extends HookConsumerWidget {
             childCount: 6,
           ),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // Reverted to 3
-            childAspectRatio: 0.6, // Reverted to 0.6
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisCount: 2, 
+            childAspectRatio: 0.75, 
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
         ),
       );
@@ -373,10 +500,10 @@ class AllProductsView extends HookConsumerWidget {
           );
         }, childCount: state.allItems.length),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // Reverted to 3
-          childAspectRatio: 0.6, // Reverted to 0.6
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          crossAxisCount: 2, 
+          childAspectRatio: 0.75, 
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
         ),
       ),
     );
@@ -388,44 +515,42 @@ class AllProductsView extends HookConsumerWidget {
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
-  final ValueChanged<bool> onSelected;
+  final ValueChanged<bool>? onSelected;
   final bool isSmall;
 
   const _FilterChip({
     required this.label,
     required this.isSelected,
-    required this.onSelected,
+    this.onSelected,
     this.isSmall = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
       child: FilterChip(
         label: Text(label),
         selected: isSelected,
         onSelected: onSelected,
         showCheckmark: false,
         labelStyle: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           color: isSelected
               ? theme.colorScheme.onPrimary
-              : theme.colorScheme.onSurface,
-          fontSize: isSmall ? 12 : 14,
+              : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          fontSize: 12,
         ),
         backgroundColor: theme.colorScheme.surface,
         selectedColor: theme.colorScheme.primary,
-        checkmarkColor: theme.colorScheme.onPrimary,
-        side: isSelected
-            ? BorderSide.none
-            : BorderSide(color: theme.colorScheme.outlineVariant),
-        elevation: isSelected ? 2 : 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        padding: isSmall
-            ? const EdgeInsets.symmetric(horizontal: 8)
-            : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        side: isSelected 
+            ? BorderSide.none 
+            : BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        elevation: isSelected ? 4 : 0,
+        shadowColor: theme.colorScheme.primary.withValues(alpha: 0.3),
       ),
     );
   }

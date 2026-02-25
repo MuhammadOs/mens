@@ -7,6 +7,7 @@ import 'package:mens/features/user/orders/data/order_repository.dart';
 import 'package:mens/features/user/orders/domain/order_models.dart';
 import 'package:mens/shared/widgets/app_back_button.dart';
 import 'package:mens/core/localization/l10n_provider.dart';
+import 'package:mens/features/user/profile/notifiers/checkout_preferences_notifier.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   final List<CartItem> items;
@@ -28,7 +29,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _flatController = TextEditingController();
   final _notesController = TextEditingController();
 
+  bool _saveAsDefault = false;
+
   double get total => widget.items.fold(0, (sum, item) => sum + item.subtotal);
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill fields from saved preferences
+    final prefs = ref.read(checkoutPreferencesProvider);
+    _cityController.text = prefs.city;
+    _streetController.text = prefs.street;
+    _buildingController.text = prefs.building;
+    _floorController.text = prefs.floor;
+    _flatController.text = prefs.flat;
+    _notesController.text = prefs.notes;
+  }
 
   @override
   void dispose() {
@@ -316,6 +332,33 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ),
         const SizedBox(height: 12),
         _buildTextField(l10n.additionalNotes, _notesController, maxLines: 3),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            ),
+          ),
+          child: SwitchListTile(
+            title: Text(
+              l10n.saveAsDefaultAddress,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            subtitle: Text(
+              l10n.useAsDefaultAddressDesc,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            value: _saveAsDefault,
+            onChanged: (value) => setState(() => _saveAsDefault = value),
+            activeColor: theme.colorScheme.primary,
+          ),
+        ),
       ],
     );
   }
@@ -385,6 +428,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       print("Attempting to create order with payload: ${request.toJson()}");
 
       final response = await repository.createOrder(request);
+
+      if (_saveAsDefault) {
+        // Run asynchronously without awaiting since place order is done
+        ref.read(checkoutPreferencesProvider.notifier).updatePreferences(
+              city: _cityController.text,
+              street: _streetController.text,
+              building: _buildingController.text,
+              floor: _floorController.text,
+              flat: _flatController.text,
+              notes: _notesController.text,
+            );
+      }
 
       if (mounted) {
         // Clear Cart

@@ -10,24 +10,27 @@ import 'package:mens/shared/providers/paginated_notifier.dart';
 class PaginatedUserProductsNotifier extends PaginatedNotifier<Product> {
   int? _categoryId;
   int? _subCategoryId;
+  String? _searchQuery;
 
-  void setFilters({int? categoryId, int? subCategoryId}) {
+  void setFilters({int? categoryId, int? subCategoryId, String? searchQuery}) {
     _categoryId = categoryId;
     _subCategoryId = subCategoryId;
+    _searchQuery = searchQuery;
     loadFirstPage();
   }
 
   @override
   Future<PaginatedResponse<Product>> fetchPage(PaginationParams params) async {
     final repository = ref.read(adminRepositoryProvider);
-    final userProfile = ref.read(authNotifierProvider).asData?.value;
-    final storeId = userProfile?.store?.id.toString();
+    
+    // Log the parameters being sent
+    print('DEBUG: Notifier Fetching Page - Category: $_categoryId, SubCategory: $_subCategoryId, Search: $_searchQuery');
 
     return repository.getAllProductsPaginated(
       pagination: params,
-      categoryId: _categoryId?.toString(),
-      subCategoryId: _subCategoryId?.toString(),
-      storeId: storeId,
+      categoryId: _categoryId,
+      subCategoryId: _subCategoryId,
+      search: _searchQuery,
     );
   }
 }

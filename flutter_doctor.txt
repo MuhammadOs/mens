@@ -1,0 +1,52 @@
+[!] Flutter (Channel stable, 3.35.6, on Microsoft Windows [Version 10.0.26200.7840], locale en-US) [539ms]
+    • Flutter version 3.35.6 on channel stable at C:\flutter
+    ! Warning: `dart` on your path resolves to C:\tools\dart-sdk\bin\dart.exe, which is not inside your current Flutter SDK checkout at C:\flutter. Consider adding C:\flutter\bin to the front of your path.
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision 9f455d2486 (5 months ago), 2025-10-08 14:55:31 -0500
+    • Engine revision d2913632a4
+    • Dart version 3.9.2
+    • DevTools version 2.48.0
+    • Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-lldb-debugging
+    • If those were intentional, you can disregard the above warnings; however it is recommended to use "git" directly to perform update checks and upgrades.
+
+[√] Windows Version (11 Pro 64-bit, 25H2, 2009) [2.6s]
+
+[!] Android toolchain - develop for Android devices (Android SDK version 36.1.0) [932ms]
+    • Android SDK at C:\Users\ahelmy\AppData\Local\Android\sdk
+    • Emulator version 36.2.12.0 (build_id 14214601) (CL:N/A)
+    • Platform android-36, build-tools 36.1.0
+    • Java binary at: C:\Program Files\Common Files\Oracle\Java\javapath\java.exe
+      This JDK was found in the system PATH.
+      To manually set the JDK path, use: `flutter config --jdk-dir="path/to/jdk"`.
+    • Java version Java(TM) SE Runtime Environment (build 25+37-LTS-3491)
+    X Android license status unknown.
+      Run `flutter doctor --android-licenses` to accept the SDK licenses.
+      See https://flutter.dev/to/windows-android-setup for more details.
+
+[√] Chrome - develop for the web [158ms]
+    • Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[√] Visual Studio - develop Windows apps (Visual Studio Community 2026 18.3.0) [157ms]
+    • Visual Studio at C:\Program Files\Microsoft Visual Studio\18\Community
+    • Visual Studio Community 2026 version 18.3.11505.172
+    • Windows 10 SDK version 10.0.26100.0
+
+[!] Android Studio (not installed) [6ms]
+    • Android Studio not found; download from https://developer.android.com/studio/index.html
+      (or visit https://flutter.dev/to/windows-android-setup for detailed instructions).
+
+[√] VS Code (version unknown) [6ms]
+    • VS Code at C:\Users\ahelmy\AppData\Local\Programs\Microsoft VS Code
+    • Flutter extension version 3.128.0
+    X Unable to determine VS Code version.
+
+[√] Connected device (4 available) [737ms]
+    • 23129RAA4G (mobile) • 879cddb3 • android-arm64  • Android 15 (API 35)
+    • Windows (desktop)   • windows  • windows-x64    • Microsoft Windows [Version 10.0.26200.7840]
+    • Chrome (web)        • chrome   • web-javascript • Google Chrome 145.0.7632.111
+    • Edge (web)          • edge     • web-javascript • Microsoft Edge 145.0.3800.65
+
+[√] Network resources [1,032ms]
+    • All expected network resources are available.
+
+! Doctor found issues in 3 categories.
